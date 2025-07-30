@@ -1,0 +1,7 @@
+@TESTE__UNIARIO_HostAddress = http://localhost:5233
+
+GET {{TESTE__UNIARIO_HostAddress}}/weatherforecast/
+Accept: application/json
+
+
+###
