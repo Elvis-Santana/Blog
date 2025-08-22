@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.ObjectValues;
 using Infrastructure.Maps;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -27,46 +28,45 @@ public class DbContextLite :DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+       
+        modelBuilder.Entity<Author>().OwnsOne(a => a.Name, name =>
+        {
+            name.Property(n => n.FirstName).HasColumnName("FirstName").HasMaxLength(100);
+            name.Property(n => n.LastName).HasColumnName("LastName").HasMaxLength(100).IsRequired(false);
+        });
 
-        modelBuilder.ApplyConfiguration(new AuthorMap());
-        
-      
-        // Relação Author - Post
-     
+        modelBuilder.Entity<Author>(builder =>
+        {
+            builder.HasKey(x => x.Id);
 
+            builder.Property(x => x.Id)
+                .ValueGeneratedNever();
 
+            builder.HasMany(a => a.Post)
+                .WithOne(c => c.Author)
+                .HasForeignKey(c => c.AuthorId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Cascade);
 
-        // Relação Post - Category
+        });
+
         modelBuilder.Entity<Post>(post =>
         {
             post.HasOne(p => p.Category)
-             .WithMany() //Indica que uma Category pode estar associada a muitos Posts.
-             .HasForeignKey(p => p.CategoryId)
-             .IsRequired(false)
-             .OnDelete(DeleteBehavior.Restrict);
-
-        
+                .WithMany()
+                .HasForeignKey(p => p.CategoryId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
         });
-
-
 
         modelBuilder.Entity<Category>(post =>
         {
             post.HasOne(p => p.Author)
-             .WithMany() 
-             .HasForeignKey(p => p.AuthorId)
-             .OnDelete(DeleteBehavior.Cascade);
-
-
+                .WithMany()
+                .HasForeignKey(p => p.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
-
-       
-
-
-
-
-
-
+   
         base.OnModelCreating(modelBuilder);
     }
 }
