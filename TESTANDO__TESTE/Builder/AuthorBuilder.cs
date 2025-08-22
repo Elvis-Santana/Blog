@@ -13,7 +13,7 @@ internal  class AuthorBuilder
 {
     private   readonly Faker _faker = new("pt_BR");
 
-    public Guid expectedId { get; set; }
+    public string expectedId { get; set; }
     public  FullName expectedName { get; set; }
     public  List<Post> expectedPosts { get; set; }
 
@@ -26,13 +26,13 @@ internal  class AuthorBuilder
 
     public  Author AuthorEntityBulder(FullName ?FullName =null)
     {
-         expectedId = Guid.NewGuid();
+         expectedId = Guid.NewGuid().ToString();
          expectedName = FullName?? new FullName(this._faker.Person.FullName, this._faker.Person.LastName);
 
 
         this.expectedPosts = new List<Post>
         {
-            new Post("s","4",new DateTime(),Guid.NewGuid(),Guid.NewGuid())
+            new Post("s","4",new DateTime(),Guid.NewGuid().ToString(),Guid.NewGuid().ToString())
         };
 
         return  new(expectedId, expectedName, expectedPosts);
@@ -40,7 +40,7 @@ internal  class AuthorBuilder
 
     public Author AuthorEntityBulderPostNULL(FullName? FullName= null)
     {
-        this.expectedId = Guid.NewGuid();
+        this.expectedId = Guid.NewGuid().ToString();
         expectedName = FullName ?? new FullName(this._faker.Person.FullName, this._faker.Person.LastName);
         this.expectedPosts = new List<Post>();
 

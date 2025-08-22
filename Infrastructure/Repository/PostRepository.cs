@@ -21,6 +21,24 @@ public class PostRepository (DbContextLite dbContext) : IPostRepository
         return await _dbContext.SaveChangesAsync() >0;
     }
 
-    public async Task<List<Post>> GetAllPosts()=> await _dbContext.Posts.ToListAsync();
-    
+    public Task<Post> DeleteById(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<List<Post>> GetAllPosts()=> await _dbContext.Posts
+        .Include(c =>c.Category)
+        .Include(x => x.Author)
+        
+        .ToListAsync();
+
+    public Task<Post> GetById(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Post> Update(Post category, string id)
+    {
+        throw new NotImplementedException();
+    }
 }

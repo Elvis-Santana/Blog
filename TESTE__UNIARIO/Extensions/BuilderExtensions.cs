@@ -2,6 +2,7 @@
 using Application.IServices;
 using Application.Services.AuthorService;
 using Application.Services.CategoryService;
+using Application.Services.PostService;
 using Domain.IRepository.IAuthorRepository;
 using Domain.IRepository.ICategoryRepository;
 using Domain.IRepository.IPostRepository;
@@ -16,15 +17,16 @@ public static class BuilderExtensions
 {
     public static IServiceCollection AddServices(this IServiceCollection services,IConfiguration builder)
     {
-        services.AddDbContext<DbContextLite>(options => options.UseSqlite(builder.GetConnectionString("DefaultConnection")));
+         services.AddDbContext<DbContextLite>(options => options.UseSqlite(builder.GetConnectionString("DefaultConnection")));
 
 
         services.AddScoped<IAuthorRepository, AuthorRepository>();
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<ICategoryService, CategoryService>();
 
+        services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IServiceAuthor, AuthorService>();
+        services.AddScoped<IPostService, PostService>();
 
 
         services.AddSwaggerGen(options =>

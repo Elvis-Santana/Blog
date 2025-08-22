@@ -19,8 +19,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Author", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -30,11 +29,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("IdAuthor")
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -43,21 +42,20 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdAuthor");
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("Category");
                 });
 
             modelBuilder.Entity("Domain.Entities.Post", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("AuthorId")
+                    b.Property<string>("AuthorId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<string>("CategoryId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Date")
@@ -84,7 +82,7 @@ namespace Infrastructure.Migrations
                 {
                     b.OwnsOne("Domain.ObjectValues.FullName", "Name", b1 =>
                         {
-                            b1.Property<Guid>("AuthorId")
+                            b1.Property<string>("AuthorId")
                                 .HasColumnType("TEXT");
 
                             b1.Property<string>("FirstName")
@@ -112,7 +110,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Author", "Author")
                         .WithMany()
-                        .HasForeignKey("IdAuthor")
+                        .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -124,14 +122,12 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Author", "Author")
                         .WithMany("Post")
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Domain.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Author");
 

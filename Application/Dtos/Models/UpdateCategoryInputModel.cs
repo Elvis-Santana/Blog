@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
 namespace Application.Dtos.Models;
 
-public record CategoryViewModel(string Id, string AuthorId   , string Name);
+public record UpdateCategoryInputModel(string Name);
 
 

@@ -10,14 +10,11 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository;
 
-public class AuthorRepository : IAuthorRepository
+public class AuthorRepository(DbContextLite context) : IAuthorRepository
 {
-    private readonly DbContextLite _context;
+    private readonly DbContextLite _context =context;
 
-    public AuthorRepository(DbContextLite context)
-    {
-        _context = context;
-    }
+   
 
     public async Task<bool> Create(Author author)
     {
@@ -25,17 +22,44 @@ public class AuthorRepository : IAuthorRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> Delete(Guid id)
+    public async Task<bool> DeleteById(string id)
     {
-        await   this._context.Authors.Where(x => x.Id.Equals(id)).ExecuteDeleteAsync();
-        return await _context.SaveChangesAsync() > 0;
+
+        var author =  await this.GetById(id);
+
+        this._context.Authors.Remove(author);
+
+          return  await _context.SaveChangesAsync() >0;
+    }
+
+    public async Task<List<Author>> GetAllAsync() => await _context.Authors
+       .Include(x => x.Post)
+       .ThenInclude(p => p.Category)
+       .ToListAsync();
+
+    public async Task<Author> GetById(string id)
+    {
+        return (await this._context.Authors
+            .Include(x => x.Post)
+            .ThenInclude(p => p.Category)
+            .FirstOrDefaultAsync(x => x.Id.Equals(id)))!;
+
 
     }
 
-    public async Task<List<Author>> GetAllAsync() => await _context.Authors.ToListAsync();
-
-    public Task<Author> GetById(Guid id)
+    public async Task<Author> Update(Author author, string id)
     {
-        throw new NotImplementedException();
+        var authorToUpdate = await this.GetById(id);
+
+        authorToUpdate.Name.FirstName = author.Name.FirstName;
+        authorToUpdate.Name.LastName = author.Name.LastName;
+
+
+        await _context.SaveChangesAsync();
+
+
+        return authorToUpdate;
+
+
     }
 }

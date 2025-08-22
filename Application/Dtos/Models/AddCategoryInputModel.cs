@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record AddCategoryInputModel(Guid IdAuthor,string Name);
+public record AddCategoryInputModel(string AuthorId,string Name);
 
 

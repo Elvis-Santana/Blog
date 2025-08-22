@@ -1,5 +1,7 @@
 ﻿using Application.Dtos.Models;
 using Application.IServices;
+using Application.Services.CategoryService;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TESTE__UNIARIO.Endpoints;
 
@@ -8,9 +10,16 @@ public static class CategoryEndpoints
     public static WebApplication RouterCategoryEndpoints(this WebApplication app)
     {
 
-        var author = app.MapGroup("/Category");
+        var categorys = app.MapGroup("/Categorys");
 
-        author.MapPost("", async (AddCategoryInputModel addCategoryInputModel,ICategoryService _categoryService ) =>
+        categorys.WithTags("Categorys");
+
+        categorys.MapGet("", async (ICategoryService _categoryService) =>
+        {
+            return Results.Ok((await _categoryService.GetAsync()).AsT0);
+        });
+
+        categorys.MapPost("", async (AddCategoryInputModel addCategoryInputModel,ICategoryService _categoryService ) =>
         {
            var result =  await _categoryService.Create(addCategoryInputModel);
             return result.Match<IResult>(
@@ -19,12 +28,31 @@ public static class CategoryEndpoints
             );
         });
 
-        author.MapGet("", async (ICategoryService _categoryService) =>
+
+        categorys.MapGet("/:id", async (string id,ICategoryService _categoryService) =>
         {
-            return (await _categoryService.GetAsync()).AsT0;
+            return Results.Ok((await _categoryService.GetById(id)).AsT0);
+        });
+        categorys.MapDelete("/:id", async (string id,ICategoryService _categoryService) =>
+        {
+            return Results.Ok((await _categoryService.DeleteById(id)).AsT0);
+        });
+
+        categorys.MapPatch("/:id", async (UpdateCategoryInputModel updateCategoryInputModel,string id, ICategoryService _categoryService) =>
+        {
+            var result = await _categoryService.Update(updateCategoryInputModel,id);
+
+            return result.Match<IResult>(
+                 (res) => Results.Ok(res),
+                 (err) => Results.NotFound(err)
+             );
         });
 
 
+       
+
         return app;
     }
+
+
 }

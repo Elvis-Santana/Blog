@@ -11,7 +11,12 @@ public interface ICategoryRepository
 {
     Task<bool> Create(Category category);
 
-
     Task<List<Category>> GetAsync();
+
+    Task<bool> DeleteById(string id);
+
+    Task<Category> GetById(string id);
+
+    Task<Category> Update(Category category, string id);
 
 }

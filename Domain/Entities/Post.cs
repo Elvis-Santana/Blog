@@ -9,41 +9,45 @@ namespace Domain.Entities;
 
 public class Post
 {
-    public Guid Id { get; private set; }
+    public string Id { get; init; }
 
-    public string Title { get; private set; }
+    public string Title { get; init; }
 
-    public string Text { get; private set; }
+    public string Text { get; init; }
 
     public DateTime Date { get; private set; }
 
-    public Guid CategoryId { get; private set; }
-    public Category Category { get; private set; }
+    public string? CategoryId { get; private set; } 
 
-    public Guid AuthorId { get; private set; }
+    public Category? Category { get; private set; }
 
-    [JsonIgnore]
-    public Author Author { get; private set; }
+    public string AuthorId { get; init; }
+    public Author Author { get; init; }
 
 
-    public Post()
+    private Post()
     {
-        this.Id = Guid.NewGuid();   
+        this.Id = Guid.NewGuid().ToString();   
     }
 
-    public Post(string title, string text, DateTime date,  Guid categoryId,  Guid authorId)
+    public Post(string title, string text, DateTime date,  string? categoryId,  string authorId)
     {
-        this.Id = Guid.NewGuid();
+        this.Id = Guid.NewGuid().ToString();
         this.Title = title;
         this.Text = text;
         this.Date = date;
-        this.CategoryId = categoryId;
         this.AuthorId = authorId;
+
+        this.CategoryId = categoryId!.Equals(string.Empty)? null: categoryId;
+
+       
+        
     }
 
+   
     public Post(string title, string text, DateTime date, Category category, Author author)
     {
-        this.Id = Guid.NewGuid();
+        this.Id = Guid.NewGuid().ToString();
         this.Title = title;
         this.Text = text;
         this.Date = date;
@@ -52,6 +56,10 @@ public class Post
         this.Category = category;
         this.Author = author;
 
+       
     }
+
+
+
 
 }

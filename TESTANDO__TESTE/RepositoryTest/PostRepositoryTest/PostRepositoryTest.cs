@@ -1,4 +1,6 @@
-﻿using Domain.Entities;
+﻿using Application.Dtos.Models;
+using Bogus;
+using Domain.Entities;
 using Domain.ObjectValues;
 using FluentAssertions;
 using Infrastructure.Db;
@@ -19,17 +21,18 @@ public class PostRepositoryTest
     private readonly PostBuilder _postBuilder;
     private readonly AuthorBuilder _authorBuilder;
     private readonly CategoryBuider _categoryBuider;
+    private readonly Faker _faker = new("pt_BR");
 
 
-   public PostRepositoryTest()
-   {
-        this._Dbcontext = new DbContextOptionsBuilder<DbContextLite>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+    public PostRepositoryTest()
+    {
+            this._Dbcontext = new DbContextOptionsBuilder<DbContextLite>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this._postBuilder = new PostBuilder();
-        this._authorBuilder = new AuthorBuilder();
-        this._categoryBuider = new CategoryBuider();
-   }
+            this._postBuilder = new PostBuilder();
+            this._authorBuilder = new AuthorBuilder();
+            this._categoryBuider = new CategoryBuider();
+    }
 
 
     [Fact]
@@ -60,6 +63,56 @@ public class PostRepositoryTest
         post.AuthorId.Should().Be(author.Id);
         post.CategoryId.Should().Be(category.Id);
         result.Should().BeTrue();
+
+    }  
+    
+    [Fact]
+    public async Task CreatePost_ValidsParmasCategoryNULL_ShouldRetrunTrue()
+    {
+
+        //arragen
+       using var context = new DbContextLite(this._Dbcontext);
+
+
+        string expectedTitle = this._faker.Phone.ToString()!;
+        string expectedText = this._faker.Lorem.Paragraph(3);
+        DateTime expectedDate = this._faker.Date.Recent(30);
+        string expectedAuthouId = Guid.NewGuid().ToString();
+
+        var Post = new Post
+        (
+           expectedTitle,
+           expectedText,
+           expectedDate,
+           string.Empty,
+           expectedAuthouId
+        );
+
+        var author = new Author(expectedAuthouId, new FullName(this._faker.Person.FirstName,""));
+
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+
+
+        PostRepository postRepository = new (context);
+        //act
+
+        var result = await postRepository.Create(Post);
+        var resultEntity = await context.Posts.Include(x =>x.Author).ToListAsync();
+
+
+
+        //assert
+        result.Should().BeTrue();
+        resultEntity[0].Should().NotBeNull();
+        resultEntity[0].AuthorId.Should().Be(author.Id);
+        resultEntity[0].Author.Should().NotBeNull();
+        resultEntity[0].Category.Should().BeNull();
+        resultEntity[0].CategoryId.Should().BeNull();
+
+
+
+
 
     }
 
@@ -95,11 +148,20 @@ public class PostRepositoryTest
         //assert
 
         result.Should().NotBeEmpty();
+      
         result.ForEach(e =>
         {
+            e.Text.Should().Be(post.Text);
+            e.Title.Should().Be(post.Title);
+            e.Date.Should().Be(post.Date);
+
             e.Author.Should().Be(author);
             e.Category.Should().Be(category);
         });
 
     }
+
+    
+
+
 }

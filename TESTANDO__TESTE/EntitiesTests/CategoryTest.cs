@@ -36,7 +36,7 @@ public class CategoryTest
         //assert
 
         category.Id.Should().Be(buider.expectedId);
-        category.IdAuthor.Should().Be(buider.expectedIdAuthor);
+        category.AuthorId.Should().Be(buider.expectedIdAuthor);
         category.Name.Should().Be(buider.expectedName);
     }
     [Fact]
@@ -44,13 +44,13 @@ public class CategoryTest
     {
         //arrange
 
-        Guid expecredIdAuthor = Guid.NewGuid();
+        string expecredIdAuthor = Guid.NewGuid().ToString();
 
         //act
         Category category = buider.CategoryEntityBuilder(expecredIdAuthor);
         //assert
 
-        category.IdAuthor.Should().Be(buider.expectedIdAuthor);
+        category.AuthorId.Should().Be(buider.expectedIdAuthor);
         category.Name.Should().Be(buider.expectedName);
         category.Id.Should().NotBeEmpty();
 
@@ -61,7 +61,7 @@ public class CategoryTest
     {
         //arrange
         string expecredName = this._faker.Person.FirstName;
-        Guid expecredIdAuthor = Guid.NewGuid();
+        string expecredIdAuthor = Guid.NewGuid().ToString();
 
         //act
         AddCategoryInputModel input = new(expecredIdAuthor, expecredName);
@@ -74,8 +74,8 @@ public class CategoryTest
         //assert
 
 
-        category.Id.Should().NotBe(Guid.Empty); 
-        category.IdAuthor.Should().Be(expecredIdAuthor);
+        category.Id.Should().NotBe(string.Empty); 
+        category.AuthorId.Should().Be(expecredIdAuthor);
         category.Name.Should().Be(expecredName);
 
     }
@@ -84,14 +84,14 @@ public class CategoryTest
     public void Contructor_DataValid_shouldCategoryViewModel()
     {
         //arrange
-        Guid expecredIdAuthor = Guid.NewGuid();
+        string expecredIdAuthor = Guid.NewGuid().ToString();
 
         //act
         Category category = buider.CategoryEntityBuilder(expecredIdAuthor);
         CategoryViewModel categoryViewModel = category.Adapt<CategoryViewModel>();
 
         //assert
-        categoryViewModel.IdAuthor.Should().Be(expecredIdAuthor);
+        categoryViewModel.AuthorId.Should().Be(expecredIdAuthor);
         categoryViewModel.Name.Should().Be(buider.expectedName);
         categoryViewModel.Id.Should().NotBeEmpty();
     }

@@ -1,4 +1,4 @@
-﻿using Application.Dtos.AuthorViewModel;
+﻿
 using Application.Validators.AuthorValidator;
 using Bogus;
 using Castle.Core.Resource;
@@ -16,6 +16,7 @@ using FluentValidation.TestHelper;
 using Domain.Erros.AppErro;
 using Xunit.Abstractions;
 using Domain.Erros;
+using Application.Dtos.Models;
 
 namespace TESTANDO__TESTE.validatorTests.AuthorValidatorTest;
 

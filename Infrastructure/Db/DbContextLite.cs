@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Infrastructure.Maps;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -26,29 +27,45 @@ public class DbContextLite :DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Author>().OwnsOne(a => a.Name, name =>
-        {
-            name.Property(n => n.FirstName).HasColumnName("FirstName");
-            name.Property(n => n.LastName).HasColumnName("LastName");
-        });
 
+        modelBuilder.ApplyConfiguration(new AuthorMap());
+        
+      
         // Relação Author - Post
-        modelBuilder.Entity<Author>()
-            .HasMany(a => a.Post)
-            .WithOne(c => c.Author)
-            .HasForeignKey(c => c.AuthorId)
-            .OnDelete(DeleteBehavior.Cascade);
+     
 
 
 
         // Relação Post - Category
-        modelBuilder.Entity<Post>()
-            .HasOne(p => p.Category)
-            .WithMany()
-            .HasForeignKey(p => p.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict); 
+        modelBuilder.Entity<Post>(post =>
+        {
+            post.HasOne(p => p.Category)
+             .WithMany() //Indica que uma Category pode estar associada a muitos Posts.
+             .HasForeignKey(p => p.CategoryId)
+             .IsRequired(false)
+             .OnDelete(DeleteBehavior.Restrict);
 
-      
+        
+        });
+
+
+
+        modelBuilder.Entity<Category>(post =>
+        {
+            post.HasOne(p => p.Author)
+             .WithMany() 
+             .HasForeignKey(p => p.AuthorId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+
+        });
+
+       
+
+
+
+
+
 
         base.OnModelCreating(modelBuilder);
     }

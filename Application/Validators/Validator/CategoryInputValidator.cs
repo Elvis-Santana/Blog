@@ -4,9 +4,9 @@ using FluentValidation.Results;
 
 namespace Application.Validators.AuthorValidator;
 
-public class CategoryValidator: AbstractValidator<AddCategoryInputModel>
+public class CategoryInputValidator: AbstractValidator<AddCategoryInputModel>
 {
-    public CategoryValidator()
+    public CategoryInputValidator()
     {
         RuleFor(x => x.Name)
             .MaximumLength(50)
@@ -14,7 +14,7 @@ public class CategoryValidator: AbstractValidator<AddCategoryInputModel>
             .NotEmpty()
             .WithMessage(CategoryMsg.CategoryErroNameNotEmpty);
 
-        RuleFor(x => x.IdAuthor)
+        RuleFor(x => x.AuthorId)
             .NotNull()
             .WithMessage(CategoryMsg.CategoryErroIdAuthorNotNull)
             .NotEmpty()

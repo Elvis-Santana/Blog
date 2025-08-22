@@ -29,10 +29,10 @@ public class PostValidator :AbstractValidator<AddPostInputModel>
             RuleFor(x => x.authorId)
             .NotEmpty().WithMessage(PostMsg.postErroAuthorIdNotEmpty);
 
-            RuleFor(x => x.categoryId)
-            .NotEmpty().WithMessage(PostMsg.postErroCategoryIdNotEmpty);
+            //RuleFor(x => x.categoryId)
+            //.NotEmpty().WithMessage(PostMsg.postErroCategoryIdNotEmpty);
 
-            RuleFor(x => x.Date)
+            RuleFor(x => x.date)
             .NotNull().WithMessage(PostMsg.postErroDataNotNull);
 
             

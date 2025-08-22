@@ -11,9 +11,11 @@ public interface IAuthorRepository
 {
     Task<List<Author>> GetAllAsync();
 
-    Task<Author> GetById(Guid id);
+    Task<Author> GetById(string id);
 
     Task<bool> Create(Author author);
 
-    Task<bool> Delete(Guid id);
+    Task<Author> Update(Author author, string id);
+
+    Task<bool> DeleteById(string id);
 }

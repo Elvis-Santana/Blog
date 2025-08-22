@@ -1,5 +1,4 @@
-﻿using Application.Dtos.AuthorViewModel;
-using Application.Dtos.Models;
+﻿using Application.Dtos.Models;
 using Domain.Entities;
 using Domain.ObjectValues;
 using Mapster;
@@ -27,11 +26,13 @@ public static class MappingConfigurations
          .ConstructUsing(dest => new (dest.Name));
 
         TypeAdapterConfig<AddCategoryInputModel, Category>.NewConfig()
-            .ConstructUsing(src => new Category(src.IdAuthor, src.Name));
+            .ConstructUsing(src => new Category(src.AuthorId, src.Name));
 
 
         TypeAdapterConfig<Category, CategoryViewModel>.NewConfig()
-            .ConstructUsing(dest => new CategoryViewModel(dest.Id, dest.IdAuthor,  dest.Name));
+            .ConstructUsing(dest => new CategoryViewModel(dest.Id, dest.AuthorId,  dest.Name));
+
+       
 
         TypeAdapterConfig<Post, PostViewModel>.NewConfig()
             .ConstructUsing(
@@ -43,11 +44,16 @@ public static class MappingConfigurations
                     dest.Date,
                     dest.CategoryId,
                     dest.Category.Adapt<CategoryViewModel>(),
-                    dest.AuthorId,
-                    dest.Author.Adapt<AuthorViewModel>()
+                    dest.AuthorId
+                    
                  )
             );
-
+        TypeAdapterConfig<AddPostInputModel, Post>.NewConfig()
+                 .ConstructUsing(src =>
+                     new(src.title, src.text, src.date, src.categoryId??null, src.authorId)
+                 );
+        TypeAdapterConfig<UpdateCategoryInputModel, Category>.NewConfig()
+              .Map(dest => dest.Name, src => src.Name);
 
 
 

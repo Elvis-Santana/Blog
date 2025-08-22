@@ -11,25 +11,25 @@ namespace Domain.Entities;
 public class Author
 {
   
-    public Guid Id { get; private set; }
+    public string Id { get; init; }
 
-    public FullName Name { get; private set; } 
+    public FullName Name { get; init; } 
 
-    public List<Post> Post { get; private set; }
+    public List<Post> Post { get; init; }
 
-    public Author()
+    private Author()
     {
-        Id = Guid.NewGuid();
+        Id = Guid.NewGuid().ToString();
     }
 
-    public Author(Guid id, FullName name, List<Post> post)
+    public Author(string id, FullName name, List<Post> post)
     {
         Id = id;
         Name = name;
         Post = post;
     }
 
-    public Author(Guid id, FullName name)
+    public Author(string id, FullName name)
     {
         Id = id;
         Name = name;
@@ -38,7 +38,7 @@ public class Author
  
     public Author( FullName name)
     {
-        Id = Guid.NewGuid();
+        Id = Guid.NewGuid().ToString();
         Name = name;
     }
 

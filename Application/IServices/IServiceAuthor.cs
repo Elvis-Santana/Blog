@@ -1,5 +1,4 @@
-﻿using Application.Dtos.AuthorViewModel;
-using Application.Dtos.Models;
+﻿using Application.Dtos.Models;
 using Domain.Entities;
 using Domain.Erros;
 using OneOf;
@@ -15,5 +14,13 @@ public interface IServiceAuthor
 {
     Task<OneOf<bool,Errors>> CreateAuthor(AddAuthorInputModel author);
     Task<List<AuthorViewModel>> GetAuthor();
+
+
+    Task<OneOf<AuthorViewModel, Errors>> GetById(string id);
+
+    Task<OneOf<AuthorViewModel, Errors>> Update(AddAuthorInputModel author, string id);
+
+    Task<OneOf<bool, Errors>> DeleteById(string id);
+
 
 }

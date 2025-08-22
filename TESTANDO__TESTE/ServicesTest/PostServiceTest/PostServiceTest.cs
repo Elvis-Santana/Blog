@@ -1,6 +1,7 @@
 ﻿using Application.Dtos.Models;
 using Application.IServices;
 using Application.Services.PostService;
+using Application.Validators.Validator;
 using Bogus;
 using Domain.Entities;
 using Domain.IRepository.IPostRepository;
@@ -49,7 +50,7 @@ public class PostServiceTest
         List<PostViewModel> expectedCollection = list.Adapt<List<PostViewModel>>();
 
         this._mackServiceAuthor.GetAllPosts().Returns(Task.FromResult(list));
-        PostService serviceAuthor = new(this._mackServiceAuthor);
+        PostService serviceAuthor = new(this._mackServiceAuthor,new PostValidator());
 
 
         //act
@@ -66,6 +67,49 @@ public class PostServiceTest
         
 
     }
+       [Fact]
+    public async Task GetAllPosts__CategoryNULL__ShouldRetrunListPostModelView()
+    {
+        //arrange
+        Author author = new Author(new FullName(_faker.Person.FirstName, ""));
+
+        Post post = new (
+            _faker.Person.FirstName,
+            _faker.Person.FirstName,
+            new DateTime(),
+            string.Empty,
+            author.Id
+        );
+
+        var list = new List<Post>(){ post };
+        List<PostViewModel> expectedCollection = list.Adapt<List<PostViewModel>>();
+
+        this._mackServiceAuthor.GetAllPosts().Returns(Task.FromResult(list));
+        PostService serviceAuthor = new(this._mackServiceAuthor,new PostValidator());
+
+
+        //act
+         
+        var result = await serviceAuthor.GetAll();
+        //assert
+
+        result.Should().NotBeNull();
+        result[0].AuthorId.Should().Be(author.Id);
+        result[0].CategoryId.Should().BeNull();
+        result[0].Category.Should().BeNull();
+        result.Should().BeAssignableTo<List<PostViewModel>>();
+
+        for (int i = 0; i < result.Count; i++)
+            result[i].Should().BeEquivalentTo(expectedCollection[i]);
+
+        
+
+    }
+
+
+
+
+
 
 
     [Fact]
@@ -76,11 +120,11 @@ public class PostServiceTest
             this._faker.Person.FirstName,
             _faker.Lorem.Paragraph(30),
             new DateTime(),
-            Guid.NewGuid(),
-            Guid.NewGuid()
+            Guid.NewGuid().ToString(),
+            Guid.NewGuid().ToString()
         );
 
-        PostService postService = new(this._mackServiceAuthor);
+        PostService postService = new(this._mackServiceAuthor, new PostValidator());
 
         //act
         var result = await postService.Create(addPostInputModel);
@@ -91,19 +135,19 @@ public class PostServiceTest
         result.IsT0.Should().BeTrue();
         result.IsT1.Should().BeFalse();
     }
-    [Fact]
-    public async Task Create__ShouldErrors()
+     [Fact]
+    public async Task Create__CategoryNULL_ShouldRetrunTrue()
     {
         //arrange
         var addPostInputModel = new AddPostInputModel( 
             this._faker.Person.FirstName,
             _faker.Lorem.Paragraph(30),
             new DateTime(),
-            Guid.NewGuid(),
-            Guid.NewGuid()
+            string.Empty,
+            Guid.NewGuid().ToString()
         );
 
-        PostService postService = new(this._mackServiceAuthor);
+        PostService postService = new(this._mackServiceAuthor, new PostValidator());
 
         //act
         var result = await postService.Create(addPostInputModel);
@@ -113,6 +157,38 @@ public class PostServiceTest
 
         result.IsT0.Should().BeTrue();
         result.IsT1.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Create__ShouldReturnErrors()
+    {
+        //arrange
+        var addPostInputModel = new AddPostInputModel( 
+            this._faker.Person.FirstName,
+            _faker.Lorem.Paragraph(2001),
+            new DateTime(),
+            Guid.NewGuid().ToString(),
+            Guid.NewGuid().ToString()
+        );
+
+        PostService postService = new(this._mackServiceAuthor, new PostValidator());
+
+        //act
+        var result = await postService.Create(addPostInputModel);
+
+
+        //assert
+
+        result.Switch(
+            (s) =>
+            {
+                s.Should().BeFalse();
+            },
+            (e) =>
+            {
+              e.errors.Should().NotBeEmpty();
+            }
+        );
     }
 
 

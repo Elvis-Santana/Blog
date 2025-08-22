@@ -1,5 +1,4 @@
-﻿using Application.Dtos.AuthorViewModel;
-using Application.Dtos.Models;
+﻿using Application.Dtos.Models;
 using Application.IServices;
 
 namespace TESTE__UNIARIO.Endpoints;
@@ -8,16 +7,25 @@ public static class PostEndpoints
 {
     public static WebApplication RouterPostEndpoints(this WebApplication app)
     {
-        var author = app.MapGroup("/post");
+        var posts = app.MapGroup("/posts");
+        posts.WithTags("posts");
 
-        author.MapPost("/", async (AddPostInputModel post, IServiceAuthor createAuthorUseCase) =>
+
+        posts.MapPost("/", async (AddPostInputModel post, IPostService postService) =>
         {
-            //return Results.Ok(await createAuthorUseCase.CreateAuthor(author));
+            return (await postService.Create(post)).Match<IResult>(
+                (s) => Results.Ok(s),
+
+                (erros) => Results.BadRequest(erros)
+                );
+                
         });
 
-        author.MapGet("/", async (IServiceAuthor getAuthorUserCase) =>
+        posts.MapGet("/", async (IPostService postService) =>
         {
-            //return Results.Ok(await getAuthorUserCase.GetAuthor());
+            var result = (await postService.GetAll());
+
+            return result;
         });
 
 

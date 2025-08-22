@@ -1,5 +1,4 @@
-﻿using Application.Dtos.AuthorViewModel;
-using Application.Dtos.Models;
+﻿using Application.Dtos.Models;
 using Application.IServices;
 using Application.Validators.AuthorValidator;
 using Domain.Entities;
@@ -40,10 +39,34 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<AddAut
         return await _authorRepository.Create(author.Adapt<Author>());
     }
 
+    public async Task<OneOf<bool, Errors>> DeleteById(string id)
+    {
+        return await _authorRepository.DeleteById(id);
+    }
+
     public async Task<List<AuthorViewModel>> GetAuthor()
     {
         List<Author> authors = await this._authorRepository.GetAllAsync();
 
+
         return authors.Adapt<List<AuthorViewModel>>();
+    }
+
+    public async Task<OneOf<AuthorViewModel, Errors>> GetById(string id)
+    {
+
+
+        Author result = await this._authorRepository.GetById(id);
+
+        return result.Adapt<AuthorViewModel>();
+    }
+
+    public async Task<OneOf<AuthorViewModel, Errors>> Update(AddAuthorInputModel author, string id)
+    {
+        
+       Author result = await this._authorRepository.Update(author.Adapt<Author>(),id);
+
+        return result.Adapt<AuthorViewModel>();
+
     }
 }

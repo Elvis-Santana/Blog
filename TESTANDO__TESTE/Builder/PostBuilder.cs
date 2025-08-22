@@ -13,7 +13,7 @@ internal class PostBuilder
 {
     private readonly Faker _faker = new("pt_BR");
 
-    public Guid expectedId { get; set; }
+    public string expectedId { get; set; }
     public string expectedTitle { get; set; }
     public string expectedText { get; set; }
     public DateTime expectedDate { get; set; }
@@ -38,7 +38,7 @@ internal class PostBuilder
 
     }
 
-    public Post PostEntityBuilder(Guid categoryId, Guid authorId)
+    public Post PostEntityBuilder(string categoryId, string authorId)
     {
 
         this.expectedTitle = this._faker.Phone.Locale;

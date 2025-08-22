@@ -11,28 +11,28 @@ namespace TESTANDO__TESTE.Builder;
 internal class CategoryBuider
 {
     private readonly Faker _faker = new("pt_BR");
-    public Guid expectedId { get; set; }
-    public Guid expectedIdAuthor { get; set; }
+    public string expectedId { get; set; }
+    public string expectedIdAuthor { get; set; }
 
     public string expectedName { get; set; }
 
 
 
     public Category CategoryEntityBuilder(
-        Guid? expectedId = null, Guid? expectedIdAuthor = null, string? expectedName=null )
+        string? expectedId = null, string? expectedIdAuthor = null, string? expectedName=null )
     {
 
        
 
-        this.expectedId = expectedId ?? Guid.NewGuid();
-        this.expectedIdAuthor = expectedIdAuthor??Guid.NewGuid();
+        this.expectedId = expectedId ?? Guid.NewGuid().ToString();
+        this.expectedIdAuthor = expectedIdAuthor??Guid.NewGuid().ToString();
         this.expectedName = expectedName??  _faker.Music.Locale;
 
     
         return new Category(this.expectedId, this.expectedIdAuthor, this.expectedName);
 
     }
-    public Category CategoryEntityBuilder(Guid expectedIdAuthor)
+    public Category CategoryEntityBuilder(string expectedIdAuthor)
     {
 
         this.expectedIdAuthor = expectedIdAuthor;

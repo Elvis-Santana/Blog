@@ -4,10 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record PostViewModel(Guid Id,string Title,string Text,DateTime Date,Guid CategoryId,CategoryViewModel Category,Guid AuthorId , AuthorViewModel Author);
+public  record PostViewModel(string Id,string Title,string Text,DateTime Date,string CategoryId,  CategoryViewModel Category,string AuthorId);
 
 

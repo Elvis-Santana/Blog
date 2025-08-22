@@ -16,4 +16,11 @@ public interface ICategoryService
 
 
     Task<OneOf<List<CategoryViewModel>, Errors>> GetAsync();
+
+    Task<OneOf<CategoryViewModel, Errors>> GetById(string id);
+    Task<OneOf<CategoryViewModel, Errors>> Update(UpdateCategoryInputModel category,string id);
+
+    Task<OneOf<bool, Errors>> DeleteById(string id);
+
+
 }
