@@ -60,9 +60,14 @@ public class PostRepositoryTest
 
 
         //assert
-        post.AuthorId.Should().Be(author.Id);
-        post.CategoryId.Should().Be(category.Id);
-        result.Should().BeTrue();
+        
+
+        result.AuthorId.Should().Be(author.Id);
+        result.Category.Should().Be(category);
+        result.Title.Should().Be(this._postBuilder.expectedTitle);
+        result.Text.Should().Be(this._postBuilder.expectedText);
+        result.Date.Should().Be(this._postBuilder.expectedDate);
+        result.Id.Should().Be(this._postBuilder.expectedId);
 
     }  
     
@@ -79,7 +84,7 @@ public class PostRepositoryTest
         DateTime expectedDate = this._faker.Date.Recent(30);
         string expectedAuthouId = Guid.NewGuid().ToString();
 
-        var Post = new Post
+        var expectedPost = Post.Factory.CreatePost
         (
            expectedTitle,
            expectedText,
@@ -97,18 +102,18 @@ public class PostRepositoryTest
         PostRepository postRepository = new (context);
         //act
 
-        var result = await postRepository.Create(Post);
-        var resultEntity = await context.Posts.Include(x =>x.Author).ToListAsync();
+        var result = await postRepository.Create(expectedPost);
 
 
 
         //assert
-        result.Should().BeTrue();
-        resultEntity[0].Should().NotBeNull();
-        resultEntity[0].AuthorId.Should().Be(author.Id);
-        resultEntity[0].Author.Should().NotBeNull();
-        resultEntity[0].Category.Should().BeNull();
-        resultEntity[0].CategoryId.Should().BeNull();
+        result.AuthorId.Should().Be(author.Id);
+        result.Category.Should().BeNull();
+        result.Title.Should().Be(expectedTitle);
+        result.Text.Should().Be(expectedText);
+        result.Date.Should().Be(expectedDate);
+        result.Id.Should().Be(expectedPost.Id);
+
 
 
 

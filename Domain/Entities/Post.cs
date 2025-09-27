@@ -25,12 +25,9 @@ public class Post
     public Author Author { get; init; }
 
 
-    private Post()
-    {
-        this.Id = Guid.NewGuid().ToString();   
-    }
+    private Post(){}
 
-    public Post(string title, string text, DateTime date,  string? categoryId,  string authorId)
+    private Post(string title, string text, DateTime date,  string? categoryId,  string authorId)
     {
         this.Id = Guid.NewGuid().ToString();
         this.Title = title;
@@ -45,7 +42,7 @@ public class Post
     }
 
    
-    public Post(string title, string text, DateTime date, Category category, Author author)
+    private Post(string title, string text, DateTime date, Category category, Author author)
     {
         this.Id = Guid.NewGuid().ToString();
         this.Title = title;
@@ -59,7 +56,17 @@ public class Post
        
     }
 
+    public static class Factory
+    {
+        public static Post CreatePost(string title, string text, DateTime date, string? categoryId, string authorId)
+         => new (title, text, date, categoryId, authorId);
+        
+        public static Post CreatePost(string title, string text, DateTime date, Category category, Author author)
+         => new(title, text, date, category, author);
+
+        
 
 
+    }
 
 }

@@ -30,11 +30,11 @@ public class PostValidatorTest
         //Arrange
 
         var addPostInputModel = new AddPostInputModel(
-            title: "",
-            text: "",
-            authorId: string.Empty,
-            categoryId: string.Empty,
-            date: DateTime.Now
+            Title: "",
+            Text: "",
+            AuthorId: string.Empty,
+            CategoryId: string.Empty,
+            Date: DateTime.Now
         );
 
 
@@ -46,13 +46,13 @@ public class PostValidatorTest
 
         result.IsValid.Should().BeFalse();
 
-        result.ShouldHaveValidationErrorFor(x => x.title)
+        result.ShouldHaveValidationErrorFor(x => x.Title)
             .WithErrorMessage(PostMsg.postErroTitleNotEmpty);
 
-        result.ShouldHaveValidationErrorFor(x => x.text)
+        result.ShouldHaveValidationErrorFor(x => x.Text)
             .WithErrorMessage(PostMsg.postErroTextNotEmpty);
 
-        result.ShouldHaveValidationErrorFor(x => x.authorId)
+        result.ShouldHaveValidationErrorFor(x => x.AuthorId)
             .WithErrorMessage(PostMsg.postErroAuthorIdNotEmpty);
 
         //result.ShouldHaveValidationErrorFor(x => x.categoryId)
@@ -66,11 +66,11 @@ public class PostValidatorTest
         //Arrange
 
         var addPostInputModel = new AddPostInputModel(
-            title: _faker.Lorem.Paragraph(51),
-            text: _faker.Lorem.Paragraph(2001),
-            authorId:string.Empty,
-            categoryId: string.Empty,
-            date: DateTime.Now
+            Title: _faker.Lorem.Paragraph(51),
+            Text: _faker.Lorem.Paragraph(2001),
+            AuthorId:string.Empty,
+            CategoryId: string.Empty,
+            Date: DateTime.Now
         );
 
 
@@ -82,13 +82,13 @@ public class PostValidatorTest
 
         result.IsValid.Should().BeFalse();
 
-        result.ShouldHaveValidationErrorFor(x => x.title)
+        result.ShouldHaveValidationErrorFor(x => x.Title)
             .WithErrorMessage(PostMsg.postErroTitleMax);
 
-        result.ShouldHaveValidationErrorFor(x => x.text)
+        result.ShouldHaveValidationErrorFor(x => x.Text)
             .WithErrorMessage(PostMsg.postErroTextMax);
 
-        result.ShouldHaveValidationErrorFor(x => x.authorId)
+        result.ShouldHaveValidationErrorFor(x => x.AuthorId)
             .WithErrorMessage(PostMsg.postErroAuthorIdNotEmpty);
 
         //result.ShouldHaveValidationErrorFor(x => x.categoryId)

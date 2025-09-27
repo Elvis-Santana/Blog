@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DbContextLite))]
-    [Migration("20250819003717_Update")]
-    partial class Update
+    [Migration("20250822215817_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,10 +90,12 @@ namespace Infrastructure.Migrations
 
                             b1.Property<string>("FirstName")
                                 .IsRequired()
+                                .HasMaxLength(100)
                                 .HasColumnType("TEXT")
                                 .HasColumnName("FirstName");
 
                             b1.Property<string>("LastName")
+                                .HasMaxLength(100)
                                 .HasColumnType("TEXT")
                                 .HasColumnName("LastName");
 

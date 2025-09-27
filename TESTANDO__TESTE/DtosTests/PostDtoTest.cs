@@ -26,12 +26,12 @@ public class PostDtoTest
         DateTime expectedDate = this._faker.Date.Recent(30);
         string expectedCategory = this._faker.Person.Company.Name;
 
-        var expectedAuthor = new Author(new FullName(_faker.Person.FirstName,""));
-        Post expectedPost = new(expectedTitle, expectedText, expectedDate, new Category(expectedAuthor.Id, expectedCategory), expectedAuthor);
-        
+        var expectedAuthor = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""));
+        Post expectedPost = Post.Factory.CreatePost(expectedTitle, expectedText, expectedDate, Category.Factory.CreateCategory(expectedAuthor.Id, expectedCategory), expectedAuthor);
+
         //act
 
-        PostViewModel postDTO = expectedPost.Adapt<PostViewModel>();
+        PostViewModel postDTO = expectedPost.Map() ;
 
         //assert
         postDTO.Id.Should().Be(expectedPost.Id);
@@ -54,13 +54,13 @@ public class PostDtoTest
         DateTime expectedDate = this._faker.Date.Recent(30);
         string expectedCategory = this._faker.Person.Company.Name;
 
-        var expectedAuthor = new Author(new FullName(_faker.Person.FirstName,""));
-        Post expectedPost = new(expectedTitle, expectedText, expectedDate,string.Empty,  expectedAuthor.Id);
+        var expectedAuthor = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""));
+        Post expectedPost = Post.Factory.CreatePost(expectedTitle, expectedText, expectedDate,string.Empty,  expectedAuthor.Id);
 
      
         //act
 
-        PostViewModel postDTO = expectedPost.Adapt<PostViewModel>();
+        PostViewModel postDTO = expectedPost.Map();
 
         //assert
         postDTO.Id.Should().Be(expectedPost.Id);
@@ -80,11 +80,7 @@ public class PostDtoTest
     public void Constructor_dataValid_ShouldAddPostInputModel()
     {
 
-        TypeAdapterConfig<AddPostInputModel, Post>.NewConfig()
-          .ConstructUsing(src =>
-              new (src.title, src.text, src.date, src.categoryId,src.authorId)
-          );
-
+      
         //Arrange
         string expectedTitle = this._faker.Phone.ToString()!;
         string expectedText = this._faker.Lorem.Paragraph(3);
@@ -100,11 +96,11 @@ public class PostDtoTest
            expectedCategoryId,
            expectedAuthouId
         );
-        
+
 
         //act
 
-        var result =  addPostInputModel.Adapt<Post>();
+        var result = (Post)addPostInputModel;
 
 
         //assert
@@ -120,10 +116,7 @@ public class PostDtoTest
     public void Constructor_dataValid_ShouldAddPostInputModelCategoryNULL()
     {
 
-        TypeAdapterConfig<AddPostInputModel, Post>.NewConfig()
-          .ConstructUsing(src =>
-              new (src.title, src.text, src.date, src.categoryId, src.authorId)
-          );
+       
 
         //Arrange
         string expectedTitle = this._faker.Phone.ToString()!;
@@ -143,7 +136,7 @@ public class PostDtoTest
 
         //act
 
-        var result = addPostInputModel.Adapt<Post>();
+        var result = (Post)addPostInputModel;
 
 
         //assert

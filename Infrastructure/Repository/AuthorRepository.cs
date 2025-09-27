@@ -16,20 +16,24 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
 
    
 
-    public async Task<bool> Create(Author author)
+    public async Task<Author> Create(Author author)
     {
         await  this._context.Authors.AddAsync(author);
-        return await _context.SaveChangesAsync() > 0;
+        await _context.SaveChangesAsync();
+        return author;
     }
+        
 
     public async Task<bool> DeleteById(string id)
     {
 
         var author =  await this.GetById(id);
 
-        this._context.Authors.Remove(author);
+        if (author is not null)
+            this._context.Authors.Remove(author);
+        
 
-          return  await _context.SaveChangesAsync() >0;
+       return  await _context.SaveChangesAsync() >0;
     }
 
     public async Task<List<Author>> GetAllAsync() => await _context.Authors
@@ -38,24 +42,26 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
        .ToListAsync();
 
     public async Task<Author> GetById(string id)
-    {
-        return (await this._context.Authors
+        => (await this._context.Authors
             .Include(x => x.Post)
             .ThenInclude(p => p.Category)
             .FirstOrDefaultAsync(x => x.Id.Equals(id)))!;
 
 
-    }
+    
 
     public async Task<Author> Update(Author author, string id)
     {
         var authorToUpdate = await this.GetById(id);
 
-        authorToUpdate.Name.FirstName = author.Name.FirstName;
-        authorToUpdate.Name.LastName = author.Name.LastName;
+        if (authorToUpdate is not null)
+        {
+            authorToUpdate.Name.FirstName = author.Name.FirstName;
+            authorToUpdate.Name.LastName = author.Name.LastName;
 
 
-        await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+        }
 
 
         return authorToUpdate;

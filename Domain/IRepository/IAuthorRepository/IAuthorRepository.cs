@@ -13,7 +13,7 @@ public interface IAuthorRepository
 
     Task<Author> GetById(string id);
 
-    Task<bool> Create(Author author);
+    Task<Author> Create(Author author);
 
     Task<Author> Update(Author author, string id);
 

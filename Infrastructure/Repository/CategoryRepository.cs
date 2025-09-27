@@ -20,12 +20,13 @@ public class CategoryRepository : ICategoryRepository
         _dbContextLite = dbContextLite;
     }
 
-    public async Task<bool> Create(Category category)
+    public async Task<Category> Create(Category category)
     {
 
         await  this._dbContextLite.Category.AddAsync(category);
 
-        return await this._dbContextLite.SaveChangesAsync() > 0;
+         await this._dbContextLite.SaveChangesAsync();
+        return category;
     }
 
     public async Task<bool> DeleteById(string id)
@@ -41,7 +42,6 @@ public class CategoryRepository : ICategoryRepository
     public async Task<List<Category>> GetAsync()
     {
         var result = await _dbContextLite.Category.ToListAsync();
-        //if (!result.Any()) return new List<Category>();
         return result;
 
     }
@@ -57,15 +57,12 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category> Update(Category category, string id)
     {
-        var _category = await _dbContextLite.Category.FindAsync(id);
-        _dbContextLite.Entry(_category).Property("Name").CurrentValue = category.Name;
 
-
-
+         this._dbContextLite.Category.Update(category);
 
         await this._dbContextLite.SaveChangesAsync();
 
-        return _category;
+        return category;
 
 
     }

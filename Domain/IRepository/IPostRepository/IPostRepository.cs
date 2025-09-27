@@ -9,7 +9,7 @@ namespace Domain.IRepository.IPostRepository;
 
 public interface IPostRepository
 {
-    Task<bool> Create(Post post);
+    Task<Post> Create(Post post);
 
     Task<List<Post>> GetAllPosts();
 

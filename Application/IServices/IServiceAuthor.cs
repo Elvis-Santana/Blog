@@ -12,7 +12,7 @@ namespace Application.IServices;
 
 public interface IServiceAuthor
 {
-    Task<OneOf<bool,Errors>> CreateAuthor(AddAuthorInputModel author);
+    Task<OneOf<AuthorViewModel, Errors>> CreateAuthor(AddAuthorInputModel author);
     Task<List<AuthorViewModel>> GetAuthor();
 
 

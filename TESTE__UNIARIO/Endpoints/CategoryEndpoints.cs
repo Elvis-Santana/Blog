@@ -10,9 +10,10 @@ public static class CategoryEndpoints
     public static WebApplication RouterCategoryEndpoints(this WebApplication app)
     {
 
-        var categorys = app.MapGroup("/Categorys");
+        const string nameGroup = "Categorys";
+        var categorys = app.MapGroup($"/{nameGroup}");
 
-        categorys.WithTags("Categorys");
+        categorys.WithTags(nameGroup);
 
         categorys.MapGet("", async (ICategoryService _categoryService) =>
         {
@@ -23,29 +24,30 @@ public static class CategoryEndpoints
         {
            var result =  await _categoryService.Create(addCategoryInputModel);
             return result.Match<IResult>(
-                (res) => Results.Ok(res),
+                (res) => Results.Created($"{nameGroup}/{res.Id}", res),
                 (err) => Results.BadRequest(err)
             );
         });
 
 
-        categorys.MapGet("/:id", async (string id,ICategoryService _categoryService) =>
+        categorys.MapGet("/{id}", async (string id,ICategoryService _categoryService) =>
         {
             return Results.Ok((await _categoryService.GetById(id)).AsT0);
         });
-        categorys.MapDelete("/:id", async (string id,ICategoryService _categoryService) =>
+
+        categorys.MapDelete("/{id}", async (string id,ICategoryService _categoryService) =>
         {
             return Results.Ok((await _categoryService.DeleteById(id)).AsT0);
         });
 
-        categorys.MapPatch("/:id", async (UpdateCategoryInputModel updateCategoryInputModel,string id, ICategoryService _categoryService) =>
+        categorys.MapPatch("/{id}", async (UpdateCategoryInputModel updateCategoryInputModel,string id, ICategoryService _categoryService) =>
         {
             var result = await _categoryService.Update(updateCategoryInputModel,id);
 
             return result.Match<IResult>(
                  (res) => Results.Ok(res),
                  (err) => Results.NotFound(err)
-             );
+            );
         });
 
 

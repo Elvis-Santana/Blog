@@ -5,6 +5,7 @@ using Domain.Erros;
 using Domain.Erros.AppErro;
 using Domain.IRepository.IPostRepository;
 using FluentValidation;
+using FluentValidation.Results;
 using Mapster;
 using OneOf;
 using System;
@@ -20,31 +21,21 @@ public class PostService (IPostRepository postRepository, IValidator<AddPostInpu
     private readonly IPostRepository _postRepository = postRepository;
     private readonly IValidator<AddPostInputModel> _validator = validator;
 
-    public async Task<OneOf<bool, Errors>> Create(AddPostInputModel addPostInputModel)
+    public async Task<OneOf<PostViewModel, Errors>> Create(AddPostInputModel addPostInputModel)
     {
 
-        TypeAdapterConfig<AddPostInputModel, Post>.NewConfig()
-      .ConstructUsing(src =>
-          new Post(src.title, src.text, src.date, src.categoryId, src.authorId)
-      );
 
-        var result =  await this._validator.ValidateAsync(addPostInputModel);
-
+        ValidationResult result =  await this._validator.ValidateAsync(addPostInputModel);
         if (!result.IsValid)
-        {
-            return new Errors(
-                result.Errors.Select(
-                    x => new AppErro(x.ErrorMessage, x.PropertyName)
-                ).ToList()
-             );
-        }
+                    return  Errors.Factory.CreateErro( result.Errors.Select( x => new AppErro(x.ErrorMessage, x.PropertyName) ) );
 
 
-        return await _postRepository.Create(addPostInputModel.Adapt<Post>());
+        var post = await _postRepository.Create((Post)addPostInputModel);
+        return post.Map();
     }
 
     public async Task<List<PostViewModel>> GetAll()
     {
-        return (await _postRepository.GetAllPosts()).Adapt<List<PostViewModel>>();
+        return (await _postRepository.GetAllPosts()).Map();
     }
 }

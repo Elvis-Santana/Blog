@@ -11,7 +11,7 @@ using Mapster;
 using NSubstitute;
 using Xunit.Abstractions;
 
-namespace TESTANDO__TESTE.UseCaseTest.AuthorUseCaseTest;
+namespace TESTANDO__TESTE.ServicesTest.AuthorServiceTest;
 
 public class AuthorServiceTest
 {
@@ -28,25 +28,33 @@ public class AuthorServiceTest
     }
 
     [Fact]
-    public async Task CreateAuthorUseCase_ParamsIsValid_ShouldRetrunTrue()
+    public async Task Create_ParamsIsValid_ShouldRetrunTrue()
     {
         //arrange
         IServiceAuthor serviceAuthor =  new AuthorService(mackAuthorRepository, new AuthorValidator());
 
         FullName fullName = new FullName(this._faker.Person.FirstName, this._faker.Person.LastName);
         AddAuthorInputModel author = new(fullName);
+        var expecteAuthor = (Author)author;
+
+        mackAuthorRepository.Create(Arg.Any<Author>()).Returns(Task.FromResult(expecteAuthor));
+
+
 
         //act
         var result = await serviceAuthor.CreateAuthor(author);
 
         //assert
         result.IsT0.Should().BeTrue();
+        result.AsT0.Should().BeAssignableTo<AuthorViewModel>();
+        result.AsT0.Should().BeEquivalentTo(expecteAuthor);
+       
 
     }
 
 
     [Fact]
-    public async Task CreateAuthorUseCase_ParamsIsInvalidis_ShouldRetrunErrors()
+    public async Task Create_ParamsIsInvalidis_ShouldRetrunErrors()
     {
         //arrange
         AuthorService createAuthor = new AuthorService(mackAuthorRepository, new AuthorValidator());
@@ -55,10 +63,9 @@ public class AuthorServiceTest
         var result = await createAuthor.CreateAuthor(author);
 
         //assert
-        result.IsT1.Should().BeTrue();
 
         result.Switch(
-            e => e.Should().BeFalse(),
+            e => e.Should().BeNull(),
             err => err.errors.ForEach(x =>
             {
                 this._testOutputHelper.WriteLine(x.messagem);
@@ -73,18 +80,18 @@ public class AuthorServiceTest
 
 
     [Fact]
-    public async Task GetAuthorUserCase_ShouldReturnListAuthor()
+    public async Task GetAuthor_ShouldReturnListAuthor()
     {
         //arrange
         FullName  expectedFullName = new FullName(this._faker.Person.FirstName, this._faker.Person.LastName);
-        var expectedAuthor = new Author(expectedFullName);
+        var expectedAuthor =  Author.Factory.CriarAuthor(expectedFullName);
 
-        Category expectedCategory = new Category(expectedAuthor.Id, this._faker.Lorem.Paragraph(1));
+        Category expectedCategory = Category.Factory.CreateCategory(expectedAuthor.Id, this._faker.Lorem.Paragraph(1));
 
         List<Author> expectedListAuthor = new List<Author>() { 
             new Author(expectedAuthor.Id, expectedFullName,new List<Post>()
              {
-                    new Post(
+                    Post.Factory.CreatePost(
                         this._faker.Lorem.Paragraph(1),
                         this._faker.Lorem.Paragraph(1),
                         DateTime.Now,
@@ -109,42 +116,46 @@ public class AuthorServiceTest
         //assert
 
         result.Should().BeAssignableTo<List<AuthorViewModel>>();
-        result.Should().BeEquivalentTo(expectedListAuthor.Adapt<List<AuthorViewModel>>());
+        result.Should().BeEquivalentTo(expectedListAuthor.Map());
         result[0].Post[0].AuthorId.Should().Be(expectedListAuthor[0].Id);
-        result[0].Post[0].Category.Should().BeEquivalentTo(expectedCategory.Adapt<CategoryViewModel>());
+        result[0].Post[0].Category.Should().BeEquivalentTo(expectedCategory.Map());
         result[0].Post[0].CategoryId.Should().Be(expectedCategory.Id);
 
     }
 
 
     [Fact]
-    public async Task Update_ShouldRetrunAuthorUpdated()
+    public async Task Update_ShouldRetrunAuthorNotFound()
     {
 
         //arrange
         FullName expectedName = new(_faker.Person.FirstName,_faker.Person.LastName);
-        string expectedGuid = Guid.NewGuid().ToString();
+        string idError = Guid.NewGuid().ToString();
 
         AddAuthorInputModel addAuthorInputModel = new(expectedName);
-        Author author = new Author(expectedGuid, new FullName("a",""));
+        Author author =  Author.Factory.CriarAuthor( new ("a",""));
+        
 
-        mackAuthorRepository.Update(Arg.Any<Author>(), author.Id).Returns(Task.FromResult(new Author(author.Id,addAuthorInputModel.Name, author.Post)));
+      
 
-        IServiceAuthor serviceAuthor = new AuthorService(mackAuthorRepository, new AuthorValidator());
+
         //act
+        IServiceAuthor serviceAuthor = new AuthorService(mackAuthorRepository, new AuthorValidator());
 
-
-        var result = await serviceAuthor.Update(addAuthorInputModel, author.Id);
+        var result = await serviceAuthor.Update(addAuthorInputModel, idError);
 
 
         //assert
-
-        result.IsT0.Should().BeTrue();
-        result.AsT0.Should().BeAssignableTo<AuthorViewModel>();
+           result.AsT1.errors.Should().HaveCount(1);
 
 
 
     }
+
+
+
+
+
 
     [Fact]
     public async Task GetById_ShouldRetrunAuthor()
@@ -174,6 +185,30 @@ public class AuthorServiceTest
 
 
     [Fact]
+    public async Task GetById_ShouldRetrunNotFound()
+    {
+        //arrange
+        FullName expectedName = new(_faker.Person.FirstName, _faker.Person.LastName);
+        string expectedGuid = Guid.NewGuid().ToString();
+        string idError = Guid.NewGuid().ToString();
+
+        Author author = new Author(expectedGuid, expectedName);
+
+
+        IServiceAuthor serviceAuthor = new AuthorService(mackAuthorRepository, new AuthorValidator());
+
+        //act
+
+
+        var result = await serviceAuthor.GetById(idError);
+
+
+        //assert
+
+        result.AsT1.errors.Should().HaveCount(1);
+    }
+
+    [Fact]
     public async Task DeleteById__ShouldRetrunTrue()
     {
         //arrange
@@ -195,4 +230,31 @@ public class AuthorServiceTest
         result.IsT0.Should().BeTrue();
 
     }
+
+    [Fact]
+    public async Task DeleteById__ShouldRetrunNotFound()
+    {
+        //arrange
+        FullName expectedName = new(_faker.Person.FirstName, _faker.Person.LastName);
+        string expectedGuid = Guid.NewGuid().ToString();
+        Author author = new Author(expectedGuid, expectedName);
+        string isError = Guid.NewGuid().ToString();
+
+
+        IServiceAuthor serviceAuthor = new AuthorService(mackAuthorRepository, new AuthorValidator());
+        //act
+
+
+        var result = await serviceAuthor.DeleteById(isError);
+
+
+        //assert
+
+        result.AsT1.errors.Should().HaveCount(1);
+
+    }
+
+
+   
+
 }

@@ -49,7 +49,7 @@ public class AuthorRepositoryTest
         var expecteAuthorId1 = Guid.NewGuid().ToString();
         var expecteAuthorId2 = Guid.NewGuid().ToString();
 
-        var category = new Category(expecteAuthorId1, "name");
+        var category = Category.Factory.CreateCategory(expecteAuthorId1, "name");
 
         var expectedAuthoes = new List<Author>()
         {
@@ -65,10 +65,10 @@ public class AuthorRepositoryTest
         await dbContext.Category.AddAsync(category);
         await dbContext.SaveChangesAsync();
 
-        var expectedPost1 = 
-            new Post(this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id, expecteAuthorId1);
-        var expectedPost2 = 
-            new Post(this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id, expecteAuthorId2);
+        var expectedPost1 =
+             Post.Factory.CreatePost (this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id, expecteAuthorId1);
+        var expectedPost2 =
+            Post.Factory.CreatePost(this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id, expecteAuthorId2);
 
         await dbContext.Posts.AddRangeAsync(new List<Post>() { expectedPost1,expectedPost2});
         await dbContext.SaveChangesAsync();
@@ -94,10 +94,10 @@ public class AuthorRepositoryTest
         FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
         var expecteAuthorId1 = Guid.NewGuid().ToString();
 
-        var category = new Category(expecteAuthorId1, "name");
+        var category = Category.Factory.CreateCategory(expecteAuthorId1, "name");
         List<Post> expectedIdPosts = new List<Post>
         {
-                 new Post( this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id,  expecteAuthorId1), 
+                 Post.Factory.CreatePost(this._faker.Person.FirstName, this._faker.Lorem.ToString() !, new DateTime(), category.Id, expecteAuthorId1), 
         };
 
         //act
@@ -111,7 +111,9 @@ public class AuthorRepositoryTest
         var result = await authorRepository.Create(author);
 
         //assert
-        result.Should().BeTrue("Author should be created successfully");
+        result.Id.Should().Be(author.Id);
+        result.Name.Should().Be(author.Name);
+        result.Post.Should().HaveCount(author.Post.Count());
 
     }
 
@@ -131,7 +133,7 @@ public class AuthorRepositoryTest
         var expecteAuthorId1 = Guid.NewGuid().ToString();
         var expecteAuthorId2 = Guid.NewGuid().ToString();
 
-        var category = new Category(expecteAuthorId1, "name");
+        var category = Category.Factory.CreateCategory(expecteAuthorId1, "name");
 
         var expectedAuthoes = new List<Author>()
         {
@@ -148,9 +150,9 @@ public class AuthorRepositoryTest
         await dbContext.SaveChangesAsync();
 
         var expectedPost1 =
-            new Post(this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id, expecteAuthorId1);
+            Post.Factory.CreatePost(this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id, expecteAuthorId1);
         var expectedPost2 =
-            new Post(this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id, expecteAuthorId2);
+            Post.Factory.CreatePost(this._faker.Person.FirstName, this._faker.Lorem.ToString()!, new DateTime(), category.Id, expecteAuthorId2);
 
         var expectedPost = new List<Post>() { expectedPost1, expectedPost2 };
 
@@ -170,6 +172,46 @@ public class AuthorRepositoryTest
         result.Id.Should().Be(expectedAuthoes[0].Id);
         result.Post[0].Should().BeEquivalentTo(expectedPost.ToArray()[0]);
         result.Name.Should().Be(expectedAuthoes[0].Name);
+    }
+
+
+
+    [Fact]
+    public async Task GetById_ShouldReturnNull()
+    {
+        //arrange
+
+
+
+        using var dbContext = new DbContextLite(this._dbContextOptions);
+
+        dbContext.Authors.AddRange([
+            Author.Factory.CriarAuthor(
+                 new (
+                     this._faker.Person.FirstName,
+                     this._faker.Person.LastName
+                 )
+            ),
+
+            Author.Factory.CriarAuthor(
+                  new (
+                      this._faker.Person.FirstName,
+                      this._faker.Person.LastName
+                  )
+            )
+
+        ]);
+
+        var idError = Guid.NewGuid().ToString();
+
+        //act
+        var authorRepository = new AuthorRepository(dbContext);
+
+        Author result = await authorRepository.GetById(idError);
+
+        //assert  
+
+        result.Should().BeNull();
     }
 
 
@@ -211,6 +253,37 @@ public class AuthorRepositoryTest
 
 
     [Fact]
+    public async Task Update_ShouldAuthorNaoAtualizado()
+    {
+
+        //ararnge
+        FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
+        FullName expectedUpdatedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
+
+        var expectedAuthor = new Author(Guid.NewGuid().ToString(), expectedName);
+        var expectedUpdateAuthor = new Author(expectedAuthor.Id, expectedUpdatedName);
+
+        var idError = Guid.NewGuid().ToString();
+
+        using var dbContext = new DbContextLite(this._dbContextOptions);
+
+        await dbContext.Authors.AddAsync(expectedAuthor);
+        await dbContext.SaveChangesAsync();
+
+        //act
+        var authorRepository = new AuthorRepository(dbContext);
+
+        Author result = await authorRepository.Update(expectedUpdateAuthor, idError);
+
+        //assert
+
+        result.Should().BeNull();
+
+
+    }
+
+
+    [Fact]
     public async Task Delete_ShouldRetrunTrue()
     {
         //ararnge
@@ -238,6 +311,37 @@ public class AuthorRepositoryTest
 
         result.Should().BeTrue();
         dbContext.Authors.ToList().Should().HaveCount(0);
+
+    }
+
+
+    [Fact]
+    public async Task Delete_ShouldRetrunFalse()
+    {
+
+        //ararnge
+        FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
+
+
+        var expectedAuthor = new Author(Guid.NewGuid().ToString(), expectedName);
+        var idError = Guid.NewGuid().ToString();
+        using var dbContext = new DbContextLite(this._dbContextOptions);
+
+        await dbContext.Authors.AddAsync(expectedAuthor);
+        await dbContext.SaveChangesAsync();
+
+        //act
+        var authorRepository = new AuthorRepository(dbContext);
+
+        bool result = await authorRepository.DeleteById(idError);
+
+
+
+        //assert
+        result.Should().BeFalse();
+        dbContext.Authors.ToList().Should().HaveCount(1);
+
+
 
     }
 

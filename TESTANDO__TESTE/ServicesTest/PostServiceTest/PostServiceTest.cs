@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.Models;
-using Application.IServices;
 using Application.Services.PostService;
 using Application.Validators.Validator;
 using Bogus;
@@ -9,11 +8,6 @@ using Domain.ObjectValues;
 using FluentAssertions;
 using Mapster;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TESTANDO__TESTE.Builder;
 
 namespace TESTANDO__TESTE.ServicesTest.PostServiceTest;
@@ -35,10 +29,10 @@ public class PostServiceTest
     public async Task GetAllPosts__ShouldRetrunListPostModelView()
     {
         //arrange
-        Author author = new Author(new FullName(_faker.Person.FirstName, ""));
-        Category category = new Category(author.Id, _faker.Company.Locale);
+        Author author =  Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""));
+        Category category = Category.Factory.CreateCategory(author.Id, _faker.Company.Locale);
 
-        Post post = new (
+        Post post = Post.Factory.CreatePost (
             _faker.Person.FirstName,
             _faker.Person.FirstName,
             new DateTime(),
@@ -67,13 +61,13 @@ public class PostServiceTest
         
 
     }
-       [Fact]
+     [Fact]
     public async Task GetAllPosts__CategoryNULL__ShouldRetrunListPostModelView()
     {
         //arrange
-        Author author = new Author(new FullName(_faker.Person.FirstName, ""));
+        Author author = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""));
 
-        Post post = new (
+        Post post = Post.Factory.CreatePost (
             _faker.Person.FirstName,
             _faker.Person.FirstName,
             new DateTime(),
@@ -82,7 +76,7 @@ public class PostServiceTest
         );
 
         var list = new List<Post>(){ post };
-        List<PostViewModel> expectedCollection = list.Adapt<List<PostViewModel>>();
+        List<PostViewModel> expectedCollection = list.Map();
 
         this._mackServiceAuthor.GetAllPosts().Returns(Task.FromResult(list));
         PostService serviceAuthor = new(this._mackServiceAuthor,new PostValidator());
@@ -106,12 +100,6 @@ public class PostServiceTest
 
     }
 
-
-
-
-
-
-
     [Fact]
     public async Task Create__ShouldRetrunTrue()
     {
@@ -124,7 +112,10 @@ public class PostServiceTest
             Guid.NewGuid().ToString()
         );
 
+        var expectedPost = (Post)addPostInputModel;
         PostService postService = new(this._mackServiceAuthor, new PostValidator());
+
+        this._mackServiceAuthor.Create(Arg.Any<Post>()).Returns(Task.FromResult(expectedPost));
 
         //act
         var result = await postService.Create(addPostInputModel);
@@ -132,8 +123,14 @@ public class PostServiceTest
 
         //assert
 
-        result.IsT0.Should().BeTrue();
         result.IsT1.Should().BeFalse();
+        result.IsT0.Should().BeTrue();
+        result.AsT0.Id.Should().Be(expectedPost.Id);
+        result.AsT0.Title.Should().Be(expectedPost.Title);
+        result.AsT0.Text.Should().Be(expectedPost.Text);
+        result.AsT0.Date.Should().Be(expectedPost.Date);
+        result.AsT0.CategoryId.Should().Be(expectedPost.CategoryId);
+        result.AsT0.AuthorId.Should().Be(expectedPost.AuthorId);
     }
      [Fact]
     public async Task Create__CategoryNULL_ShouldRetrunTrue()
@@ -148,6 +145,9 @@ public class PostServiceTest
         );
 
         PostService postService = new(this._mackServiceAuthor, new PostValidator());
+        var expectedPost = (Post)addPostInputModel;
+
+        this._mackServiceAuthor.Create(Arg.Any<Post>()).Returns(Task.FromResult(expectedPost));
 
         //act
         var result = await postService.Create(addPostInputModel);
@@ -155,8 +155,16 @@ public class PostServiceTest
 
         //assert
 
-        result.IsT0.Should().BeTrue();
         result.IsT1.Should().BeFalse();
+        result.IsT0.Should().BeTrue();
+        result.AsT0.Id.Should().Be(expectedPost.Id);
+        result.AsT0.Text.Should().Be(expectedPost.Text);
+        result.AsT0.Title.Should().Be(expectedPost.Title);
+        result.AsT0.Date.Should().Be(expectedPost.Date);
+        result.AsT0.AuthorId.Should().Be(expectedPost.AuthorId);
+        result.AsT0.CategoryId.Should().BeNull();
+        result.AsT0.Category.Should().BeNull();
+
     }
 
     [Fact]
@@ -179,16 +187,8 @@ public class PostServiceTest
 
         //assert
 
-        result.Switch(
-            (s) =>
-            {
-                s.Should().BeFalse();
-            },
-            (e) =>
-            {
-              e.errors.Should().NotBeEmpty();
-            }
-        );
+        result.IsT0.Should().BeFalse();
+        result.IsT1.Should().BeTrue();
     }
 
 

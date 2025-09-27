@@ -21,27 +21,29 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<AddAut
     private readonly IAuthorRepository _authorRepository = authorRepository;
     private readonly IValidator<AddAuthorInputModel> _validator = validator;
 
-
-    public async Task<OneOf<bool, Errors>> CreateAuthor(AddAuthorInputModel author)
+    public async Task<OneOf<AuthorViewModel, Errors>> CreateAuthor(AddAuthorInputModel author)
     {
-         var result = await _validator.ValidateAsync(author);
+        var result = await _validator.ValidateAsync(author);
 
         if (!result.IsValid)
-        {
-            return new Errors(
-                result.Errors.Select
-                (
-                    a => new AppErro(a.ErrorMessage, a.PropertyName)
-            ).ToList());
-        }
-           
+            return Errors.Factory.CreateErro(result.Errors.Select(a => new AppErro(a.ErrorMessage, a.PropertyName)));
 
-        return await _authorRepository.Create(author.Adapt<Author>());
+
+
+        var authorData = await this._authorRepository.Create((Author)author);
+        return authorData.Map();
+
     }
 
     public async Task<OneOf<bool, Errors>> DeleteById(string id)
     {
-        return await _authorRepository.DeleteById(id);
+        var result = await _authorRepository.DeleteById(id);
+
+        if (!result )
+            return Errors.Factory.CreateErro([new AppErro("author não encontrado", nameof(Author))]);
+
+
+        return result;
     }
 
     public async Task<List<AuthorViewModel>> GetAuthor()
@@ -49,24 +51,30 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<AddAut
         List<Author> authors = await this._authorRepository.GetAllAsync();
 
 
-        return authors.Adapt<List<AuthorViewModel>>();
+        return authors.Map();
     }
 
     public async Task<OneOf<AuthorViewModel, Errors>> GetById(string id)
     {
-
-
         Author result = await this._authorRepository.GetById(id);
 
-        return result.Adapt<AuthorViewModel>();
+        if (result is null)
+            return Errors.Factory.CreateErro([new AppErro("author não encontrado", nameof(Author))]);
+
+        return result.Map();
     }
 
     public async Task<OneOf<AuthorViewModel, Errors>> Update(AddAuthorInputModel author, string id)
     {
-        
-       Author result = await this._authorRepository.Update(author.Adapt<Author>(),id);
 
-        return result.Adapt<AuthorViewModel>();
+        Author _author = await this._authorRepository.GetById(id);
+        if (_author is null)
+            return Errors.Factory.CreateErro([new AppErro("author não encontrado", nameof(Author))]);
+
+        _author.UpdateName(author.Name);
+        Author result = await this._authorRepository.Update(_author, id);
+
+        return result.Map();
 
     }
 }

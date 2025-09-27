@@ -32,7 +32,7 @@ internal class PostBuilder
 
         this.expectedCategory  = category??new CategoryBuider().CategoryEntityBuilder();
 
-        var post = new Post( this.expectedTitle,  this.expectedText,  this.expectedDate,  this.expectedCategory, this.expectedAuthor);
+        var post = Post.Factory.CreatePost( this.expectedTitle,  this.expectedText,  this.expectedDate,  this.expectedCategory, this.expectedAuthor);
         this.expectedId = post.Id;
         return post;
 
@@ -47,7 +47,7 @@ internal class PostBuilder
 
    
 
-        return new(this.expectedTitle, this.expectedText, this.expectedDate, categoryId, authorId); 
+        return Post.Factory.CreatePost(this.expectedTitle, this.expectedText, this.expectedDate, categoryId, authorId); 
 
     }
 

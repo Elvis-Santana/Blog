@@ -47,7 +47,7 @@ public class AuthorValidatorTest
 
         //assert
         var list = (result.Errors .Select(x => new AppErro(x.ErrorMessage, x.PropertyName))).ToList();
-        new Errors(list).errors.ForEach(x =>_testOutputHelper.WriteLine(x.ToString()));
+         Errors.Factory.CreateErro(list).errors.ForEach(x =>_testOutputHelper.WriteLine(x.ToString()));
 
         result.ShouldHaveValidationErrorFor(x => x.Name.FirstName).WithErrorMessage(AuthorMsg.FirstNameErroEmpty);
         result.ShouldHaveValidationErrorFor(x => x.Name.LastName).WithErrorMessage(AuthorMsg.LastNameErroMaximumLength);

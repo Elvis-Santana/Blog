@@ -13,13 +13,13 @@ public class Author
   
     public string Id { get; init; }
 
-    public FullName Name { get; init; } 
+    public FullName Name { get; private set; } 
 
-    public List<Post> Post { get; init; }
+    public List<Post> Post { get; init; } = new List<Post>();
 
     private Author()
     {
-        Id = Guid.NewGuid().ToString();
+        
     }
 
     public Author(string id, FullName name, List<Post> post)
@@ -36,10 +36,27 @@ public class Author
         Post = new List<Post>();
     }
  
-    public Author( FullName name)
+    private Author( FullName name)
     {
         Id = Guid.NewGuid().ToString();
         Name = name;
     }
 
+    
+
+    public static class Factory
+    {
+        public static Author CriarAuthor(FullName name) { return new Author(name); }
+
+
+    }
+
+
+    public  void UpdateName(FullName Name)
+   {
+            this.Name = Name;
+   }
+    
+
+   
 }

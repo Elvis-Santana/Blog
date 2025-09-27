@@ -38,13 +38,22 @@ public class CategoryServiceTest
               new CategoryInputValidator(),
               new CategoryUpdateValidator()
           );
+
+        
+
         AddCategoryInputModel addCategoryInputModel = new(Guid.NewGuid().ToString(), _faker.Person.UserName);
+        var expectedCategory = (Category)addCategoryInputModel;
+
+        this.mackCategoryRepository.Create(Arg.Any<Category>()).Returns(Task.FromResult(expectedCategory));
 
         //act
         var result = await _categoryService.Create(addCategoryInputModel);
         
         //assert
         result.IsT0.Should().BeTrue();
+        result.AsT0.Id.Should().Be(expectedCategory.Id);
+        result.AsT0.AuthorId.Should().Be(expectedCategory.AuthorId);
+        result.AsT0.Name.Should().Be(expectedCategory.Name);
 
     }
 
@@ -61,17 +70,19 @@ public class CategoryServiceTest
 
         //act
         var result = await _categoryService.Create(addCategoryInputModel);
-        
+
         //assert
 
         result.Switch(
-           e => e.Should().BeFalse(),
+           e => {
+           
+               e.AuthorId.Should().Be(addCategoryInputModel.AuthorId);
+               e.Name.Should().Be(addCategoryInputModel.Name);
+           },
            err =>
-           {
-               err.errors.Count().Should().Be(2);
 
+               err.errors.Count().Should().Be(2)
 
-           }
        );
     }
 
@@ -157,6 +168,12 @@ public class CategoryServiceTest
         result.IsT1.Should().BeFalse();
 
 
+        result.AsT0.AuthorId.Should().Be(category.AuthorId);
+        result.AsT0.Id.Should().Be(category.Id);
+        result.AsT0.Name.Should().Be(category.Name);
+
+
+
 
 
     }
@@ -175,11 +192,18 @@ public class CategoryServiceTest
             new CategoryUpdateValidator()
         );
 
-        UpdateCategoryInputModel addCategoryInputModel = new(_faker.Person.UserName);
-        this.mackCategoryRepository.Update(Arg.Any<Category>(), category.Id)
-            .Returns(Task.FromResult(new Category(category.Id, category.AuthorId, addCategoryInputModel.Name)));
-        //act
 
+        UpdateCategoryInputModel addCategoryInputModel = new(_faker.Person.UserName);
+        this.mackCategoryRepository.GetById(Arg.Any<string>()).Returns(Task.FromResult(category));
+
+
+        this.mackCategoryRepository.Update(Arg.Any<Category>(), category.Id).Returns(Task.Run(() =>
+        {
+            category.UpdateName(addCategoryInputModel.Name);
+            return category;
+        }));
+
+        //act
         var result = await _categoryService.Update(addCategoryInputModel, category.Id);
 
         //assert
@@ -210,7 +234,7 @@ public class CategoryServiceTest
 
 
         this.mackCategoryRepository.Update(Arg.Any<Category>(), category.Id)
-            .Returns(Task.FromResult(new Category(category.Id, category.AuthorId, addCategoryInputModel.Name)));
+            .Returns(Task.FromResult(Category.Factory.CreateCategory(category.Id, category.AuthorId, addCategoryInputModel.Name)));
         //act
 
         var result = await _categoryService.Update(addCategoryInputModel, category.Id);

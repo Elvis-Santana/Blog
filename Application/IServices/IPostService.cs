@@ -14,5 +14,5 @@ public interface IPostService
     Task<List<PostViewModel>> GetAll();
 
 
-    Task<OneOf<bool, Errors>> Create(AddPostInputModel addPostInputModel);
+    Task<OneOf<PostViewModel, Errors>> Create(AddPostInputModel addPostInputModel);
 }

@@ -18,20 +18,22 @@ public class CategoryDtoTest
     [Fact]
     public void Category__dataValid_Create()
     {
+   
         //arrange
+
         var expectedIdAuthor = Guid.NewGuid().ToString();
         var exprectedName = _faker.Person.LastName;
         UpdateCategoryInputModel updateCategory = new (exprectedName);
 
-        //Category category = new Category(expectedIdAuthor, _faker.Person.UserName);
+        Category category = Category.Factory.CreateCategory(expectedIdAuthor, _faker.Person.UserName);
 
         //act
 
-        var result = updateCategory.Adapt<Category>();
+         category.UpdateName(updateCategory.Name);
 
 
         //assert
-        result.Name.Should().NotBeEmpty();
-        result.Name.Should().Be(exprectedName);
+        category.Name.Should().NotBeEmpty();
+        category.Name.Should().Be(exprectedName);
     }
 }

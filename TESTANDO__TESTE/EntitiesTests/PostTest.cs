@@ -51,8 +51,6 @@ public class PostTest
     public void Contructor_DataValid_shouldCreatePostCategoryIdEmpty()
     {
         //Arrange
-
-
         string expectedAuthorId = Guid.NewGuid().ToString();
         var expectedTitle = this._faker.Person.Company.Name;
         var expectedText = this._faker.Lorem.Paragraph(30);
@@ -60,12 +58,9 @@ public class PostTest
 
 
         //Act
-
-            Post post = new Post( expectedTitle,expectedText, expectedDate, string.Empty,expectedAuthorId);
+         Post post = Post.Factory.CreatePost( expectedTitle,expectedText, expectedDate, string.Empty,expectedAuthorId);
 
         //Assert
-
-
         post.CategoryId.Should().BeNull();
         post.AuthorId.Should().Be(expectedAuthorId);
         post.Title.Should().Be(expectedTitle);

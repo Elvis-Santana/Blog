@@ -97,7 +97,7 @@ public class AuthorTest
         AddAuthorInputModel expectedAuthorDTOCreate = new(expectedName);
 
         //act
-        Author author = new(expectedAuthorDTOCreate.Name);
+        Author author = Author.Factory.CriarAuthor(expectedAuthorDTOCreate.Name);
 
         //assert
         author.Name.Should().Be(expectedName);
@@ -111,7 +111,7 @@ public class AuthorTest
         AddAuthorInputModel expectedAuthorInputModel = new(expectedName);
 
         // act
-        var author = expectedAuthorInputModel.Adapt<Author>();
+        var author = (Author)expectedAuthorInputModel;
 
         // assert
         author.Name.Should().BeEquivalentTo(expectedName);

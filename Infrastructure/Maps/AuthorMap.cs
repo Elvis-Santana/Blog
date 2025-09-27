@@ -16,8 +16,8 @@ public class AuthorMap : IEntityTypeConfiguration<Author>
     {
 
         Author[] list = [
-             new Author(new FullName("ELvis","san")),
-             new Author(new FullName("Rene","san"))
+              Author.Factory.CriarAuthor(new FullName("ELvis","san")),
+               Author.Factory.CriarAuthor(new FullName("Rene","san"))
         ];
        
 

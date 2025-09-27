@@ -9,7 +9,7 @@ namespace Domain.IRepository.ICategoryRepository;
 
 public interface ICategoryRepository
 {
-    Task<bool> Create(Category category);
+    Task<Category> Create(Category category);
 
     Task<List<Category>> GetAsync();
 

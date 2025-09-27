@@ -87,10 +87,12 @@ namespace Infrastructure.Migrations
 
                             b1.Property<string>("FirstName")
                                 .IsRequired()
+                                .HasMaxLength(100)
                                 .HasColumnType("TEXT")
                                 .HasColumnName("FirstName");
 
                             b1.Property<string>("LastName")
+                                .HasMaxLength(100)
                                 .HasColumnType("TEXT")
                                 .HasColumnName("LastName");
 

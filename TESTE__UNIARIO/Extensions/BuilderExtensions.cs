@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.Dtos.Models;
 using Application.IServices;
 using Application.Services.AuthorService;
 using Application.Services.CategoryService;
@@ -17,7 +18,8 @@ public static class BuilderExtensions
 {
     public static IServiceCollection AddServices(this IServiceCollection services,IConfiguration builder)
     {
-         services.AddDbContext<DbContextLite>(options => options.UseSqlite(builder.GetConnectionString("DefaultConnection")));
+        services.AddDbContext<DbContextLite>(options => options.UseSqlite(builder.GetConnectionString("DefaultConnection")));
+        //services.AddDbContext<DbContextLite>(options => options.UseSqlServer("postgresql://postgres:12345@localhost:5432/postgres"));
 
 
         services.AddScoped<IAuthorRepository, AuthorRepository>();
@@ -47,4 +49,6 @@ public static class BuilderExtensions
 
         return services;
     }
+    
+
 }

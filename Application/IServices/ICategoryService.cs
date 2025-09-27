@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.Models;
-using Domain.Entities;
 using Domain.Erros;
 using OneOf;
 using System;
@@ -12,7 +11,7 @@ namespace Application.IServices;
 
 public interface ICategoryService
 {
-    Task<OneOf<bool,Errors>> Create(AddCategoryInputModel category);
+    Task<OneOf<CategoryViewModel, Errors>> Create(AddCategoryInputModel category);
 
 
     Task<OneOf<List<CategoryViewModel>, Errors>> GetAsync();

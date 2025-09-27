@@ -62,18 +62,13 @@ public class CategoryTest
         //arrange
         string expecredName = this._faker.Person.FirstName;
         string expecredIdAuthor = Guid.NewGuid().ToString();
-
-        //act
         AddCategoryInputModel input = new(expecredIdAuthor, expecredName);
 
-        var category = input.Adapt<Category>();
-
-
-
+        //act
+        var category = (Category)input;
         this._output.WriteLine(category.Id.ToString());
+
         //assert
-
-
         category.Id.Should().NotBe(string.Empty); 
         category.AuthorId.Should().Be(expecredIdAuthor);
         category.Name.Should().Be(expecredName);
@@ -88,7 +83,7 @@ public class CategoryTest
 
         //act
         Category category = buider.CategoryEntityBuilder(expecredIdAuthor);
-        CategoryViewModel categoryViewModel = category.Adapt<CategoryViewModel>();
+        CategoryViewModel categoryViewModel = category.Map();
 
         //assert
         categoryViewModel.AuthorId.Should().Be(expecredIdAuthor);

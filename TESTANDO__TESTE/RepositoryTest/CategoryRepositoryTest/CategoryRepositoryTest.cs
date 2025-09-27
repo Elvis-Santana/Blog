@@ -38,11 +38,14 @@ public class CategoryRepositoryTest
 
         //act
         CategoryRepository _authorCategory = new(db);
-        var result = await _authorCategory.Create(new (Guid.NewGuid().ToString(),Guid.NewGuid().ToString(), "Tech"));
-        
+        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "Tech");
+        var result = await _authorCategory.Create(category);
+
 
         //assert
-        result.Should().BeTrue();
+        result.Id.Should().Be(category.Id);
+        result.AuthorId.Should().Be(category.AuthorId);
+        result.Name.Should().Be(category.Name);
     }
 
     [Fact]
@@ -59,7 +62,7 @@ public class CategoryRepositoryTest
             await context.Authors.AddAsync(author);
             await context.SaveChangesAsync();
 
-            var category = new Category(Guid.NewGuid().ToString(), author.Id, "Tech");
+            var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, "Tech");
             await context.Category.AddAsync(category);
             await context.SaveChangesAsync();
             var listAuthor = await context.Authors.ToListAsync();
@@ -99,7 +102,7 @@ public class CategoryRepositoryTest
 
         string categoryName = this._faker.Name.Locale;
 
-        var category = new Category(Guid.NewGuid().ToString(), author.Id, categoryName);
+        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
 
         await context.Category.AddAsync(category);
         await context.SaveChangesAsync();
@@ -133,7 +136,7 @@ public class CategoryRepositoryTest
 
         string categoryName = this._faker.Name.Locale;
 
-        var category = new Category(Guid.NewGuid().ToString(), author.Id, categoryName);
+        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
 
         await context.Category.AddAsync(category);
         await context.SaveChangesAsync();
@@ -170,8 +173,8 @@ public class CategoryRepositoryTest
         string categoryName = this._faker.Name.Locale;
         string categoryUpdatdName = this._faker.Name.FullName();
 
-        var category = new Category(Guid.NewGuid().ToString(), author.Id, categoryName);
-        var expredtedUpdatedCategory = new Category(category.Id, author.Id, categoryUpdatdName);
+        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
+        var expredtedUpdatedCategory = Category.Factory.CreateCategory(category.Id, author.Id, categoryUpdatdName);
 
         await context.Category.AddAsync(category);
         await context.SaveChangesAsync();
@@ -180,16 +183,16 @@ public class CategoryRepositoryTest
 
 
         //act
-
-        var result = await categoryRepository.Update(expredtedUpdatedCategory, expredtedUpdatedCategory.Id);
+        category.UpdateName(expredtedUpdatedCategory.Name);
+        var result = await categoryRepository.Update(category, expredtedUpdatedCategory.Id);
 
 
         //assert
 
         result.Id.Should().NotBeNull();
-        result.Id.Should().Be(expredtedUpdatedCategory.Id);
+        result.Id.Should().Be(category.Id);
         result.Name.Should().Be(expredtedUpdatedCategory.Name);
-        result.AuthorId.Should().Be(expredtedUpdatedCategory.AuthorId);
+        result.AuthorId.Should().Be(category.AuthorId);
     
 
     }

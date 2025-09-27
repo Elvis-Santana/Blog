@@ -25,20 +25,15 @@ public class CategoryService (
     private readonly IValidator<AddCategoryInputModel> _addValidator = addValidator;
     private readonly IValidator<UpdateCategoryInputModel> _updateValidator = updateValidator;
 
-    public async Task<OneOf<bool, Errors>> Create(AddCategoryInputModel addCategoryInputModel)
+    public async Task<OneOf<CategoryViewModel, Errors>> Create(AddCategoryInputModel addCategoryInputModel)
     {
        var result = await this._addValidator.ValidateAsync(addCategoryInputModel);
 
         if (!result.IsValid)
-            return new Errors
-             (
-                result.Errors.Select( a => new AppErro(a.ErrorMessage, a.PropertyName)
-            ).ToList());
-        
+            return Errors.Factory.CreateErro(result.Errors.Select(a => new AppErro(a.ErrorMessage, a.PropertyName)));
 
-        var category = addCategoryInputModel.Adapt<Category>();
-
-        return await this._categoryRepository.Create(category);
+        var category = (await this._categoryRepository.Create((Category)addCategoryInputModel));
+        return category.Map();
     }
 
     public async Task<OneOf<bool, Errors>> DeleteById(string id)
@@ -46,24 +41,27 @@ public class CategoryService (
         return await this._categoryRepository.DeleteById(id);
     }
 
-    public async Task<OneOf<List<CategoryViewModel>, Errors>> GetAsync()=>
-        ( await this._categoryRepository.GetAsync()).Adapt<List<CategoryViewModel>>();
+    public async Task<OneOf<List<CategoryViewModel>, Errors>> GetAsync() =>
+     (await this._categoryRepository.GetAsync()).Map();
+    
+
 
     public async Task<OneOf<CategoryViewModel, Errors>> GetById(string id)
     {
-        return (await _categoryRepository.GetById(id)).Adapt<CategoryViewModel>();
+        return (await _categoryRepository.GetById(id)).Map();
     }
 
-    public async Task<OneOf<CategoryViewModel, Errors>> Update(UpdateCategoryInputModel category, string id)
+    public async Task<OneOf<CategoryViewModel, Errors>> Update(UpdateCategoryInputModel updateCategory, string id)
     {
-        var result = await this._updateValidator.ValidateAsync(category);
+        var result = await this._updateValidator.ValidateAsync(updateCategory);
 
         if (!result.IsValid)
-            return new Errors
-             (
-                result.Errors.Select(a => new AppErro(a.ErrorMessage, a.PropertyName)
-            ).ToList());
+            return  Errors.Factory.CreateErro(result.Errors.Select(a => new AppErro(a.ErrorMessage, a.PropertyName)));
 
-        return (await this._categoryRepository.Update(category.Adapt<Category>(), id)).Adapt<CategoryViewModel>();
+
+        var category = await this._categoryRepository.GetById(id);
+        category.UpdateName(updateCategory.Name);   
+
+        return (await this._categoryRepository.Update(category, id)).Map();
     }
 }

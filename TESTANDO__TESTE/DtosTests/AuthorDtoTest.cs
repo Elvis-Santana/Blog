@@ -30,12 +30,12 @@ public class AuthorDtoTest
     [Fact]
     public void Constructor_dataValid_ShouldCreatAddAuthorInputModel()
     {
-       
+      
 
         var addAuthorInputModel = new AddAuthorInputModel(new FullName(this._faker.Person.FirstName,""));
 
 
-        var author = addAuthorInputModel.Adapt<Author>();
+        var author = (Author)addAuthorInputModel;
 
 
         author.Id.Should().NotBeEmpty();
@@ -53,21 +53,21 @@ public class AuthorDtoTest
          Author author = _authorBuilder.AuthorEntityBulder();
 
         //act
-        AuthorViewModel authorDto = author.Adapt<AuthorViewModel>();
+        var authorDto = author.Map();
 
 
         // assert
         authorDto.Id.Should()
-            .Be(_authorBuilder.expectedId, "Id não é igual a expectedId");
+           .Be(_authorBuilder.expectedId, "Id não é igual a expectedId");
 
         authorDto.Name.FirstName.Should()
-            .Be(_authorBuilder.expectedName.FirstName, "FirstName não é igual a expectedFirstName");
+           .Be(_authorBuilder.expectedName.FirstName, "FirstName não é igual a expectedFirstName");
 
         authorDto.Name.LastName.Should()
             .Be(_authorBuilder.expectedName.LastName, "LastName não é igual a expectedLastName");
 
         authorDto.Post.Should()
-            .BeEquivalentTo(_authorBuilder.expectedPosts.Adapt<List<PostViewModel>>() , "Posts não são equivalentes a expectedIdPosts");
+           .BeEquivalentTo(_authorBuilder.expectedPosts.Select(a => a.Map()).ToList() , "Posts não são equivalentes a expectedIdPosts");
 
     }
     [Fact]
@@ -79,7 +79,7 @@ public class AuthorDtoTest
 
 
         //act
-        AuthorViewModel authorDto = author.Adapt<AuthorViewModel>();
+        AuthorViewModel authorDto = author.Map();
 
 
         //assert

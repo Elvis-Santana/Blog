@@ -14,7 +14,7 @@ public sealed class PostMsg
     public const string postErroTextNotEmpty = "texto não pode ser vazio";
     public const string postErroTextMax = "texto não pode ultrapassar 2000 caracteres";
 
-    public const string postErroAuthorIdNotEmpty = "cuthorId não pode ser vazio";
+    public const string postErroAuthorIdNotEmpty = "AuthorId não pode ser vazio";
     //public const string postErroCategoryIdNotEmpty = "categoryId não pode ser vazio";
     public const string postErroDataNotNull = "data não pode ser nulo";
 

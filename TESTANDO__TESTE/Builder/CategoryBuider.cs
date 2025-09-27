@@ -29,7 +29,7 @@ internal class CategoryBuider
         this.expectedName = expectedName??  _faker.Music.Locale;
 
     
-        return new Category(this.expectedId, this.expectedIdAuthor, this.expectedName);
+        return  Category.Factory.CreateCategory(this.expectedId, this.expectedIdAuthor, this.expectedName);
 
     }
     public Category CategoryEntityBuilder(string expectedIdAuthor)
@@ -39,7 +39,7 @@ internal class CategoryBuider
         this.expectedName = _faker.Music.Locale;
 
 
-        return new Category(this.expectedIdAuthor, this.expectedName);
+        return Category.Factory.CreateCategory(this.expectedIdAuthor, this.expectedName);
     }
 
 

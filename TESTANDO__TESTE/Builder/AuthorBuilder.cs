@@ -18,8 +18,6 @@ internal  class AuthorBuilder
     public  List<Post> expectedPosts { get; set; }
 
 
-    public CategoryBuider CategoryBuider;
-    public PostBuilder PostBuilder;
 
 
    
@@ -32,7 +30,7 @@ internal  class AuthorBuilder
 
         this.expectedPosts = new List<Post>
         {
-            new Post("s","4",new DateTime(),Guid.NewGuid().ToString(),Guid.NewGuid().ToString())
+            Post.Factory.CreatePost("s", "4", new DateTime(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString())
         };
 
         return  new(expectedId, expectedName, expectedPosts);
@@ -40,13 +38,13 @@ internal  class AuthorBuilder
 
     public Author AuthorEntityBulderPostNULL(FullName? FullName= null)
     {
-        this.expectedId = Guid.NewGuid().ToString();
         expectedName = FullName ?? new FullName(this._faker.Person.FullName, this._faker.Person.LastName);
         this.expectedPosts = new List<Post>();
 
+        var result = Author.Factory.CriarAuthor(expectedName);
+        this.expectedId = result.Id;
 
-
-        return new(expectedId, expectedName);
+        return result;
     }
    
 

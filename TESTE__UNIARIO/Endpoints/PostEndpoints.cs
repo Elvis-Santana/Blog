@@ -7,17 +7,20 @@ public static class PostEndpoints
 {
     public static WebApplication RouterPostEndpoints(this WebApplication app)
     {
-        var posts = app.MapGroup("/posts");
-        posts.WithTags("posts");
+        const string nameGroup = "posts";
+
+        var posts = app.MapGroup($"/{nameGroup}");
+
+        posts.WithTags(nameGroup);
 
 
         posts.MapPost("/", async (AddPostInputModel post, IPostService postService) =>
         {
             return (await postService.Create(post)).Match<IResult>(
-                (s) => Results.Ok(s),
+                (sucess) => Results.Created($"{post}/{sucess.Id}", sucess),
 
                 (erros) => Results.BadRequest(erros)
-                );
+            );
                 
         });
 
