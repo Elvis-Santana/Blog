@@ -15,7 +15,7 @@ namespace TESTANDO__TESTE.ServicesTest.AuthSeviceTest;
 public class AuthSeviceTest
 {
     private readonly IConfiguration _configuration;
-    private readonly IAuthorRepository _moqAuthorRepository;
+    private readonly IAuthorRepository _authorRepository;
     
 
     private readonly Faker _faker = new("pt_BR");
@@ -28,7 +28,7 @@ public class AuthSeviceTest
 
             }).Build();
 
-        _moqAuthorRepository = Substitute.For<IAuthorRepository>();
+        _authorRepository = Substitute.For<IAuthorRepository>();
 
 
 
@@ -43,7 +43,7 @@ public class AuthSeviceTest
 
 
         //act
-        IAuthSevice authSevice = new AuthSevice(this._configuration, _moqAuthorRepository);
+        IAuthSevice authSevice = new AuthSevice(this._configuration, _authorRepository);
 
         Token tokenJWT = await authSevice.CriateToken(login);
 
@@ -63,11 +63,11 @@ public class AuthSeviceTest
         var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password);
 
         
-        _moqAuthorRepository.GetByExpression(Arg.Any<Expression<Func<Author, bool>>>()).Returns(Task.FromResult(author));
+        _authorRepository.GetByExpression(Arg.Any<Expression<Func<Author, bool>>>()).Returns(Task.FromResult(author));
 
 
         //act
-        IAuthSevice authSevice = new AuthSevice(this._configuration, _moqAuthorRepository);
+        IAuthSevice authSevice = new AuthSevice(this._configuration, _authorRepository);
 
         Token tokenJWT = await authSevice.CriateToken(login);
 
@@ -125,10 +125,7 @@ public class AuthSeviceTest
         var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password);
 
 
-        //_moqAuthorRepository.GetByExpression(Arg.Any<Expression<Func<Author, bool>>>())
-        //    .Returns(Task.FromResult(author));
-
-        IAuthSevice authSevice = new AuthSevice(this._configuration, _moqAuthorRepository);
+        IAuthSevice authSevice = new AuthSevice(this._configuration, _authorRepository);
 
         Token tokenJWT = Token.Factory.CreateToken(Guid.NewGuid().ToString());
 
@@ -150,10 +147,10 @@ public class AuthSeviceTest
         var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password);
 
 
-        _moqAuthorRepository.GetByExpression(Arg.Any<Expression<Func<Author, bool>>>())
+        _authorRepository.GetByExpression(Arg.Any<Expression<Func<Author, bool>>>())
             .Returns(Task.FromResult(author));
 
-        IAuthSevice authSevice = new AuthSevice(this._configuration, _moqAuthorRepository);
+        IAuthSevice authSevice = new AuthSevice(this._configuration, _authorRepository);
 
         Token tokenJWT = await authSevice.CriateToken(login);
 
