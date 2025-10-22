@@ -9,11 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Validators.AuthorValidator;
+namespace Application.Validators.Validator.AuthorValidator;
 
-public class AuthorValidator : AbstractValidator<AddAuthorInputModel>
+public class AuthorCreateValidator : AbstractValidator<AuthorCreateDTO>
 {
-    public AuthorValidator()
+    public AuthorCreateValidator()
     {
 
         When(x => x != null, () =>
@@ -30,17 +30,17 @@ public class AuthorValidator : AbstractValidator<AddAuthorInputModel>
         
 
     }
-    public override ValidationResult Validate(ValidationContext<AddAuthorInputModel> context)
+    public override ValidationResult Validate(ValidationContext<AuthorCreateDTO> context)
     {
         return context.InstanceToValidate is null
-            ?new ValidationResult (new[] { new ValidationFailure(nameof(AddAuthorInputModel), AuthorMsg.AuthorErroNull) })
+            ?new ValidationResult (new[] { new ValidationFailure(nameof(AuthorCreateDTO), AuthorMsg.AuthorErroNull) })
             :base.Validate(context);
     }
 
-    public override async Task<ValidationResult> ValidateAsync(ValidationContext<AddAuthorInputModel> context, CancellationToken cancellation = default)
+    public override async Task<ValidationResult> ValidateAsync(ValidationContext<AuthorCreateDTO> context, CancellationToken cancellation = default)
     {
         return await Task.Run(() => context.InstanceToValidate is null
-             ? new ValidationResult(new[] { new ValidationFailure(nameof(AddAuthorInputModel), AuthorMsg.AuthorErroNull) })
+             ? new ValidationResult(new[] { new ValidationFailure(nameof(AuthorCreateDTO), AuthorMsg.AuthorErroNull) })
              : base.Validate(context));
     }
 

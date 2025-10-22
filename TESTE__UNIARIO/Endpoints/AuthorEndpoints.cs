@@ -1,6 +1,7 @@
 ﻿using Application.Dtos.Models;
 using Application.IServices;
 using Domain.Erros;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +18,11 @@ public static class AuthorEndpoints
 
         authors.WithTags(nameGroup);
 
-
-        authors.MapPost("/", async ( AddAuthorInputModel author, [FromServices]IServiceAuthor authorService) =>
+        authors.MapPost("/", async ( AuthorCreateDTO author, [FromServices]IServiceAuthor authorService) =>
         {
-            var result = await authorService.CreateAuthor(author);
+            var res = await authorService.CreateAuthor(author);
 
-            return  result.Match<IResult>(
+            return  res.Match(
                 sucesso => Results.Created($"{nameGroup}/{sucesso.Id}",sucesso),
                 erro => Results.BadRequest(erro)
             );
@@ -32,30 +32,28 @@ public static class AuthorEndpoints
         authors.MapGet("/", async (IServiceAuthor authorService) =>
         {
             return Results.Ok(await authorService.GetAuthor());
+
         });
 
         authors.MapGet("/{id}", async (IServiceAuthor authorService,string id) =>
         {
             var res = await authorService.GetById(id);
-            return Results.Ok(res.AsT0);
+            return res.Match( sucesso => Results.Ok(sucesso), erro => Results.NotFound(erro));
         });
 
         authors.MapDelete("/{id}", async (IServiceAuthor authorService, string id) =>
         {
             var res = await authorService.DeleteById(id);
-            return Results.Ok(res.AsT0);
+            return  res.Match( sucesso => Results.Ok(sucesso), erro => Results.NotFound(erro));
         });
 
-        authors.MapPatch("/{id}", async (IServiceAuthor authorService, AddAuthorInputModel addAuthorInputModel,string id) =>
+        authors.MapPatch("/{id}", async (IServiceAuthor authorService, AuthorCreateDTO addAuthorInputModel,string id) =>
         {
             var res = await authorService.Update(addAuthorInputModel,id);
-            return Results.Ok(res.AsT0);
+            return res.Match(sucesso => Results.Ok(sucesso), erro => Results.NotFound(erro));
         });
-
-
 
         return app;
     }
-
-   
+  
 }

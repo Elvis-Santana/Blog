@@ -12,13 +12,13 @@ namespace Application.IServices;
 
 public interface IServiceAuthor
 {
-    Task<OneOf<AuthorViewModel, Errors>> CreateAuthor(AddAuthorInputModel author);
-    Task<List<AuthorViewModel>> GetAuthor();
+    Task<OneOf<AuthorReadDTO, Errors>> CreateAuthor(AuthorCreateDTO author);
+    Task<List<AuthorReadDTO>> GetAuthor();
 
 
-    Task<OneOf<AuthorViewModel, Errors>> GetById(string id);
+    Task<OneOf<AuthorReadDTO, Errors>> GetById(string id);
 
-    Task<OneOf<AuthorViewModel, Errors>> Update(AddAuthorInputModel author, string id);
+    Task<OneOf<AuthorReadDTO, Errors>> Update(AuthorCreateDTO author, string id);
 
     Task<OneOf<bool, Errors>> DeleteById(string id);
 

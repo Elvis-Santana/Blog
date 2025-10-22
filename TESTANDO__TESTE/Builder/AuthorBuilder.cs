@@ -33,7 +33,7 @@ internal  class AuthorBuilder
             Post.Factory.CreatePost("s", "4", new DateTime(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString())
         };
 
-        return  new(expectedId, expectedName, expectedPosts);
+        return  new(expectedId, expectedName, expectedPosts, Guid.NewGuid().ToString());
     }
 
     public Author AuthorEntityBulderPostNULL(FullName? FullName= null)
@@ -41,7 +41,7 @@ internal  class AuthorBuilder
         expectedName = FullName ?? new FullName(this._faker.Person.FullName, this._faker.Person.LastName);
         this.expectedPosts = new List<Post>();
 
-        var result = Author.Factory.CriarAuthor(expectedName);
+        var result = Author.Factory.CriarAuthor(expectedName, Guid.NewGuid().ToString());
         this.expectedId = result.Id;
 
         return result;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Validators.AuthorValidator;
+namespace Application.Validators.Validator.AuthorValidator;
 
 public sealed class AuthorMsg
 {

@@ -15,44 +15,45 @@ public static class CategoryEndpoints
 
         categorys.WithTags(nameGroup);
 
-        categorys.MapGet("", async (ICategoryService _categoryService) =>
+        categorys.MapGet("/", async (ICategoryService _categoryService) =>
         {
             return Results.Ok((await _categoryService.GetAsync()).AsT0);
         });
 
-        categorys.MapPost("", async (AddCategoryInputModel addCategoryInputModel,ICategoryService _categoryService ) =>
+        categorys.MapPost("/", async (CategoryCreateDTO addCategoryInputModel,ICategoryService _categoryService ) =>
         {
-           var result =  await _categoryService.Create(addCategoryInputModel);
-            return result.Match<IResult>(
-                (res) => Results.Created($"{nameGroup}/{res.Id}", res),
-                (err) => Results.BadRequest(err)
+           var res =  await _categoryService.Create(addCategoryInputModel);
+            return res.Match(
+                res => Results.Created($"{nameGroup}/{res.Id}", res),
+                err => Results.BadRequest(err)
             );
         });
 
 
         categorys.MapGet("/{id}", async (string id,ICategoryService _categoryService) =>
         {
-            return Results.Ok((await _categoryService.GetById(id)).AsT0);
+            var res = await _categoryService.GetById(id);
+
+            return res.Match( res => Results.Ok(res), err => Results.NotFound(err));
         });
 
-        categorys.MapDelete("/{id}", async (string id,ICategoryService _categoryService) =>
+        categorys.MapDelete("/{id}", async (string id, ICategoryService _categoryService) =>
         {
-            return Results.Ok((await _categoryService.DeleteById(id)).AsT0);
+            var res = await _categoryService.DeleteById(id);
+
+            return res.Match(  res => Results.Ok(res), err => Results.NotFound(err) );
+
         });
 
-        categorys.MapPatch("/{id}", async (UpdateCategoryInputModel updateCategoryInputModel,string id, ICategoryService _categoryService) =>
+        categorys.MapPatch("/{id}", async (CategoryUpdateDTO updateCategoryInputModel,string id, ICategoryService _categoryService) =>
         {
-            var result = await _categoryService.Update(updateCategoryInputModel,id);
+            var res = await _categoryService.Update(updateCategoryInputModel,id);
 
-            return result.Match<IResult>(
-                 (res) => Results.Ok(res),
-                 (err) => Results.NotFound(err)
-            );
+            return res.Match( res => Results.Ok(res), err => Results.NotFound(err));
         });
 
 
-       
-
+      
         return app;
     }
 

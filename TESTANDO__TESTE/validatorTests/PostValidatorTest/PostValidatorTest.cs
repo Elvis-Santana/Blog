@@ -1,5 +1,5 @@
 ﻿using Application.Dtos.Models;
-using Application.Validators.Validator;
+using Application.Validators.Validator.PostValidator;
 using Bogus;
 using Domain.Enums;
 using FluentAssertions;
@@ -15,12 +15,15 @@ namespace TESTANDO__TESTE.validatorTests.PostValidatorTest;
 
 public class PostValidatorTest
 {
-    private readonly IValidator<AddPostInputModel> _postValidator;
+    private readonly IValidator<PostCreateDTO> _postCreateValidator;
+    private readonly IValidator<PostUpdateDTO> _postUpdateValidator; 
+        
     private readonly Faker _faker = new("pt_BR");
 
     public PostValidatorTest()
     {
-        this._postValidator = new PostValidator();
+        this._postCreateValidator = new PostCreateValidator();
+        this._postUpdateValidator = new PostUpdateValidator();
     }
 
     [Fact]
@@ -29,9 +32,9 @@ public class PostValidatorTest
     {
         //Arrange
 
-        var addPostInputModel = new AddPostInputModel(
-            Title: "",
-            Text: "",
+        var addPostInputModel = new PostCreateDTO(
+            Title: string.Empty,
+            Text: string.Empty,
             AuthorId: string.Empty,
             CategoryId: string.Empty,
             Date: DateTime.Now
@@ -39,7 +42,7 @@ public class PostValidatorTest
 
 
         //act
-        var result  =await  _postValidator.TestValidateAsync(addPostInputModel);
+        var result  =await  _postCreateValidator.TestValidateAsync(addPostInputModel);
 
 
         //Assert
@@ -59,29 +62,30 @@ public class PostValidatorTest
         //    .WithErrorMessage(PostMsg.postErroCategoryIdNotEmpty);
 
 
-    }   [Fact]
+    }   
 
+    [Fact]
     public async Task AddPostInputModel_isInvalid_ShouldReturnErros2()
     {
         //Arrange
 
-        var addPostInputModel = new AddPostInputModel(
-            Title: _faker.Lorem.Paragraph(51),
-            Text: _faker.Lorem.Paragraph(2001),
-            AuthorId:string.Empty,
+        var addPostInputModel = new PostCreateDTO(
+            Title: _faker.Text(51),
+            Text: _faker.Text(2001),
+            AuthorId: string.Empty,
             CategoryId: string.Empty,
             Date: DateTime.Now
         );
 
 
         //act
-        var result  =await  _postValidator.TestValidateAsync(addPostInputModel);
+        var result  =await  _postCreateValidator.TestValidateAsync(addPostInputModel);
 
 
         //Assert
 
         result.IsValid.Should().BeFalse();
-
+       
         result.ShouldHaveValidationErrorFor(x => x.Title)
             .WithErrorMessage(PostMsg.postErroTitleMax);
 

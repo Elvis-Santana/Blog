@@ -94,10 +94,10 @@ public class AuthorTest
     {
         //arrange
         FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
-        AddAuthorInputModel expectedAuthorDTOCreate = new(expectedName);
+        AuthorCreateDTO expectedAuthorDTOCreate = new(expectedName,Guid.NewGuid().ToString());
 
         //act
-        Author author = Author.Factory.CriarAuthor(expectedAuthorDTOCreate.Name);
+        Author author = Author.Factory.CriarAuthor(expectedAuthorDTOCreate.Name,Guid.NewGuid().ToString());
 
         //assert
         author.Name.Should().Be(expectedName);
@@ -108,7 +108,7 @@ public class AuthorTest
     {
         //arrange
         FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
-        AddAuthorInputModel expectedAuthorInputModel = new(expectedName);
+        AuthorCreateDTO expectedAuthorInputModel = new(expectedName, Guid.NewGuid().ToString());
 
         // act
         var author = (Author)expectedAuthorInputModel;

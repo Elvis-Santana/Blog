@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TESTANDO__TESTE;
+namespace Application.Validators.Validator.AuthorValidator;
 
-public class IntregadoTest
+public class AuthorUpdateValidator
 {
-
 }

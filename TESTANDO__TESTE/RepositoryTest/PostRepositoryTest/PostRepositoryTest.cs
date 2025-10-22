@@ -1,6 +1,7 @@
 ﻿using Application.Dtos.Models;
 using Bogus;
 using Domain.Entities;
+using Domain.IRepository.IPostRepository;
 using Domain.ObjectValues;
 using FluentAssertions;
 using Infrastructure.Db;
@@ -93,7 +94,7 @@ public class PostRepositoryTest
            expectedAuthouId
         );
 
-        var author = new Author(expectedAuthouId, new FullName(this._faker.Person.FirstName,""));
+        var author = new Author(expectedAuthouId, new FullName(this._faker.Person.FirstName,""), Guid.NewGuid().ToString());
 
         await context.Authors.AddAsync(author);
         await context.SaveChangesAsync();
@@ -167,6 +168,317 @@ public class PostRepositoryTest
     }
 
     
+    [Fact]
+    public async Task GetById__ShouldRetrunNull()
+    {
+
+        //arrage
+        using var context = new DbContextLite(this._Dbcontext);
+
+        Author author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+        var post = Post.Factory.CreatePost(_faker.Person.UserName, _faker.Lorem.Paragraph(300),  new DateTime(), category.Id, author.Id);
+
+        await context.Posts.AddAsync(post);
+        await context.SaveChangesAsync();
+
+        var idInvalid = Guid.NewGuid().ToString();
+
+        IPostRepository postRepository = new PostRepository(context);
+
+        //act
+        var result = await postRepository.GetById(idInvalid);
+
+        //assert
+        result.Should().BeNull();
+
+    }
+    [Fact]
+    public async Task GetById__ShouldRetrunPost()
+    {
+
+        //arrage
+        using var context = new DbContextLite(this._Dbcontext);
+
+        Author author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+        var title = _faker.Person.UserName;
+        var text = _faker.Lorem.Paragraph(300);
+        var data = new DateTime();
+
+        var post = Post.Factory.CreatePost(title, text,  data, category.Id, author.Id);
+
+        await context.Posts.AddAsync(post);
+        await context.SaveChangesAsync();
 
 
+        IPostRepository postRepository = new PostRepository(context);
+
+        //act
+        var result = await postRepository.GetById(post.Id);
+
+        //assert
+        result.AuthorId.Should().Be(author.Id);
+        result.CategoryId.Should().Be(category.Id);
+        result.Id.Should().Be(result.Id);
+        result.Title.Should().Be(title);
+        result.Text.Should().Be(text);
+        result.Date.Should().Be(data.Date);
+
+
+    }
+
+
+    [Fact]
+    public async Task DeleteById__ShouldReturnFalse()
+    {
+       
+        //arrage
+        using var context = new DbContextLite(this._Dbcontext);
+
+        Author author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+        var post = Post.Factory.CreatePost(_faker.Person.UserName, _faker.Lorem.Paragraph(300), new DateTime(), category.Id, author.Id);
+
+        await context.Posts.AddAsync(post);
+        await context.SaveChangesAsync();
+
+        var idInvalid = Guid.NewGuid().ToString();
+
+        IPostRepository postRepository = new PostRepository(context);
+
+        //act
+        var result = await postRepository.DeleteById(idInvalid);
+
+        //assert
+        result.Should().BeFalse();
+    }
+
+
+    [Fact]
+    public async Task DeleteById__ShouldRetrunTrue()
+    {
+        //arrage
+        using var context = new DbContextLite(this._Dbcontext);
+
+        Author author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+        var title = _faker.Person.UserName;
+        var text = _faker.Lorem.Paragraph(300);
+        var data = new DateTime();
+
+        var post = Post.Factory.CreatePost(title, text, data, category.Id, author.Id);
+
+        await context.Posts.AddAsync(post);
+        await context.SaveChangesAsync();
+
+
+        IPostRepository postRepository = new PostRepository(context);
+
+        //act
+        var result = await postRepository.DeleteById(post.Id);
+
+        //assert
+        result.Should().BeTrue();
+
+    }
+
+
+
+    [Fact]
+    public async Task Update__ShoulRetrunNull()
+    {
+        //arrage
+        using var context = new DbContextLite(this._Dbcontext);
+
+        Author author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+        var idInvalid = Guid.NewGuid().ToString();
+
+        var title = _faker.Person.UserName;
+        var text = _faker.Lorem.Paragraph(300);
+        var data = new DateTime();
+
+        var post = Post.Factory.CreatePost(
+            title,
+            text,
+            data,
+            category.Id,
+            author.Id
+        );
+
+        var postUpdate = Post.Factory.CreatePost(
+            string.Empty,
+            string.Empty,
+            data, 
+            category.Id,
+            author.Id
+         );
+
+        await context.Posts.AddAsync(post);
+        await context.SaveChangesAsync();
+
+
+        IPostRepository postRepository = new PostRepository(context);
+
+        //act
+        var result = await postRepository.Update(postUpdate,idInvalid);
+
+        //assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Update__ShouldRetrunUpdatPost()
+    {
+        //arrage
+        using var context = new DbContextLite(this._Dbcontext);
+
+        Author author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+
+        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+
+
+        var title = _faker.Person.UserName;
+        var text = _faker.Lorem.Paragraph(300);
+        var data = new DateTime();
+
+        var post = Post.Factory.CreatePost(title,text,data, category.Id, author.Id );
+        await context.Posts.AddAsync(post);
+        await context.SaveChangesAsync();
+
+
+        PostUpdateDTO postUpdateDTO = new 
+        (
+            _faker.Person.UserName,
+            _faker.Lorem.Paragraph(400),
+            string.Empty
+        );
+
+       
+
+        post.UpdateAttributes(postUpdateDTO.Title, postUpdateDTO.Text);
+        var postUpdate = post;
+
+    
+        IPostRepository postRepository = new PostRepository(context);
+
+        //act
+        var result = await postRepository.Update(postUpdate, post.Id);
+
+        //assert
+        result.Id.Should().Be(post.Id);
+        result.Title.Should().Be(postUpdate.Title);
+        result.Text.Should().Be(postUpdate.Text);
+        result.Date.Should().Be(postUpdate.Date);
+        result.CategoryId.Should().Be(postUpdate.CategoryId);
+        result.AuthorId.Should().Be(postUpdate.AuthorId);
+        
+
+    }
+
+    [Fact]
+    public async Task Save__ShouldFalse()
+    {
+        //arrange
+        using var context = new DbContextLite(this._Dbcontext);
+        Author author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+
+        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+
+
+        var title = _faker.Person.UserName;
+        var text = _faker.Lorem.Paragraph(300);
+        var data = new DateTime();
+
+        var post = Post.Factory.CreatePost(title, text, data, category.Id, author.Id);
+        await context.Posts.AddAsync(post);
+        await context.SaveChangesAsync();
+
+        IPostRepository postRepository = new PostRepository(context);
+
+        //act
+
+        var result = await postRepository.Save();
+
+        //assert
+        result.Should().BeFalse();
+
+
+    }
+    [Fact]
+    public async Task Save__ShouldTrue()
+    {
+        //arrange
+        using var context = new DbContextLite(this._Dbcontext);
+        Author author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+
+        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+
+
+        var title = _faker.Person.UserName;
+        var text = _faker.Lorem.Paragraph(300);
+        var data = new DateTime();
+
+        var post = Post.Factory.CreatePost(title, text, data, category.Id, author.Id);
+        await context.Posts.AddAsync(post);
+        await context.SaveChangesAsync();
+
+        IPostRepository postRepository = new PostRepository(context);
+
+        //act
+        PostUpdateDTO postUpdateDTO = new
+          (
+              _faker.Person.UserName,
+              _faker.Lorem.Paragraph(400),
+              string.Empty
+          );
+
+        post.UpdateAttributes(this._faker.Person.FirstName);
+        var result = await postRepository.Save();
+
+        //assert
+        result.Should().BeTrue();
+
+
+    }
 }

@@ -23,7 +23,7 @@ public class CategoryDtoTest
 
         var expectedIdAuthor = Guid.NewGuid().ToString();
         var exprectedName = _faker.Person.LastName;
-        UpdateCategoryInputModel updateCategory = new (exprectedName);
+        CategoryUpdateDTO updateCategory = new (exprectedName);
 
         Category category = Category.Factory.CreateCategory(expectedIdAuthor, _faker.Person.UserName);
 

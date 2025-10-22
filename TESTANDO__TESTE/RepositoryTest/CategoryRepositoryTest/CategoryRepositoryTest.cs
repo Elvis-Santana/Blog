@@ -58,7 +58,7 @@ public class CategoryRepositoryTest
 
             using var context = new DbContextLite(this._dbContextOptions);
             var repo = new CategoryRepository(context);
-            var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"));
+            var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
             await context.Authors.AddAsync(author);
             await context.SaveChangesAsync();
 
@@ -95,7 +95,7 @@ public class CategoryRepositoryTest
         using var context = new DbContextLite(this._dbContextOptions);
         var categoryRepository = new CategoryRepository(context);
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"));
+        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
 
         await context.Authors.AddAsync(author);
         await context.SaveChangesAsync();
@@ -121,6 +121,43 @@ public class CategoryRepositoryTest
         result.Name.Should().Be(categoryName);
 
     } 
+
+    [Fact]
+    public async Task GetById__ShouldRetrunNull()
+    {
+
+        //arragen
+        using var context = new DbContextLite(this._dbContextOptions);
+        var categoryRepository = new CategoryRepository(context);
+
+        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
+
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+
+        string categoryName = this._faker.Name.Locale;
+
+        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
+
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+        var idInvalid = Guid.NewGuid().ToString();
+
+
+
+        //act
+
+        var result = await categoryRepository.GetById(idInvalid);
+
+
+        //assert
+
+        result.Should().BeNull();
+
+    } 
+
+
     
     [Fact]
     public async Task DeleteById__ShouldRetruntrue()
@@ -129,7 +166,7 @@ public class CategoryRepositoryTest
         //arragen
         using var context = new DbContextLite(this._dbContextOptions);
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"));
+        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
 
         await context.Authors.AddAsync(author);
         await context.SaveChangesAsync();
@@ -157,6 +194,41 @@ public class CategoryRepositoryTest
 
     }
 
+    [Fact]
+    public async Task DeleteById__ShouldRetrunfalse()
+    {
+
+        //arragen
+        using var context = new DbContextLite(this._dbContextOptions);
+
+        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
+
+        await context.Authors.AddAsync(author);
+        await context.SaveChangesAsync();
+
+        string categoryName = this._faker.Name.Locale;
+
+        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
+
+        await context.Category.AddAsync(category);
+        await context.SaveChangesAsync();
+
+        var idInvalid = Guid.NewGuid().ToString();
+        var categoryRepository = new CategoryRepository(context);
+
+
+        //act
+
+        var result = await categoryRepository.DeleteById(idInvalid);
+
+
+        //assert
+
+        result.Should().BeFalse();
+       
+
+    }
+
 
     [Fact]
     public async Task Update__ShouldRetrunCategory()
@@ -164,7 +236,7 @@ public class CategoryRepositoryTest
         //arragen
         using var context = new DbContextLite(this._dbContextOptions);
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName(_faker.Person.FullName, ""));
+        var author = new Author(Guid.NewGuid().ToString(), new FullName(_faker.Person.FullName, ""), Guid.NewGuid().ToString());
    
 
         await context.Authors.AddAsync(author);
@@ -196,6 +268,7 @@ public class CategoryRepositoryTest
     
 
     }
+   
 
 
 

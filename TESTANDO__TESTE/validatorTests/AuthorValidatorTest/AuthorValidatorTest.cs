@@ -1,6 +1,4 @@
-﻿
-using Application.Validators.AuthorValidator;
-using Bogus;
+﻿using Bogus;
 using Castle.Core.Resource;
 using Domain.ObjectValues;
 using System;
@@ -17,6 +15,7 @@ using Domain.Erros.AppErro;
 using Xunit.Abstractions;
 using Domain.Erros;
 using Application.Dtos.Models;
+using Application.Validators.Validator.AuthorValidator;
 
 namespace TESTANDO__TESTE.validatorTests.AuthorValidatorTest;
 
@@ -24,12 +23,12 @@ public class AuthorValidatorTest
 {
 
     private readonly Faker _faker = new("pt_BR");
-    private readonly IValidator<AddAuthorInputModel> _validator;
+    private readonly IValidator<AuthorCreateDTO> _validator;
     private readonly ITestOutputHelper _testOutputHelper;
 
     public AuthorValidatorTest(ITestOutputHelper testOutputHelper)
     {
-        _validator = new AuthorValidator();
+        _validator = new AuthorCreateValidator();
         _testOutputHelper = testOutputHelper;
     }
 
@@ -38,8 +37,8 @@ public class AuthorValidatorTest
     {
         //arrage
             FullName fullName = new(string.Empty, _faker.Lorem.Paragraph(101));
-            AddAuthorInputModel inputModel = new(fullName);
-            AuthorValidator validator = new AuthorValidator();
+            AuthorCreateDTO inputModel = new(fullName, Guid.NewGuid().ToString());
+            AuthorCreateValidator validator = new AuthorCreateValidator();
 
         //act
          var result =await _validator.TestValidateAsync(inputModel);
@@ -58,13 +57,13 @@ public class AuthorValidatorTest
     public async Task  AddAuthorInputModel_isInvalid_ShouldAddAuthorInputModelNull()
     {
         //arrage
-        AddAuthorInputModel inputModel = null;
+        AuthorCreateDTO inputModel = null;
 
         //act
         var result = await _validator.TestValidateAsync(inputModel);
 
         //assert
-        result.ShouldHaveValidationErrorFor(nameof(AddAuthorInputModel)).WithErrorMessage(AuthorMsg.AuthorErroNull);
+        result.ShouldHaveValidationErrorFor(nameof(AuthorCreateDTO)).WithErrorMessage(AuthorMsg.AuthorErroNull);
         result.IsValid.Should().BeFalse();
 
     }

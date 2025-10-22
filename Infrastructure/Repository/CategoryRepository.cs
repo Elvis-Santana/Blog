@@ -22,38 +22,32 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category> Create(Category category)
     {
-
         await  this._dbContextLite.Category.AddAsync(category);
-
-         await this._dbContextLite.SaveChangesAsync();
+        await this._dbContextLite.SaveChangesAsync();
         return category;
     }
 
     public async Task<bool> DeleteById(string id)
     {
-        Category res = await this.GetById(id);
-
-         this._dbContextLite.Category.Remove(res);
-
-        return await this._dbContextLite.SaveChangesAsync() > 0;
-
-    }
-
-    public async Task<List<Category>> GetAsync()
-    {
-        var result = await _dbContextLite.Category.ToListAsync();
-        return result;
+        var res = await this.GetById(id);
+        if (res is null)
+            return false;
+        
+       this._dbContextLite.Category.Remove(res);
+       return await this._dbContextLite.SaveChangesAsync() > 0;
 
     }
 
-    public async Task<Category> GetById(string id)
-    {
-        var _category = await _dbContextLite.Category.FindAsync(id);
+    public async Task<List<Category>> GetAsync() =>
+      await _dbContextLite.Category.ToListAsync();
+        
 
-        return _category;
+    
+    public async Task<Category> GetById(string id)=>
+      await _dbContextLite.Category.FindAsync(id);
+     
 
-    }
-
+    
 
     public async Task<Category> Update(Category category, string id)
     {

@@ -2,11 +2,11 @@
 using FluentValidation;
 using FluentValidation.Results;
 
-namespace Application.Validators.AuthorValidator;
+namespace Application.Validators.Validator.CategoryValidator;
 
-public class CategoryInputValidator: AbstractValidator<AddCategoryInputModel>
+public class CategoryCreateValidator: AbstractValidator<CategoryCreateDTO>
 {
-    public CategoryInputValidator()
+    public CategoryCreateValidator()
     {
         RuleFor(x => x.Name)
             .MaximumLength(50)
@@ -21,19 +21,19 @@ public class CategoryInputValidator: AbstractValidator<AddCategoryInputModel>
             .WithMessage(CategoryMsg.CategoryErroIdAuthorNotEmpty); ;
     }
 
-    public override ValidationResult Validate(ValidationContext<AddCategoryInputModel> context)
+    public override ValidationResult Validate(ValidationContext<CategoryCreateDTO> context)
     {
         return context.InstanceToValidate is null ?new ValidationResult(new[]
         {
-            new ValidationFailure(nameof(AddCategoryInputModel),CategoryMsg.CategoryErroNull)
+            new ValidationFailure(nameof(CategoryCreateDTO),CategoryMsg.CategoryErroNull)
         }): base.Validate(context);
     }
 
-    public override async Task<ValidationResult> ValidateAsync(ValidationContext<AddCategoryInputModel> context, CancellationToken cancellation = default)
+    public override async Task<ValidationResult> ValidateAsync(ValidationContext<CategoryCreateDTO> context, CancellationToken cancellation = default)
     {
         return  await Task.Run(()=> context.InstanceToValidate is null)?new ValidationResult(new[]
         {
-            new ValidationFailure(nameof(AddCategoryInputModel),CategoryMsg.CategoryErroNull)
+            new ValidationFailure(nameof(CategoryCreateDTO),CategoryMsg.CategoryErroNull)
         }): base.Validate(context);
     }
 }

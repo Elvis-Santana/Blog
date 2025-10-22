@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Validators.Validator;
+namespace Application.Validators.Validator.PostValidator;
 
 public sealed class PostMsg
 {

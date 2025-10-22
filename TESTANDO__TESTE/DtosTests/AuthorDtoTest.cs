@@ -32,7 +32,7 @@ public class AuthorDtoTest
     {
       
 
-        var addAuthorInputModel = new AddAuthorInputModel(new FullName(this._faker.Person.FirstName,""));
+        var addAuthorInputModel = new AuthorCreateDTO(new FullName(this._faker.Person.FirstName,""), Guid.NewGuid().ToString());
 
 
         var author = (Author)addAuthorInputModel;
@@ -79,7 +79,7 @@ public class AuthorDtoTest
 
 
         //act
-        AuthorViewModel authorDto = author.Map();
+        AuthorReadDTO authorDto = author.Map();
 
 
         //assert
@@ -103,7 +103,7 @@ public class AuthorDtoTest
         FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
 
         //act
-        AddAuthorInputModel authorDTOCreate = new(expectedName);
+        AuthorCreateDTO authorDTOCreate = new(expectedName, Guid.NewGuid().ToString());
 
         //assert
         authorDTOCreate.Name.Should().Be(expectedName);

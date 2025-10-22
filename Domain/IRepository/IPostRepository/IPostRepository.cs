@@ -13,10 +13,13 @@ public interface IPostRepository
 
     Task<List<Post>> GetAllPosts();
 
-    Task<Post> DeleteById(string id);
+    Task<bool> DeleteById(string id);
 
     Task<Post> GetById(string id);
 
-    Task<Post> Update(Post category, string id);
+    Task<Post> Update(Post post, string id);
+
+
+    Task<bool> Save();
 
 }

@@ -1,12 +1,18 @@
 using Application;
 using Application.Dtos.Models;
-using Application.Validators.AuthorValidator;
+using Microsoft.AspNetCore.Authentication;
 using Application.Validators.Validator;
+using Application.Validators.Validator.AuthorValidator;
+using Application.Validators.Validator.CategoryValidator;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure.Db;
 using Microsoft.AspNetCore.Identity;
 using System.Net.Sockets;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,17 +23,46 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 
 
-builder.Services.AddScoped<IValidator<AddAuthorInputModel>, AuthorValidator>();
 
-builder.Services.AddScoped<IValidator<AddCategoryInputModel>, CategoryInputValidator>();
-
-builder.Services.AddScoped
-    <IValidator<UpdateCategoryInputModel>, CategoryUpdateValidator>();
-
-builder.Services.AddScoped<IValidator<AddPostInputModel>, PostValidator>();
 builder.Services.AddServices(builder.Configuration);
 
 
+
+
+builder.Services.AddAuthentication()
+    .AddJwtBearer("some-scheme", jwtOptions =>
+    {
+
+        jwtOptions.MetadataAddress = builder.Configuration["Api:MetadataAddress"];
+        jwtOptions.Authority = builder.Configuration["Api:Authority"];
+        jwtOptions.Audience = builder.Configuration["Api:Audience"];
+
+
+        jwtOptions.RequireHttpsMetadata = false;
+
+        jwtOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime=true,
+
+            ValidIssuers= builder.Configuration.GetSection("Api:ValidIssuers").Get<string[]>(),
+            ValidAudiences = builder.Configuration.GetSection("Api:ValidAudiences").Get<string[]>(),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Api:SecretKey"]))
+        };
+
+        jwtOptions.MapInboundClaims = false;
+
+
+    });
+
+
+
+builder.Services.AddAuthorizationBuilder()
+    .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+    .RequireAuthenticatedUser()
+    .Build());
 
 var app = builder.Build();
 
@@ -38,6 +73,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();
+   
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Minha Minimal API v1");
@@ -51,9 +87,13 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapEndpoints();
 
 
 app.Run();
 
 
+public partial class Program { }

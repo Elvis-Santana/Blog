@@ -1,8 +1,8 @@
 ﻿using Application.Dtos.Models;
 using Application.IServices;
 using Application.Services.CategoryService;
-using Application.Validators.AuthorValidator;
 using Application.Validators.Validator;
+using Application.Validators.Validator.CategoryValidator;
 using Bogus;
 using Domain.Entities;
 using Domain.IRepository.ICategoryRepository;
@@ -35,13 +35,13 @@ public class CategoryServiceTest
         //arrange
         ICategoryService _categoryService = new CategoryService(
               this.mackCategoryRepository,
-              new CategoryInputValidator(),
+              new CategoryCreateValidator(),
               new CategoryUpdateValidator()
           );
 
         
 
-        AddCategoryInputModel addCategoryInputModel = new(Guid.NewGuid().ToString(), _faker.Person.UserName);
+        CategoryCreateDTO addCategoryInputModel = new(Guid.NewGuid().ToString(), _faker.Person.UserName);
         var expectedCategory = (Category)addCategoryInputModel;
 
         this.mackCategoryRepository.Create(Arg.Any<Category>()).Returns(Task.FromResult(expectedCategory));
@@ -63,10 +63,10 @@ public class CategoryServiceTest
         //arrange
         ICategoryService _categoryService = new CategoryService(
                   this.mackCategoryRepository,
-                  new CategoryInputValidator(),
+                  new CategoryCreateValidator(),
                   new CategoryUpdateValidator()
-              );
-        AddCategoryInputModel addCategoryInputModel = new(string.Empty, "");
+        );
+        CategoryCreateDTO addCategoryInputModel = new(string.Empty, "");
 
         //act
         var result = await _categoryService.Create(addCategoryInputModel);
@@ -97,10 +97,10 @@ public class CategoryServiceTest
 
         ICategoryService _categoryService = new CategoryService(
                this.mackCategoryRepository,
-               new CategoryInputValidator(),
+               new CategoryCreateValidator(),
                new CategoryUpdateValidator()
            );
-        AddCategoryInputModel addCategoryInputModel = new(Guid.NewGuid().ToString(), _faker.Person.UserName);
+        CategoryCreateDTO addCategoryInputModel = new(Guid.NewGuid().ToString(), _faker.Person.UserName);
         this.mackCategoryRepository.GetAsync().Returns(Task.FromResult(new List<Category>() { category }));
 
 
@@ -124,7 +124,7 @@ public class CategoryServiceTest
 
         ICategoryService _categoryService = new CategoryService(
             this.mackCategoryRepository,
-            new CategoryInputValidator(),
+            new CategoryCreateValidator(),
             new CategoryUpdateValidator()
         );
 
@@ -138,11 +138,35 @@ public class CategoryServiceTest
         result.IsT0.Should().BeTrue();
         result.IsT1.Should().BeFalse();
 
+    }
+
+    [Fact]
+    public async Task DeleteById__ShountReturnErros()
+    {
+
+        //arrage
+         var author = this._authorBuilder.AuthorEntityBulderPostNULL();
+         var category = _categoryBuider.CategoryEntityBuilder(author.Id);
+
+        ICategoryService _categoryService = new CategoryService(
+             this.mackCategoryRepository,
+             new CategoryCreateValidator(),
+             new CategoryUpdateValidator()
+         );
+
+        this.mackCategoryRepository.DeleteById(category.Id).Returns(Task.FromResult(false));
+
+        //act
+        var result = await _categoryService.DeleteById(category.Id);
 
 
+        //assert
+        result.AsT1.errors.Should().HaveCount(1);
 
     }
-    
+
+
+
     [Fact]
     public async Task GetById__ShountReturnCategory()
     {
@@ -153,7 +177,7 @@ public class CategoryServiceTest
 
         ICategoryService _categoryService = new CategoryService(
               this.mackCategoryRepository,
-              new CategoryInputValidator(),
+              new CategoryCreateValidator(),
               new CategoryUpdateValidator()
           );
 
@@ -172,11 +196,32 @@ public class CategoryServiceTest
         result.AsT0.Id.Should().Be(category.Id);
         result.AsT0.Name.Should().Be(category.Name);
 
-
-
-
-
     }
+
+    [Fact]
+    public async Task GetById__ShountReturnErros()
+    {
+        //arrage
+
+        var author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        var category = _categoryBuider.CategoryEntityBuilder(author.Id);
+        var catedoryIdInvalid = Guid.NewGuid().ToString();
+        ICategoryService _categoryService = new CategoryService(
+              this.mackCategoryRepository,
+              new CategoryCreateValidator(),
+              new CategoryUpdateValidator()
+        );
+
+
+        //act
+        var result = await _categoryService.GetById(catedoryIdInvalid);
+
+        //assert
+
+        result.AsT1.errors.Should().HaveCount(1);
+    }
+
+
 
     [Fact]
     public async Task Update__ShountReturnSucessoCategory()
@@ -188,12 +233,12 @@ public class CategoryServiceTest
 
         ICategoryService _categoryService = new CategoryService (
             this.mackCategoryRepository,
-            new CategoryInputValidator(),
+            new CategoryCreateValidator(),
             new CategoryUpdateValidator()
         );
 
 
-        UpdateCategoryInputModel addCategoryInputModel = new(_faker.Person.UserName);
+        CategoryUpdateDTO addCategoryInputModel = new(_faker.Person.UserName);
         this.mackCategoryRepository.GetById(Arg.Any<string>()).Returns(Task.FromResult(category));
 
 
@@ -226,11 +271,11 @@ public class CategoryServiceTest
 
         ICategoryService _categoryService = new CategoryService(
             this.mackCategoryRepository,
-            new CategoryInputValidator(),
+            new CategoryCreateValidator(),
             new CategoryUpdateValidator()
         );
 
-        UpdateCategoryInputModel addCategoryInputModel = new(_faker.Lorem.Paragraph(51));
+        CategoryUpdateDTO addCategoryInputModel = new(_faker.Lorem.Paragraph(51));
 
 
         this.mackCategoryRepository.Update(Arg.Any<Category>(), category.Id)
@@ -251,6 +296,34 @@ public class CategoryServiceTest
              }
 
         );
+
+    }
+    [Fact]
+    public async Task Update__ShountReturnNotFound()
+    {
+
+        //arrage
+        var author = this._authorBuilder.AuthorEntityBulderPostNULL();
+        var category = _categoryBuider.CategoryEntityBuilder(author.Id);
+        var idInvalid =Guid.NewGuid().ToString();
+
+        ICategoryService _categoryService = new CategoryService(
+            this.mackCategoryRepository,
+            new CategoryCreateValidator(),
+            new CategoryUpdateValidator()
+        );
+
+        CategoryUpdateDTO addCategoryInputModel = new(_faker.Lorem.Paragraph(20));
+
+
+        //act
+
+        var result = await _categoryService.Update(addCategoryInputModel, idInvalid);
+
+        //assert
+
+        result.AsT1.errors.Should().HaveCount(1);
+     
 
     }
 

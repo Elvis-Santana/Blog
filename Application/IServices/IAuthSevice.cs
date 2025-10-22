@@ -1,15 +1,16 @@
 ﻿using Application.Dtos.Models;
 using Domain.Entities;
-using Domain.ObjectValues;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Dtos.Models;
+namespace Application.IServices;
 
-public record AuthorViewModel (string Id, FullName Name, List<PostViewModel> Post);
+public interface IAuthSevice
+{
+    Task<Token> CriateToken(Login login);
+    Task<bool> Validation(Token token);
 
-
-
+}

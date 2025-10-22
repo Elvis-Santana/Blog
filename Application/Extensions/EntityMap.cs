@@ -10,20 +10,20 @@ namespace Application.Extensions;
 
 public static class EntityMap
 {
-    public static AuthorViewModel Map(this Author author) => 
+    public static AuthorReadDTO Map(this Author author) => 
          new (
                 author.Id,
                 author.Name,
                 author.Post.Count.Equals(0) 
-                ? new List<PostViewModel>()
+                ? new List<PostReadDTO>()
                 : author.Post.Select(a => a.Map()).ToList()
          );
 
 
-    public static List<AuthorViewModel> Map(this IEnumerable<Author> author) => author.Select(a => a.Map()).ToList();
+    public static List<AuthorReadDTO> Map(this IEnumerable<Author> author) => author.Select(a => a.Map()).ToList();
 
 
-    public static PostViewModel Map(this Post post) =>  
+    public static PostReadDTO Map(this Post post) =>  
         new (
              post.Id, 
              post.Title,
@@ -34,18 +34,18 @@ public static class EntityMap
              post.AuthorId
         );
 
-    public static List<PostViewModel> Map(this IEnumerable<Post> post) => post.Select(a => a.Map()).ToList();
+    public static List<PostReadDTO> Map(this IEnumerable<Post> post) => post.Select(a => a.Map()).ToList();
 
 
 
-    public static CategoryViewModel Map(this Category category)=>
+    public static CategoryReadDTO Map(this Category category)=>
         new (
             category.Id,
             category.AuthorId,
             category.Name
         );
 
-    public static List<CategoryViewModel> Map(this IEnumerable<Category> category) => category.Select(a => a.Map()).ToList();
+    public static List<CategoryReadDTO> Map(this IEnumerable<Category> category) => category.Select(a => a.Map()).ToList();
 
 
 

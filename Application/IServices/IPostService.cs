@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Models;
+using Domain.Entities;
 using Domain.Erros;
 using OneOf;
 using System;
@@ -11,8 +12,14 @@ namespace Application.IServices;
 
 public interface IPostService
 {
-    Task<List<PostViewModel>> GetAll();
+    Task<List<PostReadDTO>> GetAll();
 
 
-    Task<OneOf<PostViewModel, Errors>> Create(AddPostInputModel addPostInputModel);
+    Task<OneOf<PostReadDTO, Errors>> Create(PostCreateDTO addPostInputModel);
+
+    Task<OneOf<PostReadDTO, Errors>> GetById(string id);
+
+    Task<OneOf<bool, Errors>> DeleteById(string id);
+
+    Task<OneOf<PostReadDTO, Errors>> Update(PostUpdateDTO post, string id);
 }

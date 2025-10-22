@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Validators.Validator;
+namespace Application.Extensions;
 
-public class AuthorUpdateValidator
+public static class ClaimTypesExtensions
 {
+    public const string Id = "Id";
 }

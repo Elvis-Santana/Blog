@@ -11,13 +11,13 @@ namespace Application.IServices;
 
 public interface ICategoryService
 {
-    Task<OneOf<CategoryViewModel, Errors>> Create(AddCategoryInputModel category);
+    Task<OneOf<CategoryReadDTO, Errors>> Create(CategoryCreateDTO category);
 
 
-    Task<OneOf<List<CategoryViewModel>, Errors>> GetAsync();
+    Task<OneOf<List<CategoryReadDTO>, Errors>> GetAsync();
 
-    Task<OneOf<CategoryViewModel, Errors>> GetById(string id);
-    Task<OneOf<CategoryViewModel, Errors>> Update(UpdateCategoryInputModel category,string id);
+    Task<OneOf<CategoryReadDTO, Errors>> GetById(string id);
+    Task<OneOf<CategoryReadDTO, Errors>> Update(CategoryUpdateDTO category,string id);
 
     Task<OneOf<bool, Errors>> DeleteById(string id);
 

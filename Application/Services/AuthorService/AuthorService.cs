@@ -1,6 +1,5 @@
 ﻿using Application.Dtos.Models;
 using Application.IServices;
-using Application.Validators.AuthorValidator;
 using Domain.Entities;
 using Domain.Erros;
 using Domain.Erros.AppErro;
@@ -16,12 +15,12 @@ using System.Threading.Tasks;
 
 namespace Application.Services.AuthorService;
 
-public class AuthorService(IAuthorRepository authorRepository, IValidator<AddAuthorInputModel> validator) : IServiceAuthor
+public class AuthorService(IAuthorRepository authorRepository, IValidator<AuthorCreateDTO> validator) : IServiceAuthor
 {
     private readonly IAuthorRepository _authorRepository = authorRepository;
-    private readonly IValidator<AddAuthorInputModel> _validator = validator;
+    private readonly IValidator<AuthorCreateDTO> _validator = validator;
 
-    public async Task<OneOf<AuthorViewModel, Errors>> CreateAuthor(AddAuthorInputModel author)
+    public async Task<OneOf<AuthorReadDTO, Errors>> CreateAuthor(AuthorCreateDTO author)
     {
         var result = await _validator.ValidateAsync(author);
 
@@ -46,15 +45,14 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<AddAut
         return result;
     }
 
-    public async Task<List<AuthorViewModel>> GetAuthor()
+    public async Task<List<AuthorReadDTO>> GetAuthor()
     {
-        List<Author> authors = await this._authorRepository.GetAllAsync();
+        return (await this._authorRepository.GetAllAsync()).Map();
 
 
-        return authors.Map();
     }
 
-    public async Task<OneOf<AuthorViewModel, Errors>> GetById(string id)
+    public async Task<OneOf<AuthorReadDTO, Errors>> GetById(string id)
     {
         Author result = await this._authorRepository.GetById(id);
 
@@ -64,7 +62,7 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<AddAut
         return result.Map();
     }
 
-    public async Task<OneOf<AuthorViewModel, Errors>> Update(AddAuthorInputModel author, string id)
+    public async Task<OneOf<AuthorReadDTO, Errors>> Update(AuthorCreateDTO author, string id)
     {
 
         Author _author = await this._authorRepository.GetById(id);

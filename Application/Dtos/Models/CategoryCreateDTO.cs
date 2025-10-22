@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record AddCategoryInputModel(string AuthorId, string Name) {
+public record CategoryCreateDTO(string AuthorId, string Name) {
 
 
 
    
 
-    public static explicit operator Category(AddCategoryInputModel addCategoryInputModel)
+    public static explicit operator Category(CategoryCreateDTO addCategoryInputModel)
         => Category.Factory.CreateCategory(addCategoryInputModel.AuthorId, addCategoryInputModel.Name);
 
 

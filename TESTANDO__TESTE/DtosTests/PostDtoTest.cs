@@ -14,9 +14,6 @@ public class PostDtoTest
     
 
 
-
-
-
     [Fact]
     public void Constructor_dataValid_ShouldPostViewModel()
     {
@@ -26,12 +23,12 @@ public class PostDtoTest
         DateTime expectedDate = this._faker.Date.Recent(30);
         string expectedCategory = this._faker.Person.Company.Name;
 
-        var expectedAuthor = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""));
+        var expectedAuthor = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString());
         Post expectedPost = Post.Factory.CreatePost(expectedTitle, expectedText, expectedDate, Category.Factory.CreateCategory(expectedAuthor.Id, expectedCategory), expectedAuthor);
 
         //act
 
-        PostViewModel postDTO = expectedPost.Map() ;
+        PostReadDTO postDTO = expectedPost.Map() ;
 
         //assert
         postDTO.Id.Should().Be(expectedPost.Id);
@@ -54,13 +51,13 @@ public class PostDtoTest
         DateTime expectedDate = this._faker.Date.Recent(30);
         string expectedCategory = this._faker.Person.Company.Name;
 
-        var expectedAuthor = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""));
+        var expectedAuthor = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""),Guid.NewGuid().ToString());
         Post expectedPost = Post.Factory.CreatePost(expectedTitle, expectedText, expectedDate,string.Empty,  expectedAuthor.Id);
 
      
         //act
 
-        PostViewModel postDTO = expectedPost.Map();
+        PostReadDTO postDTO = expectedPost.Map();
 
         //assert
         postDTO.Id.Should().Be(expectedPost.Id);
@@ -88,7 +85,7 @@ public class PostDtoTest
         string expectedCategoryId = Guid.NewGuid().ToString();
         string expectedAuthouId = Guid.NewGuid().ToString();
 
-        var addPostInputModel = new AddPostInputModel
+        var addPostInputModel = new PostCreateDTO
         (
            expectedTitle,
            expectedText,
@@ -112,7 +109,7 @@ public class PostDtoTest
         result.Id.Should().NotBeEmpty();
 
     }
-      [Fact]
+    [Fact]
     public void Constructor_dataValid_ShouldAddPostInputModelCategoryNULL()
     {
 
@@ -124,7 +121,7 @@ public class PostDtoTest
         DateTime expectedDate = this._faker.Date.Recent(30);
         string expectedAuthouId = Guid.NewGuid().ToString();
 
-        var addPostInputModel = new AddPostInputModel
+        var addPostInputModel = new PostCreateDTO
         (
            expectedTitle,
            expectedText,
@@ -151,4 +148,32 @@ public class PostDtoTest
     }
 
 
+    [Fact]
+    public void Constructor_dataValid_ShouldUpdatePostNUll()
+    {
+
+        var update = new PostUpdateDTO();
+
+
+        update.Text.Should().BeEmpty();
+        update.Title.Should().BeEmpty();
+        update.CategoryId.Should().BeEmpty();
+
+    }
+
+    [Fact]
+    public void Constructor_dataValid_ShouldUpdatePost()
+    {
+        string expectedTitle = this._faker.Person.UserName;
+        string expectedText = this._faker.Lorem.Paragraph(1);
+        string expectedCategoryId = Guid.NewGuid().ToString();
+
+        var update = new PostUpdateDTO(expectedTitle, expectedText, expectedCategoryId);
+
+
+        update.Title.Should().Be(expectedTitle);
+        update.Text.Should().Be(expectedText);
+        update.CategoryId.Should().Be(expectedCategoryId);
+
+    }
 }

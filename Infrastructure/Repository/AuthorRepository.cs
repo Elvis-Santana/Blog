@@ -1,12 +1,10 @@
-﻿using Domain.Entities;
+﻿
+
+using Domain.Entities;
 using Domain.IRepository.IAuthorRepository;
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace Infrastructure.Repository;
 
@@ -41,14 +39,28 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
        .ThenInclude(p => p.Category)
        .ToListAsync();
 
-    public async Task<Author> GetById(string id)
-        => (await this._context.Authors
-            .Include(x => x.Post)
-            .ThenInclude(p => p.Category)
-            .FirstOrDefaultAsync(x => x.Id.Equals(id)))!;
 
 
+    public async Task<Author?> GetByExpression(Expression<Func<Author, bool>> filtro)
+    {
+        var result = await _context.Authors.FirstOrDefaultAsync(filtro);
+
+        return result;
+    }
+        
+       
     
+
+    public async Task<Author> GetById(string id)
+    {
+        
+        return (await this._context.Authors
+           .Include(x => x.Post)
+           .ThenInclude(p => p.Category)
+           .FirstOrDefaultAsync(x => x.Id.Equals(id)))!;
+    }
+
+
 
     public async Task<Author> Update(Author author, string id)
     {
@@ -68,4 +80,6 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
 
 
     }
+
+   
 }

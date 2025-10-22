@@ -17,15 +17,15 @@ namespace Application.Services.CategoryService;
 
 public class CategoryService (
     ICategoryRepository categoryRepository,
-    IValidator<AddCategoryInputModel> addValidator,
-    IValidator<UpdateCategoryInputModel> updateValidator
+    IValidator<CategoryCreateDTO> addValidator,
+    IValidator<CategoryUpdateDTO> updateValidator
     ) : ICategoryService{
 
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
-    private readonly IValidator<AddCategoryInputModel> _addValidator = addValidator;
-    private readonly IValidator<UpdateCategoryInputModel> _updateValidator = updateValidator;
+    private readonly IValidator<CategoryCreateDTO> _addValidator = addValidator;
+    private readonly IValidator<CategoryUpdateDTO> _updateValidator = updateValidator;
 
-    public async Task<OneOf<CategoryViewModel, Errors>> Create(AddCategoryInputModel addCategoryInputModel)
+    public async Task<OneOf<CategoryReadDTO, Errors>> Create(CategoryCreateDTO addCategoryInputModel)
     {
        var result = await this._addValidator.ValidateAsync(addCategoryInputModel);
 
@@ -38,30 +38,48 @@ public class CategoryService (
 
     public async Task<OneOf<bool, Errors>> DeleteById(string id)
     {
-        return await this._categoryRepository.DeleteById(id);
+        var result = await this._categoryRepository.DeleteById(id);
+        if(!result)
+            return Errors.Factory.CreateErro([new AppErro("Category not found", nameof(Category))]);
+        return result;
     }
 
-    public async Task<OneOf<List<CategoryViewModel>, Errors>> GetAsync() =>
+    public async Task<OneOf<List<CategoryReadDTO>, Errors>> GetAsync() =>
      (await this._categoryRepository.GetAsync()).Map();
     
 
 
-    public async Task<OneOf<CategoryViewModel, Errors>> GetById(string id)
+    public async Task<OneOf<CategoryReadDTO, Errors>> GetById(string id)
     {
-        return (await _categoryRepository.GetById(id)).Map();
+        var  result = (await _categoryRepository.GetById(id));
+
+        if(result is null)
+            return Errors.Factory.CreateErro([new AppErro("Category not found", nameof(Category))]);
+
+        return result.Map();
+
+
     }
 
-    public async Task<OneOf<CategoryViewModel, Errors>> Update(UpdateCategoryInputModel updateCategory, string id)
+    public async Task<OneOf<CategoryReadDTO, Errors>> Update(CategoryUpdateDTO updateCategory, string id)
     {
-        var result = await this._updateValidator.ValidateAsync(updateCategory);
+        var resultTest = await this._updateValidator.ValidateAsync(updateCategory);
 
-        if (!result.IsValid)
-            return  Errors.Factory.CreateErro(result.Errors.Select(a => new AppErro(a.ErrorMessage, a.PropertyName)));
+        if (!resultTest.IsValid)
+            return  Errors.Factory.CreateErro(resultTest.Errors.Select(a => new AppErro(a.ErrorMessage, a.PropertyName)));
 
 
         var category = await this._categoryRepository.GetById(id);
-        category.UpdateName(updateCategory.Name);   
 
-        return (await this._categoryRepository.Update(category, id)).Map();
+
+
+        if (category is null)
+            return Errors.Factory.CreateErro([new AppErro("Category not found", nameof(Category))]);
+
+        category.UpdateName(updateCategory.Name);
+
+        var result = await this._categoryRepository.Update(category, id);
+
+        return result.Map();
     }
 }

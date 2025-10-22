@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record AddPostInputModel(string Title, string Text, DateTime Date, string? CategoryId, string AuthorId)
+public record PostCreateDTO(string Title, string Text, DateTime Date, string? CategoryId, string AuthorId)
 {
 
 
-    public static explicit operator Post(AddPostInputModel addPostInputModel)
+    public static explicit operator Post(PostCreateDTO addPostInputModel)
         => Post.Factory.CreatePost(addPostInputModel.Title,
             addPostInputModel.Text,
             addPostInputModel.Date,

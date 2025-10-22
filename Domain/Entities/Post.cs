@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -11,11 +12,11 @@ public class Post
 {
     public string Id { get; init; }
 
-    public string Title { get; init; }
+    public string Title { get; private set; }
 
-    public string Text { get; init; }
+    public string Text { get; private set; }
 
-    public DateTime Date { get; private set; }
+    public DateTime Date { get; init; }
 
     public string? CategoryId { get; private set; } 
 
@@ -55,18 +56,30 @@ public class Post
 
        
     }
+  
+    
+    public void UpdateAttributes(string? title="", string? text = "", string? CategoryId = "")
+    {
+        if (!string.IsNullOrWhiteSpace(title))
+            this.Title = title;
+
+        if (!string.IsNullOrEmpty(text))
+            this.Text = text;
+
+        if(!string.IsNullOrEmpty(CategoryId))
+            this.CategoryId = CategoryId;
+    }
+
 
     public static class Factory
     {
         public static Post CreatePost(string title, string text, DateTime date, string? categoryId, string authorId)
          => new (title, text, date, categoryId, authorId);
+
+            
         
         public static Post CreatePost(string title, string text, DateTime date, Category category, Author author)
          => new(title, text, date, category, author);
-
-        
-
-
     }
 
 }

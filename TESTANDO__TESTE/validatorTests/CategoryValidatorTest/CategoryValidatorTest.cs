@@ -1,6 +1,6 @@
 ﻿using Application.Dtos.Models;
-using Application.Validators.AuthorValidator;
 using Application.Validators.Validator;
+using Application.Validators.Validator.CategoryValidator;
 using Bogus;
 using FluentValidation;
 using FluentValidation.TestHelper;
@@ -11,14 +11,14 @@ namespace TESTANDO__TESTE.validatorTests.CategoryValidatorTest;
 public class CategoryValidatorTest
 {
     private readonly Faker _faker = new("pt_BR");
-    private readonly IValidator<AddCategoryInputModel> _addValidator;
-    private readonly IValidator<UpdateCategoryInputModel> _updateValidator;
+    private readonly IValidator<CategoryCreateDTO> _addValidator;
+    private readonly IValidator<CategoryUpdateDTO> _updateValidator;
 
     private readonly ITestOutputHelper _testOutputHelper;
 
     public CategoryValidatorTest( ITestOutputHelper testOutputHelper)
     {
-        _addValidator = new CategoryInputValidator();
+        _addValidator = new CategoryCreateValidator();
         _updateValidator = new CategoryUpdateValidator();
         _testOutputHelper = testOutputHelper;
     }
@@ -28,7 +28,7 @@ public class CategoryValidatorTest
     {
         //arrage
         var expectedIdAuthor = string.Empty;
-        AddCategoryInputModel AddCategoryInputModel = new(expectedIdAuthor, "");
+        CategoryCreateDTO AddCategoryInputModel = new(expectedIdAuthor, "");
 
         //act
          var result =await   _addValidator.TestValidateAsync(AddCategoryInputModel);
@@ -47,13 +47,13 @@ public class CategoryValidatorTest
     public async Task AddAuthorInputModel_isInvalid_ShouldAddCategoryInputModel()
     {
         //arrage
-        AddCategoryInputModel inputModel = null;
+        CategoryCreateDTO inputModel = null;
 
         //act
         var result = await _addValidator.TestValidateAsync(inputModel);
 
         //assert
-        result.ShouldHaveValidationErrorFor(nameof(AddCategoryInputModel)).WithErrorMessage(CategoryMsg.CategoryErroNull);
+        result.ShouldHaveValidationErrorFor(nameof(CategoryCreateDTO)).WithErrorMessage(CategoryMsg.CategoryErroNull);
     
 
     }
@@ -62,8 +62,8 @@ public class CategoryValidatorTest
     public async Task UpdateCategoryInputModel_isInvalid_ShouldReturnErros()
     {
         //arrage
-        UpdateCategoryInputModel inputModel1 = new ("");
-        UpdateCategoryInputModel inputModel2 = new(_faker.Lorem.Paragraph(51));
+        CategoryUpdateDTO inputModel1 = new ("");
+        CategoryUpdateDTO inputModel2 = new(_faker.Lorem.Paragraph(51));
 
         //act
         var result1 = await _updateValidator.TestValidateAsync(inputModel1);

@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.Models;
-using Application.Validators.AuthorValidator;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -7,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Validators.Validator;
+namespace Application.Validators.Validator.CategoryValidator;
 
-public class CategoryUpdateValidator :AbstractValidator<UpdateCategoryInputModel>
+public class CategoryUpdateValidator :AbstractValidator<CategoryUpdateDTO>
 {
     public CategoryUpdateValidator()
     {
