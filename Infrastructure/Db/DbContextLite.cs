@@ -42,10 +42,7 @@ public class DbContextLite :DbContext
             builder.Property(x => x.Id)
                 .ValueGeneratedNever();
 
-            builder.Ignore(x => x.PasswordHash);
             builder.Ignore(x => x.Email);
-
-
 
 
             builder.HasMany(a => a.Post)
