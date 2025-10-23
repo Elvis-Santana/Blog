@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,8 +32,11 @@ public class AuthSevice  : IAuthSevice
     public async Task<Token> CriateToken(Login login)
     {
 
-       
-        var author = await this._authorRepository.GetByExpression(x => x.Verify(login.password));
+
+
+        var author = await this._authorRepository.GetByExpression(f =>f.Verify(login.password));
+
+
 
         if (author is not null)
         {
