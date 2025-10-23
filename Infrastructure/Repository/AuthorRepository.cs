@@ -41,9 +41,10 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
 
 
 
-    public async Task<Author?> GetByExpression(Expression<Func<Author, bool>> filtro)
+    public async Task<Author?> GetByExpression(Func<Author, bool> filtro)
     {
-        var result = await _context.Authors.FirstOrDefaultAsync(filtro);
+        var result = (await _context.Authors.ToListAsync()).FirstOrDefault(filtro);
+
 
         return result;
     }
