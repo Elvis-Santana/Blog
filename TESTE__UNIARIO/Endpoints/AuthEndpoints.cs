@@ -15,7 +15,7 @@ public static class AuthEndpoints
 
         auth.MapPost("/",async (IAuthSevice authSevice, Login login) =>
         {
-            return await authSevice.CriateToken(login);
+            return Results.Ok(await authSevice.CriateToken(login));
         });
 
 

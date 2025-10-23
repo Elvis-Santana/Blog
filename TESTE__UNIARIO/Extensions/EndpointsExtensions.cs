@@ -12,11 +12,7 @@ public static class EndpointsExtensions
        app.RouterPostEndpoints();
        app.RouterCategoryEndpoints();
 
-        //app.MapPost("/login", async (string senha, IAuthSevice _authSevice) =>
-        //{
-
-        //    return Results.Ok(await _authSevice.CriateToken(senha));
-        //});
+       app.RouterAuthEndpoints();
         return app;
     }
 
