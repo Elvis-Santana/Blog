@@ -63,7 +63,7 @@ public class AuthSeviceTest
         var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password);
 
         
-        _authorRepository.GetByExpression(Arg.Any<Expression<Func<Author, bool>>>()).Returns(Task.FromResult(author));
+        _authorRepository.GetByExpression(Arg.Any<Func<Author, bool>>()).Returns(Task.FromResult(author));
 
 
         //act
@@ -147,7 +147,7 @@ public class AuthSeviceTest
         var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password);
 
 
-        _authorRepository.GetByExpression(Arg.Any<Expression<Func<Author, bool>>>())
+        _authorRepository.GetByExpression(Arg.Any<Func<Author, bool>>())
             .Returns(Task.FromResult(author));
 
         IAuthSevice authSevice = new AuthSevice(this._configuration, _authorRepository);
