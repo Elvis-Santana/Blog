@@ -14,7 +14,7 @@ public interface IAuthorRepository
 
     Task<Author> GetById(string id);
 
-    Task<Author?> GetByExpression(Expression<Func<Author, bool>> expression);
+    Task<Author?> GetByExpression(Func<Author, bool> expression);
 
     Task<Author> Create(Author author);
 
