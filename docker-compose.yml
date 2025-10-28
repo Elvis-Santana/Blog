@@ -1,0 +1,6 @@
+services:
+  teste__uniario:
+    image: ${DOCKER_REGISTRY-}testeuniario
+    build:
+      context: .
+      dockerfile: TESTE__UNIARIO/Dockerfile

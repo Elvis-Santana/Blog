@@ -1,17 +1,18 @@
 using Application;
 using Application.Dtos.Models;
-using Microsoft.AspNetCore.Authentication;
 using Application.Validators.Validator;
 using Application.Validators.Validator.AuthorValidator;
 using Application.Validators.Validator.CategoryValidator;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure.Db;
-using Microsoft.AspNetCore.Identity;
-using System.Net.Sockets;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Net.Sockets;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -79,12 +80,17 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Minha Minimal API v1");
     });
 
+
 }
+
+using (var scope = app.Services.CreateScope())
 {
-    var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<DbContextLite>();
-    context.Database.EnsureCreated();
+    var db = scope.ServiceProvider.GetRequiredService<DbContextLite>();
+    db.Database.Migrate(); 
 }
+
+
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

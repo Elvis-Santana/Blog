@@ -28,7 +28,5 @@ RUN dotnet publish "./TESTE__UNIARIO.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 # Esta fase é usada na produção ou quando executada no VS no modo normal (padrão quando não está usando a configuração de Depuração)
 FROM base AS final
 WORKDIR /app
-RUN mkdir -p /app/db
-
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TESTE__UNIARIO.dll"]
