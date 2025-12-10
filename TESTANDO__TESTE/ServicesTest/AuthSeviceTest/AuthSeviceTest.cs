@@ -7,8 +7,10 @@ using Domain.IRepository.IAuthorRepository;
 using Domain.ObjectValues;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using NSubstitute;
 using System.Linq.Expressions;
+using Xunit.Abstractions;
 
 namespace TESTANDO__TESTE.ServicesTest.AuthSeviceTest;
 
@@ -16,11 +18,13 @@ public class AuthSeviceTest
 {
     private readonly IConfiguration _configuration;
     private readonly IAuthorRepository _authorRepository;
-    
+    private readonly ITestOutputHelper _output;
+
 
     private readonly Faker _faker = new("pt_BR");
-    public AuthSeviceTest( )
+    public AuthSeviceTest(ITestOutputHelper output)
     {
+        this._output = output;
         this._configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
@@ -34,7 +38,8 @@ public class AuthSeviceTest
 
     }
 
-  
+   
+
     [Fact]
     public async Task CreateToKen__ShouldReturnTokenEmpty()
     {
@@ -58,9 +63,10 @@ public class AuthSeviceTest
         //arrange
 
         string password = Guid.NewGuid().ToString();
+        string email = _faker.Person.Email;
         var login = new Login(password);
 
-        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password);
+        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
 
         
         _authorRepository.GetByExpression(Arg.Any<Func<Author, bool>>()).Returns(Task.FromResult(author));
@@ -80,11 +86,12 @@ public class AuthSeviceTest
     {
       var password = Guid.NewGuid().ToString();
       var passwordError = Guid.NewGuid().ToString();
-
+        string email = _faker.Person.Email;
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
       var author =  Author.Factory.CriarAuthor(
           new(_faker.Person.FirstName, string.Empty),
-          passwordHash
+          passwordHash,
+          email
       );
 
 
@@ -101,10 +108,7 @@ public class AuthSeviceTest
         var password = Guid.NewGuid().ToString();
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-        var author = Author.Factory.CriarAuthor(
-            new(_faker.Person.FirstName, string.Empty),
-            passwordHash
-        );
+        var author = Author.Factory.CriarAuthor( new(_faker.Person.FirstName, string.Empty),  passwordHash, _faker.Person.Email);
 
 
         var result = author.Verify(password);
@@ -122,7 +126,10 @@ public class AuthSeviceTest
         string password = Guid.NewGuid().ToString();
         var login = new Login(password);
 
-        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password);
+        string email = _faker.Person.Email;
+
+
+        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
 
 
         IAuthSevice authSevice = new AuthSevice(this._configuration, _authorRepository);
@@ -143,8 +150,9 @@ public class AuthSeviceTest
         //arrange
         string password = Guid.NewGuid().ToString();
         var login = new Login(password);
+        string email = _faker.Person.Email;
 
-        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password);
+        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
 
 
         _authorRepository.GetByExpression(Arg.Any<Func<Author, bool>>())
@@ -161,5 +169,7 @@ public class AuthSeviceTest
         result.Should().BeTrue();
 
     }
+
+
 
 }

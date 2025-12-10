@@ -70,8 +70,8 @@ public class PostValidatorTest
         //Arrange
 
         var addPostInputModel = new PostCreateDTO(
-            Title: _faker.Text(51),
-            Text: _faker.Text(2001),
+            Title: _faker.Random.String2(51),
+            Text: _faker.Random.String2(2001),
             AuthorId: string.Empty,
             CategoryId: string.Empty,
             Date: DateTime.Now

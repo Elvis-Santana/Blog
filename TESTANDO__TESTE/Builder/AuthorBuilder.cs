@@ -11,42 +11,61 @@ namespace TESTANDO__TESTE.Builder;
 
 internal  class AuthorBuilder
 {
-    private   readonly Faker _faker = new("pt_BR");
+    public   readonly Faker _faker = new("pt_BR");
 
-    public string expectedId { get; set; }
-    public  FullName expectedName { get; set; }
-    public  List<Post> expectedPosts { get; set; }
+    public string? expectedId { get; set; }
 
+    public  FullName? expectedName { get; set; }
 
+    public  List<Post>? expectedPosts { get; set; }
 
+    public string? expectedEmail { get; set; }
 
-   
-
-    public  Author AuthorEntityBulder(FullName ?FullName =null)
-    {
-         expectedId = Guid.NewGuid().ToString();
-         expectedName = FullName?? new FullName(this._faker.Person.FullName, this._faker.Person.LastName);
+    public string? expectedPasswrdHash { get; set; }
 
 
-        this.expectedPosts = new List<Post>
+
+
+    public  Author AuthorEntity( AuthorType authorType )
+    {    
+
+        expectedPosts =
+        [
+            Post.Factory.
+            CreatePost("title", "text", new DateTime(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString())
+        ];
+      
+
+        expectedId = Guid.NewGuid().ToString();
+        expectedName = new (_faker.Person.FirstName, _faker.Person.LastName);
+        expectedEmail = _faker.Person.Email;
+        expectedPasswrdHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString());
+
+
+        return authorType switch
         {
-            Post.Factory.CreatePost("s", "4", new DateTime(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString())
+            AuthorType.ComPost => new(
+                expectedId,
+                expectedName,
+                expectedPosts,
+                expectedPasswrdHash,
+                expectedEmail
+            ),
+            AuthorType.SemPost => new(
+                expectedId,
+                expectedName,
+                expectedPasswrdHash,
+                expectedEmail
+            ),
+            _ => throw new ArgumentOutOfRangeException(nameof(authorType), authorType, null)
+
+
         };
-
-        return  new(expectedId, expectedName, expectedPosts, Guid.NewGuid().ToString());
+      
     }
 
-    public Author AuthorEntityBulderPostNULL(FullName? FullName= null)
-    {
-        expectedName = FullName ?? new FullName(this._faker.Person.FullName, this._faker.Person.LastName);
-        this.expectedPosts = new List<Post>();
 
-        var result = Author.Factory.CriarAuthor(expectedName, Guid.NewGuid().ToString());
-        this.expectedId = result.Id;
-
-        return result;
-    }
-   
 
 
 }
+

@@ -10,7 +10,7 @@ namespace Domain.IRepository.IAuthorRepository;
 
 public interface IAuthorRepository
 {
-    Task<List<Author>> GetAllAsync();
+    Task<IEnumerable<Author>> GetAllAsync();
 
     Task<Author> GetById(string id);
 

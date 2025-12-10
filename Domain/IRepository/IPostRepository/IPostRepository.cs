@@ -9,17 +9,17 @@ namespace Domain.IRepository.IPostRepository;
 
 public interface IPostRepository
 {
-    Task<Post> Create(Post post);
+    Task CreatePost(Post post);
 
-    Task<List<Post>> GetAllPosts();
+    Task<IEnumerable<Post>> GetAllPosts();
 
-    Task<bool> DeleteById(string id);
+     void RemovePost(Post post);
 
-    Task<Post> GetById(string id);
+    Task<Post?> GetPostsById(string id);
 
-    Task<Post> Update(Post post, string id);
+    //void Update(Post post);
 
 
-    Task<bool> Save();
+    //Task<bool> Save();
 
 }

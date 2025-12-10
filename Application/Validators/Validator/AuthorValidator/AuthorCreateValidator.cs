@@ -25,6 +25,10 @@ public class AuthorCreateValidator : AbstractValidator<AuthorCreateDTO>
 
             RuleFor(x => x.Name.LastName)
                 .MaximumLength(100).WithMessage(AuthorMsg.LastNameErroMaximumLength);
+
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage(AuthorMsg.EmailErroEmpty)
+                .MaximumLength(255).WithMessage(AuthorMsg.EmailErroMaximumLength);
         });
 
         

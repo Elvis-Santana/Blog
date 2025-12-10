@@ -17,7 +17,7 @@ namespace TESTANDO__TESTE.DtosTests;
 
 public class AuthorDtoTest
 {
-    private readonly Faker _faker = new("pt_BR");
+    private  readonly Faker _faker = new("pt_BR");
     private readonly ITestOutputHelper _output;
     private readonly AuthorBuilder _authorBuilder;
 
@@ -28,32 +28,34 @@ public class AuthorDtoTest
     }
 
     [Fact]
-    public void Constructor_dataValid_ShouldCreatAddAuthorInputModel()
+    public void Constructor_dataValid_ShouldCreatAddAuthorCreateDTO()
     {
       
 
-        var addAuthorInputModel = new AuthorCreateDTO(new FullName(this._faker.Person.FirstName,""), Guid.NewGuid().ToString());
+        var authorCreateDTO = new AuthorCreateDTO(new FullName(this._faker.Person.FirstName,""), Guid.NewGuid().ToString(), _faker.Person.Email);
 
 
-        var author = (Author)addAuthorInputModel;
+        var author = (Author)authorCreateDTO;
 
 
         author.Id.Should().NotBeEmpty();
-        author.Name.FirstName.Should().Be(addAuthorInputModel.Name.FirstName);
-        author.Name.LastName.Should().Be(addAuthorInputModel.Name.LastName);
+        author.Name.FirstName.Should().Be(authorCreateDTO.Name.FirstName);
+        author.Name.LastName.Should().Be(authorCreateDTO.Name.LastName);
+        author.Email.Should().Be(authorCreateDTO.Email);
 
 
 
 
     }
+
     [Fact]
-    public void Constructor_dataValid_ShouldCreatAuthorViewModelPost()
+    public void Constructor_dataValid_ShouldCreatAuthorReadDTO()
     {
        // arrange
-         Author author = _authorBuilder.AuthorEntityBulder();
+         Author author = _authorBuilder.AuthorEntity(AuthorType.ComPost);
 
         //act
-        var authorDto = author.Map();
+        AuthorReadDTO authorDto = author.Map();
 
 
         // assert
@@ -66,16 +68,19 @@ public class AuthorDtoTest
         authorDto.Name.LastName.Should()
             .Be(_authorBuilder.expectedName.LastName, "LastName não é igual a expectedLastName");
 
+        authorDto.Email.Should()
+            .Be(_authorBuilder.expectedEmail, "Email não é igual a expectedEmail");
+
         authorDto.Post.Should()
            .BeEquivalentTo(_authorBuilder.expectedPosts.Select(a => a.Map()).ToList() , "Posts não são equivalentes a expectedIdPosts");
 
     }
     [Fact]
-    public void Constructor_dataValid_ShouldCreatAuthorViewModelPostNULL()
+    public void Constructor_dataValid_ShouldCreatAuthorReadDTOPostNULL()
     {
         //arrange
 
-        Author author = _authorBuilder.AuthorEntityBulderPostNULL();
+        Author author = _authorBuilder.AuthorEntity(AuthorType.SemPost);
 
 
         //act
@@ -92,23 +97,28 @@ public class AuthorDtoTest
         authorDto.Name.LastName.Should()
             .Be(_authorBuilder.expectedName.LastName, "LastName não é igual a expectedLastName");
 
-        authorDto.Post.Should().BeEmpty() ;
+        authorDto.Email.Should()
+          .Be(_authorBuilder.expectedEmail, "Email não é igual a expectedEmail");
+
+        authorDto.Post.Should().HaveCount(0) ;
 
     }
 
     [Fact]
-    public void Constructor_dataValid_ShouldCreateAddAuthorInputModel()
+    public void Constructor_dataValid_ShouldCreateAuthorCreateDTO()
     {
         //arrange
         FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
 
         //act
-        AuthorCreateDTO authorDTOCreate = new(expectedName, Guid.NewGuid().ToString());
+        AuthorCreateDTO authorDTOCreate = new(expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
 
         //assert
         authorDTOCreate.Name.Should().Be(expectedName);
 
     }
 
-    
+   
+
+
 }

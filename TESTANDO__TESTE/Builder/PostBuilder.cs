@@ -28,7 +28,7 @@ internal class PostBuilder
         this.expectedText = this._faker.Lorem.Paragraph(3);
         this.expectedDate = this._faker.Date.Recent(30);
 
-        this.expectedAuthor = author?? new AuthorBuilder().AuthorEntityBulder();
+        this.expectedAuthor = author?? new AuthorBuilder().AuthorEntity(AuthorType.ComPost);
 
         this.expectedCategory  = category??new CategoryBuider().CategoryEntityBuilder();
 

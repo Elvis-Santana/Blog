@@ -22,10 +22,9 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<Author
 
     public async Task<OneOf<AuthorReadDTO, Errors>> CreateAuthor(AuthorCreateDTO author)
     {
-        var result = await _validator.ValidateAsync(author);
 
-        if (!result.IsValid)
-            return Errors.Factory.CreateErro(result.Errors.Select(a => new AppErro(a.ErrorMessage, a.PropertyName)));
+        if (Errors.TryValid(await _validator.ValidateAsync(author), out Errors errors))
+            return errors;
 
 
 
@@ -39,13 +38,13 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<Author
         var result = await _authorRepository.DeleteById(id);
 
         if (!result )
-            return Errors.Factory.CreateErro([new AppErro("author não encontrado", nameof(Author))]);
+            return Errors.EmiteError("author not faound",nameof(Author));
 
 
         return result;
     }
 
-    public async Task<List<AuthorReadDTO>> GetAuthor()
+    public async Task<IEnumerable<AuthorReadDTO>> GetAuthor()
     {
         return (await this._authorRepository.GetAllAsync()).Map();
 
@@ -57,7 +56,7 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<Author
         Author result = await this._authorRepository.GetById(id);
 
         if (result is null)
-            return Errors.Factory.CreateErro([new AppErro("author não encontrado", nameof(Author))]);
+            return Errors.EmiteError("author not faound", nameof(Author));
 
         return result.Map();
     }
@@ -67,7 +66,7 @@ public class AuthorService(IAuthorRepository authorRepository, IValidator<Author
 
         Author _author = await this._authorRepository.GetById(id);
         if (_author is null)
-            return Errors.Factory.CreateErro([new AppErro("author não encontrado", nameof(Author))]);
+            return Errors.EmiteError("author not faound", nameof(Author));
 
         _author.UpdateName(author.Name);
         Author result = await this._authorRepository.Update(_author, id);

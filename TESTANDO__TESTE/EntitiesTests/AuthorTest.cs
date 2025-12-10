@@ -18,108 +18,79 @@ public class AuthorTest
 
     private readonly Faker _faker = new("pt_BR");
 
+    private readonly AuthorBuilder _authorBuilder;
+
+    public AuthorTest()
+    {
+         _authorBuilder = new AuthorBuilder();
+
+    }
 
     [Fact]
     public void Constructor_dataValid_ShouldCreateAuthor()
     {
-        //arrange
-            var authorBuilder = new  AuthorBuilder();
-        //act
-        Author author = authorBuilder.AuthorEntityBulder();
+        Author _authorValidComPost = _authorBuilder.AuthorEntity(AuthorType.ComPost);
 
         //Assert
-        author.Id.Should()
-            .Be(authorBuilder.expectedId);
+        _authorValidComPost.Id.Should().Be(_authorBuilder.expectedId);
 
-        author.Name.FirstName.Should()
-            .Be(authorBuilder.expectedName.FirstName, "FirstName não é igual a expectedFirstName");
+        _authorValidComPost.Name.FirstName.Should()
+            .Be(_authorBuilder.expectedName.FirstName, "FirstName não é igual a expectedFirstName");
 
-        author.Name.LastName.Should()
-            .Be(authorBuilder.expectedName.LastName, "LastName não é igual a expectedLastName");
+        _authorValidComPost.Name.LastName.Should()
+            .Be(_authorBuilder.expectedName.LastName, "LastName não é igual a expectedLastName");
 
-        author.Post.Should()
-            .BeEquivalentTo(authorBuilder.expectedPosts, "Posts não são equivalentes a expectedIdPosts");
+        _authorValidComPost.Post.Should()
+            .BeEquivalentTo(_authorBuilder.expectedPosts, "Posts não são equivalentes a expectedIdPosts");
+        _authorValidComPost.Email.Should()
+         .Be(_authorBuilder.expectedEmail, "Email não são equivalente a expectedEmail");
 
     }
     [Fact]
     public void Constructor_dataValid_ShouldCreateAuthorLastNameEmpty()
     {
-        //arrange
-        var authorBuilder = new AuthorBuilder();
+        Author _authorValidComPost = _authorBuilder.AuthorEntity(AuthorType.ComPost);
 
 
-        //act
-        Author author = authorBuilder.AuthorEntityBulder(new FullName(this._faker.Person.FirstName, string.Empty));
+        _authorValidComPost.Id.Should()
+            .Be(_authorBuilder.expectedId);
 
-        //Assert
-        author.Id.Should()
-            .Be(authorBuilder.expectedId);
+        _authorValidComPost.Name.FirstName.Should()
+            .Be(_authorBuilder.expectedName.FirstName, "FirstName não é igual a expectedFirstName");
 
-        author.Name.FirstName.Should()
-            .Be(authorBuilder.expectedName.FirstName, "FirstName não é igual a expectedFirstName");
+        _authorValidComPost.Name.LastName = string.Empty;
+        _authorValidComPost.Name.LastName.Should().BeEmpty();
 
-        author.Name.LastName.Should().BeEmpty();
+        _authorValidComPost.Post.Should()
+            .BeEquivalentTo(_authorBuilder.expectedPosts, "Posts não são equivalentes a expectedIdPosts");
 
-        author.Post.Should()
-            .BeEquivalentTo(authorBuilder.expectedPosts, "Posts não são equivalentes a expectedIdPosts");
+        _authorValidComPost.Email.Should()
+            .Be(_authorBuilder.expectedEmail, "Email não são equivalente a expectedEmail");
 
     }
 
 
     [Fact]
-    public void Constructor_dataValid_ShouldCreateAuthorPostIdNULL()
+    public void Constructor_dataValid_ShouldCreateAuthorPostNUll()
     {
-        //arrange
-        var authorBuilder = new AuthorBuilder();
 
-
-        //act
-        Author author = authorBuilder.AuthorEntityBulderPostNULL();
-
+        Author _authorValidSemPost = _authorBuilder.AuthorEntity(AuthorType.SemPost);
 
         //assert
-        author.Id.Should()
-            .Be(authorBuilder.expectedId, "Id não é o experado");
+        _authorValidSemPost.Id.Should()
+            .Be(_authorBuilder.expectedId, "Id não é o experado");
 
-        author.Name.FirstName.Should()
-            .Be(authorBuilder.expectedName.FirstName, "FirstName não é igual a expectedFirstName");
+        _authorValidSemPost.Name.FirstName.Should()
+            .Be(_authorBuilder.expectedName.FirstName, "FirstName não é igual a expectedFirstName");
 
-        author.Name.LastName.Should()
-            .Be(authorBuilder.expectedName.LastName, "LastName não é igual a expectedLastName");
+        _authorValidSemPost.Name.LastName.Should()
+            .Be(_authorBuilder.expectedName.LastName, "LastName não é igual a expectedLastName");
+
+        _authorValidSemPost.Email.Should()
+         .Be(_authorBuilder.expectedEmail, "Email não são equivalente a expectedEmail");
+
+        _authorValidSemPost.Post.Should().HaveCount(0,"Posts não é vazio");
+
     }
   
-
-    [Fact]
-    public void Constructor_dataValid_ShouldCreateAuthorFormAddAuthorInputModelPostNULL()
-    {
-        //arrange
-        FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
-        AuthorCreateDTO expectedAuthorDTOCreate = new(expectedName,Guid.NewGuid().ToString());
-
-        //act
-        Author author = Author.Factory.CriarAuthor(expectedAuthorDTOCreate.Name,Guid.NewGuid().ToString());
-
-        //assert
-        author.Name.Should().Be(expectedName);
-        author.Id.Should().NotBeEmpty();
-    }
-    [Fact]
-    public void Constructor_dataValid_ShouldCreateAuthorFormAddAuthorInputModelMapperPostNULL()
-    {
-        //arrange
-        FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
-        AuthorCreateDTO expectedAuthorInputModel = new(expectedName, Guid.NewGuid().ToString());
-
-        // act
-        var author = (Author)expectedAuthorInputModel;
-
-        // assert
-        author.Name.Should().BeEquivalentTo(expectedName);
-        author.Id.Should().NotBeEmpty();
-
-
-    }
-
-
-
 }

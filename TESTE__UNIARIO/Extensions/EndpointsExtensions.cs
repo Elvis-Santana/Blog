@@ -7,13 +7,12 @@ public static class EndpointsExtensions
 {
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-
        app.RouterAuthorEndpoints();
        app.RouterPostEndpoints();
        app.RouterCategoryEndpoints();
-
        app.RouterAuthEndpoints();
-        return app;
+
+       return app;
     }
 
 

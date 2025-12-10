@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record AuthorCreateDTO(FullName Name, string password) {
+public record AuthorCreateDTO(FullName Name, string Password,string Email) {
 
  
    public static explicit operator Author(AuthorCreateDTO addAuthorInputModel) => 
     Author.Factory.CriarAuthor(
         addAuthorInputModel.Name, 
-        BCrypt.Net.BCrypt.HashPassword(addAuthorInputModel.password)
+        BCrypt.Net.BCrypt.HashPassword(addAuthorInputModel.Password),
+        addAuthorInputModel.Email
     );
 
 

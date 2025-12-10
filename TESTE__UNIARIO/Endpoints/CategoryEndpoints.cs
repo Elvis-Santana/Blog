@@ -17,12 +17,12 @@ public static class CategoryEndpoints
 
         categorys.MapGet("/", async (ICategoryService _categoryService) =>
         {
-            return Results.Ok((await _categoryService.GetAsync()).AsT0);
+            return Results.Ok((await _categoryService.GetAllCategoryAsync()));
         });
 
         categorys.MapPost("/", async (CategoryCreateDTO addCategoryInputModel,ICategoryService _categoryService ) =>
         {
-           var res =  await _categoryService.Create(addCategoryInputModel);
+           var res =  await _categoryService.CreateCategory(addCategoryInputModel);
             return res.Match(
                 res => Results.Created($"{nameGroup}/{res.Id}", res),
                 err => Results.BadRequest(err)
@@ -32,14 +32,14 @@ public static class CategoryEndpoints
 
         categorys.MapGet("/{id}", async (string id,ICategoryService _categoryService) =>
         {
-            var res = await _categoryService.GetById(id);
+            var res = await _categoryService.GetCategoryByIdAsync(id);
 
             return res.Match( res => Results.Ok(res), err => Results.NotFound(err));
         });
 
         categorys.MapDelete("/{id}", async (string id, ICategoryService _categoryService) =>
         {
-            var res = await _categoryService.DeleteById(id);
+            var res = await _categoryService.RemoveCategoryByIdAsync(id);
 
             return res.Match(  res => Results.Ok(res), err => Results.NotFound(err) );
 
@@ -47,7 +47,7 @@ public static class CategoryEndpoints
 
         categorys.MapPatch("/{id}", async (CategoryUpdateDTO updateCategoryInputModel,string id, ICategoryService _categoryService) =>
         {
-            var res = await _categoryService.Update(updateCategoryInputModel,id);
+            var res = await _categoryService.UpdateCategoryAsync(updateCategoryInputModel,id);
 
             return res.Match( res => Results.Ok(res), err => Results.NotFound(err));
         });

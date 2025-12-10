@@ -41,10 +41,10 @@ builder.Services.AddAuthentication()
 
         jwtOptions.RequireHttpsMetadata = false;
 
-        jwtOptions.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        jwtOptions.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateIssuerSigningKey = true,
             ValidateLifetime=true,
 

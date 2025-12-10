@@ -16,7 +16,7 @@ public static class PostEndpoints
 
         posts.MapPost("/", async (PostCreateDTO post, IPostService postService) =>
         {
-            return (await postService.Create(post)).Match(
+            return (await postService.CreatePostAsync(post)).Match(
                 sucess => Results.Created($"{post}/{sucess.Id}", sucess),
                 erros => Results.BadRequest(erros)
             );
@@ -25,14 +25,14 @@ public static class PostEndpoints
 
         posts.MapGet("/", async (IPostService postService) =>
         {
-            var res = (await postService.GetAll());
+            var res = (await postService.GetAllPostsAsync());
 
             return Results.Ok(res);
         });
 
         posts.MapGet("/{id}", async (IPostService postService ,string id) =>
         {
-            return (await postService.GetById(id)).Match(
+            return (await postService.GetPostByIdAsync(id)).Match(
                 sucess => Results.Ok(sucess),
                 erros => Results.NotFound(erros)
             );
@@ -40,7 +40,7 @@ public static class PostEndpoints
 
         posts.MapDelete("/{id}", async (IPostService postService ,string id) =>
         {
-            return (await postService.DeleteById(id)).Match(
+            return (await postService.RemovePostByIdAsync(id)).Match(
                 sucess => Results.Ok(sucess),
                 erros => Results.NotFound(erros)
             );
@@ -48,7 +48,7 @@ public static class PostEndpoints
 
         posts.MapPatch("/{id}", async (IPostService postService, string id,PostUpdateDTO postUpdateDTO) =>
         {
-            var res = await postService.Update(postUpdateDTO, id);
+            var res = await postService.UpdatePostAsync(postUpdateDTO, id);
             return res.Match(
                 sucess => Results.Ok(sucess),
                 erros => Results.NotFound(erros)

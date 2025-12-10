@@ -42,7 +42,9 @@ public class DbContextLite :DbContext
             builder.Property(x => x.Id)
                 .ValueGeneratedNever();
 
-            builder.Ignore(x => x.Email);
+            builder.Property(a => a.Email)
+            .IsRequired(true)
+            .HasMaxLength(255);
 
 
             builder.HasMany(a => a.Post)

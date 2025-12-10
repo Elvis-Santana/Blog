@@ -34,7 +34,8 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
        return  await _context.SaveChangesAsync() >0;
     }
 
-    public async Task<List<Author>> GetAllAsync() => await _context.Authors
+    public async Task<IEnumerable<Author>> GetAllAsync() => await _context.Authors
+       .AsNoTracking()
        .Include(x => x.Post)
        .ThenInclude(p => p.Category)
        .ToListAsync();

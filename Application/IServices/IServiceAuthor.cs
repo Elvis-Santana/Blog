@@ -13,7 +13,7 @@ namespace Application.IServices;
 public interface IServiceAuthor
 {
     Task<OneOf<AuthorReadDTO, Errors>> CreateAuthor(AuthorCreateDTO author);
-    Task<List<AuthorReadDTO>> GetAuthor();
+    Task<IEnumerable<AuthorReadDTO>> GetAuthor();
 
 
     Task<OneOf<AuthorReadDTO, Errors>> GetById(string id);

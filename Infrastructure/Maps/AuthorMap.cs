@@ -15,13 +15,7 @@ public class AuthorMap : IEntityTypeConfiguration<Author>
     public void Configure(EntityTypeBuilder<Author> builder)
     {
 
-        Author[] list = [
-              Author.Factory.CriarAuthor(new ("ELvis","san"),Guid.NewGuid().ToString()),
-               Author.Factory.CriarAuthor(new ("Rene","san"),Guid.NewGuid().ToString())
-        ];
-       
-
-        builder.HasData(list);
+        
 
         builder.HasKey(x => x.Id);
 

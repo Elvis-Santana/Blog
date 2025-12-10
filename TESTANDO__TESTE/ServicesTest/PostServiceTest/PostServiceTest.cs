@@ -7,6 +7,7 @@ using Domain.Entities;
 using Domain.IRepository.IPostRepository;
 using Domain.ObjectValues;
 using FluentAssertions;
+using Infrastructure.UnitOfWork;
 using Mapster;
 using NSubstitute;
 using TESTANDO__TESTE.Builder;
@@ -16,12 +17,15 @@ namespace TESTANDO__TESTE.ServicesTest.PostServiceTest;
 public class PostServiceTest
 {
     private readonly IPostRepository _mackServiceAuthor;
+    private readonly IUnitOfWork _mackSIUnitOfWork;
+
     private readonly PostBuilder postBuilder;
     private readonly Faker _faker = new("pt_BR");
 
     public PostServiceTest()
     {
         this._mackServiceAuthor = Substitute.For<IPostRepository>();
+        this._mackSIUnitOfWork = Substitute.For<IUnitOfWork>();
         this.postBuilder = new PostBuilder();
     }
 
@@ -30,7 +34,8 @@ public class PostServiceTest
     public async Task GetAllPosts__ShouldRetrunListPostModelView()
     {
         //arrange
-        Author author =  Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString());
+
+        Author author =  Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString(),_faker.Person.Email);
         Category category = Category.Factory.CreateCategory(author.Id, _faker.Company.Locale);
 
         Post post = Post.Factory.CreatePost (
@@ -41,23 +46,24 @@ public class PostServiceTest
             author
         );
 
-        var list = new List<Post>(){ post };
-        List<PostReadDTO> expectedCollection = list.Map();
+        IEnumerable<Post> list = new List<Post>(){ post };
+
+        IEnumerable<PostReadDTO> expectedCollection = list.Map();
 
         this._mackServiceAuthor.GetAllPosts().Returns(Task.FromResult(list));
-        PostService serviceAuthor = new(this._mackServiceAuthor,new PostCreateValidator(), new PostUpdateValidator());
+        PostService serviceAuthor = new(this._mackServiceAuthor,new PostCreateValidator(), new PostUpdateValidator(), _mackSIUnitOfWork);
 
 
         //act
          
-        var result = await serviceAuthor.GetAll();
+        var result = (await serviceAuthor.GetAllPostsAsync()).ToList();
         //assert
 
         result.Should().NotBeNull();
         result.Should().BeAssignableTo<List<PostReadDTO>>();
 
         for (int i = 0; i < result.Count; i++)
-            result[i].Should().BeEquivalentTo(expectedCollection[i]);
+            result[i].Should().BeEquivalentTo(expectedCollection.ToList()[i]);
 
         
 
@@ -66,7 +72,7 @@ public class PostServiceTest
     public async Task GetAllPosts__CategoryNULL__ShouldRetrunListPostModelView()
     {
         //arrange
-        Author author = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString());
+        Author author = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString(), _faker.Person.Email);
 
         Post post = Post.Factory.CreatePost (
             _faker.Person.FirstName,
@@ -76,16 +82,16 @@ public class PostServiceTest
             author.Id
         );
 
-        var list = new List<Post>(){ post };
-        List<PostReadDTO> expectedCollection = list.Map();
+        IEnumerable<Post>  list = new List<Post>(){ post };
+        IEnumerable<PostReadDTO> expectedCollection = list.Map();
 
-        this._mackServiceAuthor.GetAllPosts().Returns(Task.FromResult(list));
-        PostService serviceAuthor = new(this._mackServiceAuthor,new PostCreateValidator(), new PostUpdateValidator());
+        this._mackServiceAuthor.GetAllPosts().Returns(list);
+        PostService serviceAuthor = new(this._mackServiceAuthor,new PostCreateValidator(), new PostUpdateValidator(), _mackSIUnitOfWork);
 
 
         //act
          
-        var result = await serviceAuthor.GetAll();
+        var result = (await serviceAuthor.GetAllPostsAsync()).ToList();
         //assert
 
         result.Should().NotBeNull();
@@ -95,7 +101,7 @@ public class PostServiceTest
         result.Should().BeAssignableTo<List<PostReadDTO>>();
 
         for (int i = 0; i < result.Count; i++)
-            result[i].Should().BeEquivalentTo(expectedCollection[i]);
+            result[i].Should().BeEquivalentTo(expectedCollection.ToList()[i]);
 
         
 
@@ -105,7 +111,7 @@ public class PostServiceTest
     public async Task Create__ShouldRetrunTrue()
     {
         //arrange
-        var addPostInputModel = new PostCreateDTO( 
+        var postCreateDTO = new PostCreateDTO( 
             this._faker.Person.FirstName,
             _faker.Lorem.Paragraph(30),
             new DateTime(),
@@ -113,35 +119,36 @@ public class PostServiceTest
             Guid.NewGuid().ToString()
         );
 
-        var expectedPost = (Post)addPostInputModel;
-        PostService postService = new(this._mackServiceAuthor, new PostCreateValidator(), new PostUpdateValidator());
+        PostService postService = new(this._mackServiceAuthor, new PostCreateValidator(), new PostUpdateValidator(), _mackSIUnitOfWork);
 
-        this._mackServiceAuthor.Create(Arg.Any<Post>()).Returns(Task.FromResult(expectedPost));
+        this._mackServiceAuthor.CreatePost(Arg.Any<Post>()).Returns(Task.FromResult((Post)postCreateDTO));
 
         //act
-        var result = await postService.Create(addPostInputModel);
+        var result = await postService.CreatePostAsync(postCreateDTO);
 
 
         //assert
 
-        result.IsT1.Should().BeFalse();
         result.IsT0.Should().BeTrue();
-        result.AsT0.Id.Should().Be(expectedPost.Id);
-        result.AsT0.Title.Should().Be(expectedPost.Title);
-        result.AsT0.Text.Should().Be(expectedPost.Text);
-        result.AsT0.Date.Should().Be(expectedPost.Date);
-        result.AsT0.CategoryId.Should().Be(expectedPost.CategoryId);
-        result.AsT0.AuthorId.Should().Be(expectedPost.AuthorId);
+        result.AsT0.Text.Should().Be(postCreateDTO.Text);
+        result.AsT0.Title.Should().Be(postCreateDTO.Title);
+        result.AsT0.AuthorId.Should().Be(postCreateDTO.AuthorId);
+        result.AsT0.CategoryId.Should().Be(postCreateDTO.CategoryId);
+
+        result.AsT0.Id.Should().NotBeEmpty();
+
+        await _mackServiceAuthor.Received(1).CreatePost(Arg.Any<Post>());
+        await _mackSIUnitOfWork.Received(1).SaveAsync();
     }
      [Fact]
     public async Task Create__CategoryNULL_ShouldRetrunTrue()
     {
         //arrange
-        var addPostInputModel = new PostCreateDTO( 
+        var postCreateDTO = new PostCreateDTO( 
             this._faker.Person.FirstName,
             _faker.Lorem.Paragraph(30),
             new DateTime(),
-            string.Empty,
+             string.Empty,
             Guid.NewGuid().ToString()
         );
 
@@ -149,26 +156,27 @@ public class PostServiceTest
             this._mackServiceAuthor,
             new PostCreateValidator(),
             new PostUpdateValidator()
-         );
-        var expectedPost = (Post)addPostInputModel;
+         , _mackSIUnitOfWork);
 
-        this._mackServiceAuthor.Create(Arg.Any<Post>()).Returns(Task.FromResult(expectedPost));
+
+
+        this._mackServiceAuthor.CreatePost(Arg.Any<Post>()).Returns(Task.FromResult((Post)postCreateDTO));
 
         //act
-        var result = await postService.Create(addPostInputModel);
+        var result = await postService.CreatePostAsync(postCreateDTO);
 
 
         //assert
-
-        result.IsT1.Should().BeFalse();
         result.IsT0.Should().BeTrue();
-        result.AsT0.Id.Should().Be(expectedPost.Id);
-        result.AsT0.Text.Should().Be(expectedPost.Text);
-        result.AsT0.Title.Should().Be(expectedPost.Title);
-        result.AsT0.Date.Should().Be(expectedPost.Date);
-        result.AsT0.AuthorId.Should().Be(expectedPost.AuthorId);
+        result.AsT0.Text.Should().Be(postCreateDTO.Text);
+        result.AsT0.Title.Should().Be(postCreateDTO.Title);
+        result.AsT0.Id.Should().NotBeEmpty();
+        result.AsT0.AuthorId.Should().Be(postCreateDTO.AuthorId);
         result.AsT0.CategoryId.Should().BeNull();
-        result.AsT0.Category.Should().BeNull();
+
+        await _mackServiceAuthor.Received(1).CreatePost(Arg.Any<Post>());
+        await _mackSIUnitOfWork.Received(1).SaveAsync();
+
 
     }
 
@@ -178,7 +186,7 @@ public class PostServiceTest
         //arrange
         var addPostInputModel = new PostCreateDTO( 
             this._faker.Person.FirstName,
-            _faker.Lorem.Paragraph(2001),
+            _faker.Random.String2(2001),
             new DateTime(),
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString()
@@ -188,16 +196,19 @@ public class PostServiceTest
             this._mackServiceAuthor, 
             new PostCreateValidator(),
             new PostUpdateValidator()
-         );
+         , _mackSIUnitOfWork);
 
         //act
-        var result = await postService.Create(addPostInputModel);
+        var result = await postService.CreatePostAsync(addPostInputModel);
 
 
         //assert
 
         result.IsT0.Should().BeFalse();
-        result.IsT1.Should().BeTrue();
+        await _mackServiceAuthor.Received(0).CreatePost(Arg.Any<Post>());
+        await _mackSIUnitOfWork.Received(0).SaveAsync();
+
+
     }
 
     [Fact]
@@ -210,11 +221,11 @@ public class PostServiceTest
             this._mackServiceAuthor,
             new PostCreateValidator(),
             new PostUpdateValidator()
-         );
+         , _mackSIUnitOfWork);
 
 
         //act
-        var result = await postService.GetById(id);
+        var result = await postService.GetPostByIdAsync(id);
 
         //assert
 
@@ -227,24 +238,24 @@ public class PostServiceTest
     {
         //arrange
         string titile = this._faker.Person.FirstName;
-        string text =_faker.Text(2000);
+        string text =_faker.Random.String2(2000);
         DateTime dateTime = DateTime.Now;
         string authorId = Guid.NewGuid().ToString();
 
         Post post = Post.Factory.CreatePost(titile, text, dateTime, string.Empty, authorId);
 
 
-        this._mackServiceAuthor.GetById(post.Id).Returns(Task.FromResult(post));
+        this._mackServiceAuthor.GetPostsById(post.Id)!.Returns(Task.FromResult(post));
 
         PostService postService = new(
             this._mackServiceAuthor,
             new PostCreateValidator(),
             new PostUpdateValidator()
-        );
+        , _mackSIUnitOfWork);
 
 
         //act
-        PostReadDTO result = ((await postService.GetById(post.Id)).AsT0);
+        PostReadDTO result = ((await postService.GetPostByIdAsync(post.Id)).AsT0);
 
         //assert
 
@@ -268,33 +279,47 @@ public class PostServiceTest
             this._mackServiceAuthor,
             new PostCreateValidator(),
             new PostUpdateValidator()
-        );
+        , _mackSIUnitOfWork);
 
         //act
-        var result = await postService.DeleteById(id);
+        var result = await postService.RemovePostByIdAsync(id);
 
         //assert
         result.AsT1.errors.Should().HaveCount(1);
+        await _mackSIUnitOfWork.Received(0).SaveAsync();
     }
 
     [Fact]
     public async Task DeleteById__ShouldReturnTrue()
     {
         //arrange
-        string id = Guid.NewGuid().ToString();
 
-        this._mackServiceAuthor.DeleteById(id).Returns(Task.FromResult(true));
+        string titile = this._faker.Person.FirstName;
+        string text = _faker.Random.String2(2000);
+        DateTime dateTime = DateTime.Now;
+        string authorId = Guid.NewGuid().ToString();
+
+        Post post = Post.Factory.CreatePost(titile, text, dateTime, string.Empty, authorId);
+
+        this._mackServiceAuthor.RemovePost(Arg.Any<Post>());
+        this._mackServiceAuthor.GetPostsById(Arg.Any<string>()).Returns(post);
+
+        this._mackSIUnitOfWork.SaveAsync().Returns(Task.FromResult(true));
+
         PostService postService = new(
             this._mackServiceAuthor,
             new PostCreateValidator(),
             new PostUpdateValidator()
-        );
+        , _mackSIUnitOfWork);
 
         //act
-        var result = await postService.DeleteById(id);
+        var result = await postService.RemovePostByIdAsync(post.Id);
 
         //assert
         result.AsT0.Should().BeTrue();
+         _mackServiceAuthor.Received(1).RemovePost(Arg.Any<Post>());
+        await _mackSIUnitOfWork.Received(1).SaveAsync();
+
     }
 
 
@@ -308,16 +333,16 @@ public class PostServiceTest
             this._mackServiceAuthor,
             new PostCreateValidator(),
             new PostUpdateValidator()
-        );
+        , _mackSIUnitOfWork);
 
         PostUpdateDTO postUpdatDTO = new
         (
             _faker.Person.UserName,
-             _faker.Text(2001),
+             _faker.Random.String2(2001),
             string.Empty
         );
         //act
-        var result = await postService.Update(postUpdatDTO, id);
+        var result = await postService.UpdatePostAsync(postUpdatDTO, id);
 
         //assert
         result.AsT1.errors.Should().NotBeEmpty();
@@ -332,7 +357,7 @@ public class PostServiceTest
     
         Post post = Post.Factory.CreatePost(
              this._faker.Person.FirstName,
-             _faker.Text(40),
+             _faker.Random.String2(40),
               new DateTime(),
               Guid.NewGuid().ToString(),
               Guid.NewGuid().ToString()
@@ -341,19 +366,18 @@ public class PostServiceTest
 
         PostUpdateDTO postUpdateDTO = new(
               this._faker.Person.FirstName,
-             _faker.Text(40),
+             _faker.Random.String2(40),
               string.Empty
 
         );
 
-        this._mackServiceAuthor.GetById(Arg.Any<string>()).Returns(Task.FromResult(post));
+        this._mackServiceAuthor.GetPostsById(Arg.Any<string>())!.Returns(Task.FromResult(post));
         post.UpdateAttributes(postUpdateDTO.Title, postUpdateDTO.Text);
-        this._mackServiceAuthor.Update(Arg.Any<Post>(), post.Id).Returns(Task.FromResult(post));
 
-        PostService postService = new(this._mackServiceAuthor, new PostCreateValidator(), new PostUpdateValidator());
+        PostService postService = new(this._mackServiceAuthor, new PostCreateValidator(), new PostUpdateValidator(), _mackSIUnitOfWork  );
 
         //act
-        var result = await postService.Update(postUpdateDTO, post.Id);
+        var result = await postService.UpdatePostAsync(postUpdateDTO, post.Id);
 
         //assert
         result.AsT0.Id.Should().Be(post.Id);

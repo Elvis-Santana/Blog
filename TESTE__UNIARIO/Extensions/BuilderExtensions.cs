@@ -14,6 +14,7 @@ using Domain.IRepository.IPostRepository;
 using FluentValidation;
 using Infrastructure.Db;
 using Infrastructure.Repository;
+using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -56,6 +57,8 @@ public static class BuilderExtensions
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         }
 
         static void ConfigSwagger(IServiceCollection services)
@@ -95,7 +98,7 @@ public static class BuilderExtensions
                                 Id = "Bearer"
                             }
                         },
-                              new string[]{}
+                        new string[]{}
                     }
 
               });

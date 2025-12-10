@@ -33,9 +33,7 @@ public class AuthSevice  : IAuthSevice
     {
 
 
-
         var author = await this._authorRepository.GetByExpression(f =>f.Verify(login.password));
-
 
 
         if (author is not null)
@@ -54,6 +52,7 @@ public class AuthSevice  : IAuthSevice
                     ]
                 ),
                 Expires = DateTime.UtcNow.AddHours(8),
+                
                 SigningCredentials =
                 new SigningCredentials(
                     new SymmetricSecurityKey(key),
@@ -84,7 +83,7 @@ public class AuthSevice  : IAuthSevice
         var key = Encoding.ASCII.GetBytes(this._configuration["Api:SecretKey"]);
 
 
-        return (await tokenHandler.ValidateTokenAsync(
+       var result = (await tokenHandler.ValidateTokenAsync(
                 token.token,
                 new TokenValidationParameters
                 {
@@ -97,6 +96,11 @@ public class AuthSevice  : IAuthSevice
                 }
             )
         ).IsValid;
+
+
+        Console.WriteLine(result);
+
+        return result;
     }
 }
 

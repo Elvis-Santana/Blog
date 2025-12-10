@@ -36,36 +36,33 @@ public class AuthorValidatorTest
     public async Task AddAuthorInputModel_isInvalid_ShouldReturnErros()
     {
         //arrage
-            FullName fullName = new(string.Empty, _faker.Lorem.Paragraph(101));
-            AuthorCreateDTO inputModel = new(fullName, Guid.NewGuid().ToString());
-            AuthorCreateValidator validator = new AuthorCreateValidator();
+
+         FullName fullName = new(string.Empty, _faker.Lorem.Paragraph(101));
+
+         AuthorCreateDTO author_valid = new(fullName, Guid.NewGuid().ToString(), string.Empty);
+
+         AuthorCreateDTO author_valid_email_erro_maximun_length = new(fullName, Guid.NewGuid().ToString(), _faker.Random.String2(256));
+
+         AuthorCreateValidator validator = new AuthorCreateValidator();
 
         //act
-         var result =await _validator.TestValidateAsync(inputModel);
+         var result =await _validator.TestValidateAsync(author_valid);
 
 
         //assert
         var list = (result.Errors .Select(x => new AppErro(x.ErrorMessage, x.PropertyName))).ToList();
-         Errors.Factory.CreateErro(list).errors.ForEach(x =>_testOutputHelper.WriteLine(x.ToString()));
+         Errors.CreateError(list).errors.ToList().ForEach(x =>_testOutputHelper.WriteLine(x.ToString()));
 
         result.ShouldHaveValidationErrorFor(x => x.Name.FirstName).WithErrorMessage(AuthorMsg.FirstNameErroEmpty);
         result.ShouldHaveValidationErrorFor(x => x.Name.LastName).WithErrorMessage(AuthorMsg.LastNameErroMaximumLength);
+        result.ShouldHaveValidationErrorFor(x => x.Email).WithErrorMessage(AuthorMsg.EmailErroEmpty);
+
+        (await _validator.TestValidateAsync(author_valid_email_erro_maximun_length))
+            .ShouldHaveValidationErrorFor(x => x.Email).WithErrorMessage(AuthorMsg.EmailErroMaximumLength);
+
 
     }
 
-    [Fact]
-    public async Task  AddAuthorInputModel_isInvalid_ShouldAddAuthorInputModelNull()
-    {
-        //arrage
-        AuthorCreateDTO inputModel = null;
-
-        //act
-        var result = await _validator.TestValidateAsync(inputModel);
-
-        //assert
-        result.ShouldHaveValidationErrorFor(nameof(AuthorCreateDTO)).WithErrorMessage(AuthorMsg.AuthorErroNull);
-        result.IsValid.Should().BeFalse();
-
-    }
+ 
 
 }

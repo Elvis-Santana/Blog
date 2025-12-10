@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record AuthorReadDTO (string Id, FullName Name, List<PostReadDTO> Post);
+public record AuthorReadDTO (string Id, FullName Name, List<PostReadDTO> Post,string Email);
 
 
 

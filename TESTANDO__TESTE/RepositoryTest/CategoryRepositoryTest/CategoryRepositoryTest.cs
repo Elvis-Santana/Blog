@@ -1,10 +1,12 @@
 ﻿
 using Bogus;
 using Domain.Entities;
+using Domain.IRepository.IPostRepository;
 using Domain.ObjectValues;
 using FluentAssertions;
 using Infrastructure.Db;
 using Infrastructure.Repository;
+using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TESTANDO__TESTE.Builder;
@@ -39,8 +41,9 @@ public class CategoryRepositoryTest
         //act
         CategoryRepository _authorCategory = new(db);
         var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "Tech");
-        var result = await _authorCategory.Create(category);
+       await _authorCategory.CreateCategoryAsync(category);
 
+        var result = category;
 
         //assert
         result.Id.Should().Be(category.Id);
@@ -58,7 +61,7 @@ public class CategoryRepositoryTest
 
             using var context = new DbContextLite(this._dbContextOptions);
             var repo = new CategoryRepository(context);
-            var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
+            var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
             await context.Authors.AddAsync(author);
             await context.SaveChangesAsync();
 
@@ -71,7 +74,7 @@ public class CategoryRepositoryTest
             //act
 
 
-            var result = await repo.GetAsync();
+            var result = await repo.GetAllCategoryAsync();
 
 
 
@@ -95,7 +98,7 @@ public class CategoryRepositoryTest
         using var context = new DbContextLite(this._dbContextOptions);
         var categoryRepository = new CategoryRepository(context);
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
+        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
 
         await context.Authors.AddAsync(author);
         await context.SaveChangesAsync();
@@ -111,7 +114,7 @@ public class CategoryRepositoryTest
 
         //act
 
-        var result = await categoryRepository.GetById(category.Id);
+        var result = await categoryRepository.GetCategoryByIdAsync(category.Id);
 
 
         //assert
@@ -128,9 +131,9 @@ public class CategoryRepositoryTest
 
         //arragen
         using var context = new DbContextLite(this._dbContextOptions);
-        var categoryRepository = new CategoryRepository(context);
+ 
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
+        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
 
         await context.Authors.AddAsync(author);
         await context.SaveChangesAsync();
@@ -143,12 +146,12 @@ public class CategoryRepositoryTest
         await context.SaveChangesAsync();
 
         var idInvalid = Guid.NewGuid().ToString();
-
+        var categoryRepository = new CategoryRepository(context);
 
 
         //act
 
-        var result = await categoryRepository.GetById(idInvalid);
+        var result = await categoryRepository.GetCategoryByIdAsync(idInvalid);
 
 
         //assert
@@ -166,24 +169,25 @@ public class CategoryRepositoryTest
         //arragen
         using var context = new DbContextLite(this._dbContextOptions);
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
+        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
 
-        await context.Authors.AddAsync(author);
-        await context.SaveChangesAsync();
 
         string categoryName = this._faker.Name.Locale;
-
         var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
+        await context.Authors.AddAsync(author);
 
         await context.Category.AddAsync(category);
         await context.SaveChangesAsync();
 
         var categoryRepository = new CategoryRepository(context);
+        IUnitOfWork unitOfWork = new UnitOfWork(context);
 
 
         //act
 
-        var result = await categoryRepository.DeleteById(category.Id);
+        var categoryValid = await categoryRepository.GetCategoryByIdAsync(category.Id);
+        categoryRepository.RemoveCategoryAsync(categoryValid!);
+        var result = await unitOfWork.SaveAsync(); ;
 
 
         //assert
@@ -201,7 +205,7 @@ public class CategoryRepositoryTest
         //arragen
         using var context = new DbContextLite(this._dbContextOptions);
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString());
+        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
 
         await context.Authors.AddAsync(author);
         await context.SaveChangesAsync();
@@ -215,11 +219,15 @@ public class CategoryRepositoryTest
 
         var idInvalid = Guid.NewGuid().ToString();
         var categoryRepository = new CategoryRepository(context);
+        IUnitOfWork unitOfWork = new UnitOfWork(context);
 
 
         //act
 
-        var result = await categoryRepository.DeleteById(idInvalid);
+        var categoryNull = await categoryRepository.GetCategoryByIdAsync(idInvalid);
+        if (categoryNull is not null)
+        categoryRepository.RemoveCategoryAsync(categoryNull);
+        var result = await unitOfWork.SaveAsync() ;
 
 
         //assert
@@ -236,7 +244,7 @@ public class CategoryRepositoryTest
         //arragen
         using var context = new DbContextLite(this._dbContextOptions);
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName(_faker.Person.FullName, ""), Guid.NewGuid().ToString());
+        var author = new Author(Guid.NewGuid().ToString(), new FullName(_faker.Person.FullName, ""), Guid.NewGuid().ToString(), _faker.Person.Email );
    
 
         await context.Authors.AddAsync(author);
@@ -255,8 +263,12 @@ public class CategoryRepositoryTest
 
 
         //act
-        category.UpdateName(expredtedUpdatedCategory.Name);
-        var result = await categoryRepository.Update(category, expredtedUpdatedCategory.Id);
+
+        var categoryUPDATE = await categoryRepository.GetCategoryByIdAsync(category.Id);
+        categoryUPDATE!.UpdateName(expredtedUpdatedCategory.Name);
+        await context.SaveChangesAsync();
+
+        var result = categoryUPDATE;
 
 
         //assert

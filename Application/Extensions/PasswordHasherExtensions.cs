@@ -14,10 +14,6 @@ public static  class PasswordHasherExtensions
     public static bool Verify(this Author author, string password)
         => BCrypt.Net.BCrypt.Verify(password, author.PasswordHash);
 
-    //public static bool Verify(this Login , string password)
-    //   => BCrypt.Net.BCrypt.Verify(password, au);
-    
-    //public static string Hash(this Author author)
-    //  => BCrypt.Net.BCrypt.HashPassword(password);
+ 
 
 }

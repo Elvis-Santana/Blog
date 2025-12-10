@@ -2,11 +2,6 @@
 using Domain.IRepository.IPostRepository;
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repository;
 
@@ -14,49 +9,34 @@ public class PostRepository(DbContextLite dbContext) : IPostRepository
 {
     private readonly DbContextLite _dbContext = dbContext;
 
-    public async Task<Post> Create(Post post)
+    public async Task CreatePost(Post post)
     {
         await _dbContext.Posts.AddAsync(post);
 
-        await this.Save();
-        return post;
     }
 
-    public async Task<bool> DeleteById(string id)
+    public void  RemovePost(Post post)
     {
-        var result = await this.GetById(id);
-
-        if (result is null)
-            return false;
-        
-        this._dbContext.Posts.Remove(result);
-        return await this.Save() ;
-        
-        
+         this._dbContext.Posts.Remove(post);
     }
 
-    public async Task<List<Post>> GetAllPosts()=> await _dbContext.Posts
+    public async Task<IEnumerable<Post>> GetAllPosts()=> await _dbContext.Posts
+        .AsNoTracking()
         .Include(c =>c.Category)
         .Include(x => x.Author)  
         .ToListAsync();
 
-    public async Task<Post> GetById(string id)=> await _dbContext.Posts.FindAsync(id);
+    public async Task<Post?> GetPostsById(string id) => await _dbContext.Posts
+        .Include(a => a.Author)
+        .Include(c => c.Category)
+        .FirstOrDefaultAsync(p => p.Id.Equals(id));
 
-    public async Task<bool> Save() => 
-        await this._dbContext.SaveChangesAsync() > 0;
+    public async Task<bool> Save() =>   await this._dbContext.SaveChangesAsync() > 0;
     
      
-    
-
-    public async Task<Post> Update(Post post, string id)
-    {
-        var result = await this.GetById(id);
-
-        if (result is null)
-            return result;
-
-        this._dbContext.Posts.Update(post);
-        await this.Save();
-        return post;
-    }
+   
+    //public void Update(Post post)
+    //{
+    //    this._dbContext.Posts.Update(post);
+    //}
 }

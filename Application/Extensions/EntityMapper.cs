@@ -1,0 +1,53 @@
+﻿using Application.Dtos.Models;
+using Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Application.Extensions;
+
+
+
+public static class EntityMapper
+{
+
+
+    public static AuthorReadDTO Map(this Author author) =>  new(
+                author.Id,
+                author.Name,
+                author.Post.Select(a => a.Map()).ToList() ?? new (),
+                author.Email
+
+    );
+
+
+
+
+    public static PostReadDTO Map(this Post post) =>   new (
+             post.Id, 
+             post.Title,
+             post.Text, 
+             post.Date,
+             post.CategoryId ,
+             post.Category?.Map(),
+             post.AuthorId
+    );
+
+
+
+
+    public static CategoryReadDTO Map(this Category category)=> new ( category.Id, category.AuthorId,  category.Name );
+    public static IEnumerable<PostReadDTO> Map(this IEnumerable<Post> post) => post.Select(a => a.Map());
+
+    public static IEnumerable<AuthorReadDTO> Map(this IEnumerable<Author> author) => author.Select(a => a.Map());
+
+    public static IEnumerable<CategoryReadDTO> Map(this IEnumerable<Category> category) => category.Select(a => a.Map());
+
+
+
+}

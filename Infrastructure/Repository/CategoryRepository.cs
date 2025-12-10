@@ -20,44 +20,38 @@ public class CategoryRepository : ICategoryRepository
         _dbContextLite = dbContextLite;
     }
 
-    public async Task<Category> Create(Category category)
+    public async Task CreateCategoryAsync(Category category)
     {
         await  this._dbContextLite.Category.AddAsync(category);
-        await this._dbContextLite.SaveChangesAsync();
-        return category;
     }
 
-    public async Task<bool> DeleteById(string id)
+    public void RemoveCategoryAsync(Category category)
     {
-        var res = await this.GetById(id);
-        if (res is null)
-            return false;
-        
-       this._dbContextLite.Category.Remove(res);
-       return await this._dbContextLite.SaveChangesAsync() > 0;
+      
+       this._dbContextLite.Category.Remove(category);
 
     }
 
-    public async Task<List<Category>> GetAsync() =>
+    public async Task<IEnumerable<Category>> GetAllCategoryAsync() =>
       await _dbContextLite.Category.ToListAsync();
         
 
     
-    public async Task<Category> GetById(string id)=>
+    public async Task<Category?> GetCategoryByIdAsync(string id)=>
       await _dbContextLite.Category.FindAsync(id);
      
 
     
 
-    public async Task<Category> Update(Category category, string id)
-    {
+    //public async Task<Category> Update(Category category, string id)
+    //{
 
-         this._dbContextLite.Category.Update(category);
+    //     this._dbContextLite.Category.Update(category);
 
-        await this._dbContextLite.SaveChangesAsync();
+    //    await this._dbContextLite.SaveChangesAsync();
 
-        return category;
+    //    return category;
 
 
-    }
+    //}
 }

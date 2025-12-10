@@ -9,14 +9,14 @@ namespace Domain.IRepository.ICategoryRepository;
 
 public interface ICategoryRepository
 {
-    Task<Category> Create(Category category);
+    Task CreateCategoryAsync(Category category);
 
-    Task<List<Category>> GetAsync();
+    Task<IEnumerable<Category>> GetAllCategoryAsync();
 
-    Task<bool> DeleteById(string id);
+    void RemoveCategoryAsync(Category category);
 
-    Task<Category> GetById(string id);
+    Task<Category?> GetCategoryByIdAsync(string id);
 
-    Task<Category> Update(Category category, string id);
+    //Task<Category> Update(Category category, string id);
 
 }

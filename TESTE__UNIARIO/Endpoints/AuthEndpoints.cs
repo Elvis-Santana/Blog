@@ -1,5 +1,8 @@
 ﻿using Application.Dtos.Models;
 using Application.IServices;
+using Application.Services.AuthSevice;
+using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 namespace TESTE__UNIARIO.Endpoints;
 
 public static class AuthEndpoints
@@ -15,8 +18,11 @@ public static class AuthEndpoints
 
         auth.MapPost("/",async (IAuthSevice authSevice, Login login) =>
         {
-            return Results.Ok(await authSevice.CriateToken(login));
+            var token = await authSevice.CriateToken(login);
+            return Results.Ok(token);
         });
+
+        auth.MapGet("/", () => Results.Ok(true)).RequireAuthorization();
 
 
         return app;
