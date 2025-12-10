@@ -40,7 +40,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\TESTE__UNIARIO\TESTE__UNIARIO.csproj" />
+    <ProjectReference Include="..\BlogApi\BlogApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>
