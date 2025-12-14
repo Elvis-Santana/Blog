@@ -17,9 +17,6 @@ public interface IPostRepository
 
     Task<Post?> GetPostsById(string id);
 
-    //void Update(Post post);
-
-
-    //Task<bool> Save();
+ 
 
 }
