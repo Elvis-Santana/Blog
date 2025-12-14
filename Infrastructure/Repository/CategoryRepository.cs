@@ -43,15 +43,4 @@ public class CategoryRepository : ICategoryRepository
 
     
 
-    //public async Task<Category> Update(Category category, string id)
-    //{
-
-    //     this._dbContextLite.Category.Update(category);
-
-    //    await this._dbContextLite.SaveChangesAsync();
-
-    //    return category;
-
-
-    //}
 }
