@@ -20,7 +20,7 @@ public static class AuthorEndpoints
 
         authors.MapPost("/", async ( AuthorCreateDTO author, [FromServices]IServiceAuthor authorService) =>
         {
-            var res = await authorService.CreateAuthor(author);
+            var res = await authorService.CreateAuthorAsync(author);
 
             return  res.Match(
                 sucesso => Results.Created($"{nameGroup}/{sucesso.Id}",sucesso),
@@ -31,25 +31,25 @@ public static class AuthorEndpoints
 
         authors.MapGet("/", async (IServiceAuthor authorService) =>
         {
-            return Results.Ok(await authorService.GetAuthor());
+            return Results.Ok(await authorService.GetAllAuthorAsync());
 
         });
 
         authors.MapGet("/{id}", async (IServiceAuthor authorService,string id) =>
         {
-            var res = await authorService.GetById(id);
+            var res = await authorService.GetAuthorByIdAsync(id);
             return res.Match( sucesso => Results.Ok(sucesso), erro => Results.NotFound(erro));
         });
 
         authors.MapDelete("/{id}", async (IServiceAuthor authorService, string id) =>
         {
-            var res = await authorService.DeleteById(id);
+            var res = await authorService.RemoveAuthorByIdAsync(id);
             return  res.Match( sucesso => Results.Ok(sucesso), erro => Results.NotFound(erro));
         });
 
         authors.MapPatch("/{id}", async (IServiceAuthor authorService, AuthorCreateDTO addAuthorInputModel,string id) =>
         {
-            var res = await authorService.Update(addAuthorInputModel,id);
+            var res = await authorService.UpdateAuthorAsync(addAuthorInputModel,id);
             return res.Match(sucesso => Results.Ok(sucesso), erro => Results.NotFound(erro));
         });
 

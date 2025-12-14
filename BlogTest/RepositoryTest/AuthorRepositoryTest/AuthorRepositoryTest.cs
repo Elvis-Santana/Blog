@@ -5,8 +5,10 @@ using Domain.ObjectValues;
 using FluentAssertions;
 using Infrastructure.Db;
 using Infrastructure.Repository;
+using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using OneOf.Types;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -74,7 +76,7 @@ public class AuthorRepositoryTest
 
         //act
         AuthorRepository authorRepository = new(dbContext);
-        var result = (await authorRepository.GetAllAsync()).ToList(); ;
+        var result = (await authorRepository.GetAllAuthorAsync()).ToList(); ;
 
         //assert
         result.Count.Should().Be(2);
@@ -113,7 +115,8 @@ public class AuthorRepositoryTest
 
 
         AuthorRepository authorRepository = new(dbContext);
-        var result = await authorRepository.Create(author);
+        await authorRepository.CreateAuthorAsync(author);
+        var result = author;
 
         //assert
         result.Id.Should().Be(author.Id);
@@ -169,7 +172,7 @@ public class AuthorRepositoryTest
 
         var authorRepository = new AuthorRepository(dbContext);
          
-        Author result = await authorRepository.GetById(expectedAuthoes.ToArray()[0].Id);
+        Author result = await authorRepository.GetAuthorByIdAsync(expectedAuthoes.ToArray()[0].Id);
 
 
         //assert
@@ -218,7 +221,7 @@ public class AuthorRepositoryTest
         //act
         var authorRepository = new AuthorRepository(dbContext);
 
-        Author result = await authorRepository.GetById(idError);
+        Author result = await authorRepository.GetAuthorByIdAsync(idError);
 
         //assert  
 
@@ -311,6 +314,7 @@ public class AuthorRepositoryTest
 
         result.Should().BeNull();
     }
+
     [Fact]
     public async Task Update_ShouldAuthorAtualizado()
     {
@@ -319,7 +323,7 @@ public class AuthorRepositoryTest
         FullName expectedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
         FullName expectedUpdatedName = new(this._faker.Person.FirstName, this._faker.Person.LastName);
 
-        var expectedAuthor = new Author(Guid.NewGuid().ToString(), expectedName, Guid.NewGuid().ToString(),_faker.Person.Email);
+        var expectedAuthor = new Author(Guid.NewGuid().ToString(), expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
         var expectedUpdateAuthor = new Author(expectedAuthor.Id, expectedUpdatedName, Guid.NewGuid().ToString(), _faker.Person.Email);
 
 
@@ -334,15 +338,18 @@ public class AuthorRepositoryTest
         //act
 
         var authorRepository = new AuthorRepository(dbContext);
+        var IUnitOfWork = new UnitOfWork(dbContext);
 
-        Author result = await authorRepository.Update(expectedUpdateAuthor, expectedUpdateAuthor.Id);
+        expectedAuthor.UpdateName(expectedAuthor.Name);
+        await IUnitOfWork.SaveAsync();
 
+        var result = await dbContext.Authors.FindAsync(expectedAuthor.Id);
 
         //assert
 
-        result.Id.Should().NotBeEmpty();
-        result.Id.Should().Be(expectedUpdateAuthor.Id);
-        result.Name.Should().BeEquivalentTo(expectedUpdateAuthor.Name);
+        result!.Id.Should().NotBeEmpty();
+        result!.Id.Should().Be(expectedUpdateAuthor.Id);
+        result!.Name.Should().BeEquivalentTo(expectedUpdateAuthor.Name);
 
     }
 
@@ -369,11 +376,20 @@ public class AuthorRepositoryTest
         //act
         var authorRepository = new AuthorRepository(dbContext);
 
-        Author result = await authorRepository.Update(expectedUpdateAuthor, idError);
 
+         var author = await authorRepository.GetAuthorByIdAsync(idError);
+
+        var IUnitOfWork = new UnitOfWork(dbContext);
+        if (author is not null)
+            author.UpdateName(expectedUpdateAuthor.Name);
+
+        
+
+
+        var result = await IUnitOfWork.SaveAsync();
         //assert
 
-        result.Should().BeNull();
+        result.Should().BeFalse();
 
 
     }
@@ -400,8 +416,10 @@ public class AuthorRepositoryTest
 
         var authorRepository = new AuthorRepository(dbContext);
 
-        bool result = await authorRepository.DeleteById(expectedAuthor.Id);
-
+        Author author = await dbContext.Authors.FindAsync(expectedAuthor.Id);
+        if (author is not null)
+            authorRepository.RemoveAuthor(author);
+        bool result = await dbContext.SaveChangesAsync() > 0;
 
         //assert
 
@@ -420,7 +438,8 @@ public class AuthorRepositoryTest
 
 
         var expectedAuthor = new Author(Guid.NewGuid().ToString(), expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
-        var idError = Guid.NewGuid().ToString();
+        var expectedFake = new Author(Guid.NewGuid().ToString(), expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
+
         using var dbContext = new DbContextLite(this._dbContextOptions);
 
         await dbContext.Authors.AddAsync(expectedAuthor);
@@ -429,13 +448,16 @@ public class AuthorRepositoryTest
         //act
         var authorRepository = new AuthorRepository(dbContext);
 
-        bool result = await authorRepository.DeleteById(idError);
+       Author author  = await dbContext.Authors.FindAsync(expectedFake.Id);
+        if (author is not null)
+            authorRepository.RemoveAuthor(author);
 
+        
+        bool result = await dbContext.SaveChangesAsync() > 0;
 
 
         //assert
         result.Should().BeFalse();
-        dbContext.Authors.ToList().Should().HaveCount(1);
 
 
 

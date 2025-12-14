@@ -12,15 +12,15 @@ namespace Application.IServices;
 
 public interface IServiceAuthor
 {
-    Task<OneOf<AuthorReadDTO, Errors>> CreateAuthor(AuthorCreateDTO author);
-    Task<IEnumerable<AuthorReadDTO>> GetAuthor();
+    Task<OneOf<AuthorReadDTO, Errors>> CreateAuthorAsync(AuthorCreateDTO author);
+    Task<IEnumerable<AuthorReadDTO>> GetAllAuthorAsync();
 
 
-    Task<OneOf<AuthorReadDTO, Errors>> GetById(string id);
+    Task<OneOf<AuthorReadDTO, Errors>> GetAuthorByIdAsync(string id);
 
-    Task<OneOf<AuthorReadDTO, Errors>> Update(AuthorCreateDTO author, string id);
+    Task<OneOf<AuthorReadDTO, Errors>> UpdateAuthorAsync(AuthorCreateDTO author, string id);
 
-    Task<OneOf<bool, Errors>> DeleteById(string id);
+    Task<OneOf<bool, Errors>> RemoveAuthorByIdAsync(string id);
 
 
 }

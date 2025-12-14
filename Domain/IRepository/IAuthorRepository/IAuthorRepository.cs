@@ -10,15 +10,14 @@ namespace Domain.IRepository.IAuthorRepository;
 
 public interface IAuthorRepository
 {
-    Task<IEnumerable<Author>> GetAllAsync();
+    Task<IEnumerable<Author>> GetAllAuthorAsync();
 
-    Task<Author> GetById(string id);
+    Task<Author?> GetAuthorByIdAsync(string id);
 
     Task<Author?> GetByExpression(Func<Author, bool> expression);
 
-    Task<Author> Create(Author author);
+    Task CreateAuthorAsync(Author author);
 
-    Task<Author> Update(Author author, string id);
 
-    Task<bool> DeleteById(string id);
+    void RemoveAuthor(Author author);
 }

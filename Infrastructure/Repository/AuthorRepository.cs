@@ -14,27 +14,19 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
 
    
 
-    public async Task<Author> Create(Author author)
+    public async Task CreateAuthorAsync(Author author)
     {
         await  this._context.Authors.AddAsync(author);
-        await _context.SaveChangesAsync();
-        return author;
     }
         
 
-    public async Task<bool> DeleteById(string id)
+    public  void RemoveAuthor(Author author)
     {
-
-        var author =  await this.GetById(id);
-
-        if (author is not null)
-            this._context.Authors.Remove(author);
+        this._context.Authors.Remove(author);
         
-
-       return  await _context.SaveChangesAsync() >0;
     }
 
-    public async Task<IEnumerable<Author>> GetAllAsync() => await _context.Authors
+    public async Task<IEnumerable<Author>> GetAllAuthorAsync() => await _context.Authors
        .AsNoTracking()
        .Include(x => x.Post)
        .ThenInclude(p => p.Category)
@@ -53,35 +45,15 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
        
     
 
-    public async Task<Author> GetById(string id)
-    {
-        
-        return (await this._context.Authors
-           .Include(x => x.Post)
+    public async Task<Author?> GetAuthorByIdAsync(string id) 
+        => (await this._context.Authors.Include(x => x.Post)
            .ThenInclude(p => p.Category)
-           .FirstOrDefaultAsync(x => x.Id.Equals(id)))!;
-    }
+           .FirstOrDefaultAsync(x => x.Id.Equals(id)));
+    
 
 
 
-    public async Task<Author> Update(Author author, string id)
-    {
-        var authorToUpdate = await this.GetById(id);
-
-        if (authorToUpdate is not null)
-        {
-            authorToUpdate.Name.FirstName = author.Name.FirstName;
-            authorToUpdate.Name.LastName = author.Name.LastName;
-
-
-            await _context.SaveChangesAsync();
-        }
-
-
-        return authorToUpdate;
-
-
-    }
+ 
 
    
 }
