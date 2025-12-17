@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Models;
+using BlogTest.Scenario;
 using Bogus;
 using Domain.Entities;
 using Domain.IRepository.IPostRepository;
@@ -13,15 +14,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TESTANDO__TESTE.Builder;
 
 namespace TESTANDO__TESTE.RepositoryTest.PostRepositoryTest;
 
 public class PostRepositoryTest
 {
-    private readonly PostBuilder _postBuilder;
-    private readonly AuthorBuilder _authorBuilder;
-    private readonly CategoryBuider _categoryBuider;
     private readonly Faker _faker = new("pt_BR");
 
     private readonly DbContextLite _dbContextLite;
@@ -33,9 +30,7 @@ public class PostRepositoryTest
         var Options = new DbContextOptionsBuilder<DbContextLite>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this._postBuilder = new PostBuilder();
-        this._authorBuilder = new AuthorBuilder();
-        this._categoryBuider = new CategoryBuider();
+     
 
         this._dbContextLite = new (Options);
         this._repository = new PostRepository(_dbContextLite);
@@ -46,15 +41,13 @@ public class PostRepositoryTest
     public async Task CreatePost_ValidsParmas_ShouldRetrunTrue()
     {
         //arragen
-        Author author = this._authorBuilder.AuthorEntity(AuthorType.SemPost);
-        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        Author author = AuthorScenario.CreateAuthor();
+        Category category = CategorySenario.CreateCategory(author.Id);
+        Post post = PostScenario.CreatePostCategory(author.Id, category.Id);
 
         await _dbContextLite.Authors.AddAsync(author);
         await _dbContextLite.Category.AddAsync(category);
         await _dbContextLite.SaveChangesAsync();
-
-
-        var post = this._postBuilder.PostEntityBuilderAuthorAndCategory(category, author);
 
         //act
         await _repository.CreatePost(post);
@@ -63,38 +56,26 @@ public class PostRepositoryTest
 
         //assert
 
-
+        result.Id.Should().Be(post.Id);
         result.AuthorId.Should().Be(author.Id);
-        result.Category.Should().Be(category);
-        result.Title.Should().Be(this._postBuilder.expectedTitle);
-        result.Text.Should().Be(this._postBuilder.expectedText);
-        result.Date.Should().Be(this._postBuilder.expectedDate);
-        result.Id.Should().Be(this._postBuilder.expectedId);
+        result.CategoryId.Should().Be(category.Id);
+        result.Title.Should().Be(post.Title);
+        result.Title.Should().Be(post.Title);
+        result.Text.Should().Be(post.Text);
+  
 
-    }  
-    
+    }
+
     [Fact]
     public async Task CreatePost_ValidsParmasCategoryNULL_ShouldRetrunTrue()
     {
 
         //arragen
+        Author author = AuthorScenario.CreateAuthor();
+        Post expectedPost = PostScenario.CreatePost(author.Id);
 
 
-        string expectedTitle = this._faker.Phone.ToString()!;
-        string expectedText = this._faker.Lorem.Paragraph(3);
-        DateTime expectedDate = this._faker.Date.Recent(30);
 
-       
-
-        var author = _authorBuilder.AuthorEntity(AuthorType.SemPost);
-        var expectedPost = Post.Factory.CreatePost
-           (
-              expectedTitle,
-              expectedText,
-              expectedDate,
-              string.Empty,
-              author.Id
-           );
 
         await _dbContextLite.Authors.AddAsync(author);
         await _dbContextLite.SaveChangesAsync();
@@ -111,10 +92,10 @@ public class PostRepositoryTest
         //assert
         result.AuthorId.Should().Be(author.Id);
         result.Category.Should().BeNull();
-        result.Title.Should().Be(expectedTitle);
-        result.Text.Should().Be(expectedText);
-        result.Date.Should().Be(expectedDate);
         result.Id.Should().Be(expectedPost.Id);
+        result.Title.Should().Be(expectedPost.Title);
+        result.Text.Should().Be(expectedPost.Text);
+        result.Date.Should().Be(expectedPost.Date);
 
     }
 
@@ -124,11 +105,11 @@ public class PostRepositoryTest
 
         //arragen
 
-        Author author = this._authorBuilder.AuthorEntity(AuthorType.SemPost);
-        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        Author author = AuthorScenario.CreateAuthor();
+        Category category = CategorySenario.CreateCategory(author.Id);
+        Post post = PostScenario.CreatePostCategory(author.Id, category.Id);
 
 
-        var post = this._postBuilder.PostEntityBuilderAuthorAndCategory(category, author);
         await _dbContextLite.Authors.AddAsync(author);
         await _dbContextLite.Category.AddAsync(category);
         await _dbContextLite.Posts.AddAsync(post);
@@ -169,10 +150,9 @@ public class PostRepositoryTest
 
         //arrage
 
-        Author author = this._authorBuilder.AuthorEntity(AuthorType.SemPost);
-        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
-
-        var post = Post.Factory.CreatePost(_faker.Person.UserName, _faker.Lorem.Paragraph(300),  new DateTime(), category.Id, author.Id);
+        Author author = AuthorScenario.CreateAuthor();
+        Category category = CategorySenario.CreateCategory(author.Id);
+        Post post = PostScenario.CreatePostCategory(author.Id, category.Id);
 
         await _dbContextLite.Authors.AddAsync(author);
         await _dbContextLite.Category.AddAsync(category);
@@ -195,14 +175,10 @@ public class PostRepositoryTest
 
         //arrage
 
-        Author author = this._authorBuilder.AuthorEntity(AuthorType.SemPost);
-        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
-
-        var title = _faker.Person.UserName;
-        var text = _faker.Lorem.Paragraph(300);
-        var data = new DateTime();
-
-        var post = Post.Factory.CreatePost(title, text,  data, category.Id, author.Id);
+        Author author = AuthorScenario.CreateAuthor();
+        Category category = CategorySenario.CreateCategory(author.Id);
+        Post post = PostScenario.CreatePostCategory(author.Id, category.Id);
+   
 
         await _dbContextLite.Authors.AddAsync(author);
         await _dbContextLite.Category.AddAsync(category);
@@ -218,9 +194,9 @@ public class PostRepositoryTest
         result.AuthorId.Should().Be(author.Id);
         result.CategoryId.Should().Be(category.Id);
         result.Id.Should().Be(result.Id);
-        result.Title.Should().Be(title);
-        result.Text.Should().Be(text);
-        result.Date.Should().Be(data.Date);
+        result.Title.Should().Be(post.Title);
+        result.Text.Should().Be(post.Text);
+        result.Date.Should().Be(post.Date);
 
 
     }
@@ -229,13 +205,13 @@ public class PostRepositoryTest
     [Fact]
     public async Task DeleteById__ShouldReturnFalse()
     {
-       
+
         //arrage
 
-        Author author = this._authorBuilder.AuthorEntity(AuthorType.SemPost);
-        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
+        Author author = AuthorScenario.CreateAuthor();
+        Category category = CategorySenario.CreateCategory(author.Id);
+        Post post = PostScenario.CreatePostCategory(author.Id, category.Id);
 
-        var post = Post.Factory.CreatePost(_faker.Person.UserName, _faker.Lorem.Paragraph(300), new DateTime(), category.Id, author.Id);
 
 
         await _dbContextLite.Authors.AddAsync(author);
@@ -268,14 +244,10 @@ public class PostRepositoryTest
     {
         //arrage
 
-        Author author = this._authorBuilder.AuthorEntity(AuthorType.SemPost);
-        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
 
-        var title = _faker.Person.UserName;
-        var text = _faker.Lorem.Paragraph(300);
-        var data = new DateTime();
-
-        var post = Post.Factory.CreatePost(title, text, data, category.Id, author.Id);
+        Author author = AuthorScenario.CreateAuthor();
+        Category category = CategorySenario.CreateCategory(author.Id);
+        Post post = PostScenario.CreatePostCategory(author.Id, category.Id);
 
         await _dbContextLite.Authors.AddAsync(author);
         await _dbContextLite.Category.AddAsync(category);
@@ -301,27 +273,16 @@ public class PostRepositoryTest
     public async Task Update__ShoulRetrunNull()
     {
         //arrage
-
-        Author author = this._authorBuilder.AuthorEntity(AuthorType.SemPost);
-        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
         var idInvalid = Guid.NewGuid().ToString();
 
-        var title = _faker.Person.UserName;
-        var text = _faker.Lorem.Paragraph(300);
-        var data = new DateTime();
-
-        var post = Post.Factory.CreatePost(
-            title,
-            text,
-            data,
-            category.Id,
-            author.Id
-        );
+        Author author = AuthorScenario.CreateAuthor();
+        Category category = CategorySenario.CreateCategory(author.Id);
+        Post post = PostScenario.CreatePostCategory(author.Id, category.Id);
 
         var postUpdate = Post.Factory.CreatePost(
             string.Empty,
             string.Empty,
-            data,
+            DateTime.Now,
             category.Id,
             author.Id
         );
@@ -332,7 +293,7 @@ public class PostRepositoryTest
         await _dbContextLite.SaveChangesAsync();
 
         //act
-        var postById = await _repository.GetPostsById(postUpdate.Id);
+        var postById = await _repository.GetPostsById(idInvalid);
 
         if (postById is not null)
             postById.UpdateAttributes(postUpdate.Title, postUpdate.Text);
@@ -348,15 +309,10 @@ public class PostRepositoryTest
     public async Task Update__ShouldRetrunUpdatPost()
     {
         //arrage
-        Author author = this._authorBuilder.AuthorEntity(AuthorType.SemPost);
-        Category category = this._categoryBuider.CategoryEntityBuilder(_authorBuilder.expectedId);
-     
+        Author author = AuthorScenario.CreateAuthor();
+        Category category = CategorySenario.CreateCategory(author.Id);
+        Post post = PostScenario.CreatePostCategory(author.Id, category.Id);
 
-        var title = _faker.Person.UserName;
-        var text = _faker.Lorem.Paragraph(300);
-        var data = new DateTime();
-
-        var post = Post.Factory.CreatePost(title,text,data, category.Id, author.Id );
         await _dbContextLite.Authors.AddAsync(author);
         await _dbContextLite.Category.AddAsync(category);
         await _dbContextLite.Posts.AddAsync(post);
@@ -367,13 +323,13 @@ public class PostRepositoryTest
         (
             _faker.Person.UserName,
             _faker.Lorem.Paragraph(400),
-            string.Empty
+            category.Id
         );
 
-       
+        var postUpdateGet = await _repository.GetPostsById(post.Id);
 
-        post.UpdateAttributes(postUpdateDTO.Title, postUpdateDTO.Text);
-        var postUpdate = post;
+        postUpdateGet!.UpdateAttributes(postUpdateDTO.Title, postUpdateDTO.Text, postUpdateDTO.CategoryId);
+
 
     
 
@@ -381,15 +337,16 @@ public class PostRepositoryTest
         await _dbContextLite.SaveChangesAsync();
 
         //assert
-        postUpdate.Id.Should().Be(post.Id);
-        postUpdate.Title.Should().Be(postUpdate.Title);
-        postUpdate.Text.Should().Be(postUpdate.Text);
-        postUpdate .Date.Should().Be(postUpdate.Date);
-        postUpdate.CategoryId.Should().Be(postUpdate.CategoryId);
-        postUpdate.AuthorId.Should().Be(postUpdate.AuthorId);
-        
+        post.Id.Should().Be(postUpdateGet.Id);
+
+        postUpdateGet.Title.Should().Be(postUpdateDTO.Title);
+        postUpdateGet.Text.Should().Be(postUpdateDTO.Text);
+        postUpdateGet.CategoryId.Should().Be(postUpdateDTO.CategoryId);
+        author.Id.Should().Be(postUpdateGet.AuthorId);
+        postUpdateGet.Category.Should().Be(category);
+
 
     }
 
-   
+
 }

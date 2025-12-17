@@ -1,8 +1,10 @@
-﻿using Bogus;
+﻿using BlogTest.Scenario;
+using Bogus;
 using Domain.Entities;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,32 +17,45 @@ public class PostTest
 {
     private readonly Faker _faker = new("pt_BR");
     private readonly ITestOutputHelper _testOutputHelper;
-    private readonly PostBuilder _postBuilder;
 
     public PostTest(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
-        _postBuilder = new PostBuilder();
     }
 
     [Fact]
-    public void Contructor_DataValid_shouldCreatePost()
+    public void Contructor_DataValid_shouldCreatePostCategory()
     {
         //arrange
-      
+
+       Author expectedAuthor =  AuthorScenario.CreateAuthor();
+        Category expectedCategory =  CategorySenario.CreateCategory(expectedAuthor.Id);
+
+        string expectedTitle = this._faker.Music.Locale;
+        string expectedText = this._faker.Random.String2(100);
+        DateTime expectedDate = DateTime.Now;
+
+        var post = Post.Factory.CreatePost(
+            expectedTitle,
+            expectedText,
+            expectedDate,
+            expectedCategory.Id,
+            expectedAuthor.Id
+        );
 
         //act
-        Post post = _postBuilder.PostEntityBuilderAuthorAndCategory();
 
 
 
         //assert
-        post.Id.Should().Be(_postBuilder.expectedId);
-        post.Title.Should().Be(_postBuilder.expectedTitle);
-        post.Text.Should().Be(_postBuilder.expectedText);
-        post.Date.Should().Be(_postBuilder.expectedDate);
-        post.Category.Should().Be(_postBuilder.expectedCategory);
-        post.Author.Should().Be(_postBuilder.expectedAuthor);
+        post.Id.Should().NotBeNull();
+        post.Title.Should().Be(expectedTitle);
+        post.Text.Should().Be(expectedText);
+        post.Date.Should().Be(expectedDate);
+
+        post.AuthorId.Should().Be(expectedAuthor.Id);
+        post.CategoryId.Should().Be(expectedCategory.Id);
+            
        
 
     }
@@ -48,24 +63,36 @@ public class PostTest
 
     [Fact]
 
-    public void Contructor_DataValid_shouldCreatePostCategoryIdEmpty()
+    public void Contructor_DataValid_shouldCreatePostCategoryNull()
     {
-        //Arrange
-        string expectedAuthorId = Guid.NewGuid().ToString();
-        var expectedTitle = this._faker.Person.Company.Name;
-        var expectedText = this._faker.Lorem.Paragraph(30);
-        var expectedDate = DateTime.Now;
+        Author expectedAuthor = AuthorScenario.CreateAuthor();
+
+        string expectedTitle = this._faker.Music.Locale;
+        string expectedText = this._faker.Random.String2(100);
+        DateTime expectedDate = DateTime.Now;
+
+        var post = Post.Factory.CreatePost(
+            expectedTitle,
+            expectedText,
+            expectedDate,
+            string.Empty,
+            expectedAuthor.Id
+        );
+
+        //act
 
 
-        //Act
-         Post post = Post.Factory.CreatePost( expectedTitle,expectedText, expectedDate, string.Empty,expectedAuthorId);
 
-        //Assert
-        post.CategoryId.Should().BeNull();
-        post.AuthorId.Should().Be(expectedAuthorId);
+        //assert
+        post.Id.Should().NotBeNull();
         post.Title.Should().Be(expectedTitle);
         post.Text.Should().Be(expectedText);
         post.Date.Should().Be(expectedDate);
+
+        post.AuthorId.Should().Be(expectedAuthor.Id);
+        post.CategoryId.Should().BeNull();
+
+
 
     }
 }

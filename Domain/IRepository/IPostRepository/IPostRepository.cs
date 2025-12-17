@@ -10,13 +10,16 @@ namespace Domain.IRepository.IPostRepository;
 public interface IPostRepository
 {
     Task CreatePost(Post post);
+    void RemovePost(Post post);
 
     Task<IEnumerable<Post>> GetAllPosts();
 
-     void RemovePost(Post post);
 
     Task<Post?> GetPostsById(string id);
 
- 
+    Task LoadCategoryReferenceAsync(Post post);
+
+
+
 
 }

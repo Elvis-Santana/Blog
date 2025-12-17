@@ -66,9 +66,11 @@ public class AuthSeviceTest
         string email = _faker.Person.Email;
         var login = new Login(password);
 
-        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
+        var dto = new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
+        var author = Author.Factory.CriarAuthor(dto.Name, dto.Password, dto.Email);
 
-        
+
+
         _authorRepository.GetByExpression(Arg.Any<Func<Author, bool>>()).Returns(Task.FromResult(author));
 
 
@@ -125,21 +127,16 @@ public class AuthSeviceTest
         //arrange
         string password = Guid.NewGuid().ToString();
         var login = new Login(password);
-
         string email = _faker.Person.Email;
 
 
-        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
-
-
+        var dto = new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
         IAuthSevice authSevice = new AuthSevice(this._configuration, _authorRepository);
-
         Token tokenJWT = Token.Factory.CreateToken(Guid.NewGuid().ToString());
 
         //act
 
         var result =await authSevice.Validation(tokenJWT);
-
         result.Should().BeFalse();
 
     }
@@ -152,8 +149,8 @@ public class AuthSeviceTest
         var login = new Login(password);
         string email = _faker.Person.Email;
 
-        var author = (Author)new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
-
+        var dto = new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
+        var author = Author.Factory.CriarAuthor(dto.Name, dto.Password, dto.Email);
 
         _authorRepository.GetByExpression(Arg.Any<Func<Author, bool>>())
             .Returns(Task.FromResult(author));

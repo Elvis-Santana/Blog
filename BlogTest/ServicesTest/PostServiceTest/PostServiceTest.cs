@@ -1,6 +1,5 @@
 ﻿using Application.Dtos.Models;
 using Application.Services.PostService;
-using Application.Validators.Validator;
 using Application.Validators.Validator.PostValidator;
 using Bogus;
 using Domain.Entities;
@@ -10,7 +9,7 @@ using FluentAssertions;
 using Infrastructure.UnitOfWork;
 using Mapster;
 using NSubstitute;
-using TESTANDO__TESTE.Builder;
+using NSubstitute.ReceivedExtensions;
 
 namespace TESTANDO__TESTE.ServicesTest.PostServiceTest;
 
@@ -19,14 +18,12 @@ public class PostServiceTest
     private readonly IPostRepository _mackServiceAuthor;
     private readonly IUnitOfWork _mackSIUnitOfWork;
 
-    private readonly PostBuilder postBuilder;
     private readonly Faker _faker = new("pt_BR");
 
     public PostServiceTest()
     {
         this._mackServiceAuthor = Substitute.For<IPostRepository>();
         this._mackSIUnitOfWork = Substitute.For<IUnitOfWork>();
-        this.postBuilder = new PostBuilder();
     }
 
 
@@ -230,6 +227,7 @@ public class PostServiceTest
         //assert
 
         result.AsT1.errors.Should().HaveCount(1);
+        await this._mackServiceAuthor.Received(1).GetPostsById(Arg.Any<string>());
 
     }
 
@@ -266,6 +264,8 @@ public class PostServiceTest
         result.AuthorId.Should().Be(authorId);
         result.CategoryId.Should().Be(null);
         result.Category.Should().Be(null);
+
+        await this._mackServiceAuthor.Received(1).GetPostsById(Arg.Any<string>());
 
     }
 
@@ -346,6 +346,8 @@ public class PostServiceTest
 
         //assert
         result.AsT1.errors.Should().NotBeEmpty();
+        await this._mackServiceAuthor.Received(0).GetPostsById(Arg.Any<string>());
+        await _mackSIUnitOfWork.Received(0).SaveAsync();
     }
 
 
@@ -354,12 +356,17 @@ public class PostServiceTest
     {
         //arrange
 
-    
+        Category category = Category.Factory.CreateCategory(
+            Guid.NewGuid().ToString(),
+            _faker.Person.FullName
+        );
+
+
         Post post = Post.Factory.CreatePost(
              this._faker.Person.FirstName,
              _faker.Random.String2(40),
               new DateTime(),
-              Guid.NewGuid().ToString(),
+              string.Empty,
               Guid.NewGuid().ToString()
         );
 
@@ -367,23 +374,48 @@ public class PostServiceTest
         PostUpdateDTO postUpdateDTO = new(
               this._faker.Person.FirstName,
              _faker.Random.String2(40),
-              string.Empty
+             category.Id
 
         );
 
-        this._mackServiceAuthor.GetPostsById(Arg.Any<string>())!.Returns(Task.FromResult(post));
-        post.UpdateAttributes(postUpdateDTO.Title, postUpdateDTO.Text);
+        _mackServiceAuthor.GetPostsById(Arg.Any<string>()).Returns(Task.FromResult(post));
 
-        PostService postService = new(this._mackServiceAuthor, new PostCreateValidator(), new PostUpdateValidator(), _mackSIUnitOfWork  );
+
+        var newPost = post;
+        _mackServiceAuthor.When(x =>x.LoadCategoryReferenceAsync(Arg.Any<Post>())).Do(callInfo => {
+
+                   // callInfo.Arg<Post>(0) obtém o primeiro argumento do tipo Post
+                   newPost = callInfo.Arg<Post>();
+
+                   // Aqui você poderia, por exemplo, mudar uma propriedade do Post
+                   newPost.UpdateAttributes(postUpdateDTO.Title, postUpdateDTO.Text, postUpdateDTO.CategoryId);
+
+                   newPost.UpdateCategoryFromTest(category);
+         });
+
+        this._mackSIUnitOfWork.SaveAsync().Returns(Task.FromResult(true));
+
+        PostService postService = new(
+            this._mackServiceAuthor, 
+            new PostCreateValidator(),
+            new PostUpdateValidator(),
+            _mackSIUnitOfWork  );
 
         //act
         var result = await postService.UpdatePostAsync(postUpdateDTO, post.Id);
 
+
         //assert
         result.AsT0.Id.Should().Be(post.Id);
         result.AsT0.Text.Should().Be(postUpdateDTO.Text);
-        result.AsT0.Title.Should().Be(postUpdateDTO.Title);
+        result.AsT0.Title.ToString().Should().Be(postUpdateDTO.Title);
+        result.AsT0.CategoryId.Should().Be(postUpdateDTO.CategoryId);
+        result.AsT0.Category.Should().Be(category.Map());
         result.AsT0.AuthorId.Should().Be(post.AuthorId);
+
+        await this._mackServiceAuthor.Received(1).GetPostsById(Arg.Any<string>());
+        await this._mackServiceAuthor.Received(1).LoadCategoryReferenceAsync(Arg.Any<Post>());
+        await _mackSIUnitOfWork.Received(1).SaveAsync();
 
     }
 

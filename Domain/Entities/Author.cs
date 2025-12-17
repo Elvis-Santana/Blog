@@ -33,7 +33,7 @@ public class Author
         Name = name;
         Post = post;
         PasswordHash = passwordHash;
-        this.Email= email;
+        Email= email;
     }
 
     public Author(string id, FullName name, string passwordHash, string email)
@@ -57,7 +57,11 @@ public class Author
 
     public static class Factory
     {
-        public static Author CriarAuthor(FullName name, string passwordHash,string email) =>  new Author(name, passwordHash, email); 
+        public static Author CriarAuthor(
+            FullName name,
+            string passwordHash,
+            string email
+         ) =>  new Author(name, passwordHash, email); 
 
 
     }

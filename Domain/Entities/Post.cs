@@ -23,6 +23,7 @@ public class Post
     public Category? Category { get; private set; }
 
     public string AuthorId { get; init; }
+
     public Author Author { get; init; }
 
 
@@ -43,7 +44,7 @@ public class Post
     }
 
    
-    private Post(string title, string text, DateTime date, Category category, Author author)
+    private Post (string title, string text, DateTime date, Category category, Author author)
     {
         this.Id = Guid.NewGuid().ToString();
         this.Title = title;
@@ -56,19 +57,35 @@ public class Post
 
        
     }
-  
-    
+
+
+
+
+
     public void UpdateAttributes(string? title="", string? text = "", string? CategoryId = "")
     {
         if (!string.IsNullOrWhiteSpace(title))
             this.Title = title;
 
-        if (!string.IsNullOrEmpty(text))
+        if (!string.IsNullOrWhiteSpace(text))
             this.Text = text;
 
-        if(!string.IsNullOrEmpty(CategoryId))
-            this.CategoryId = CategoryId;
+        if (!string.IsNullOrWhiteSpace(CategoryId))
+           this.CategoryId = CategoryId;
+        
+
+    
     }
+     
+    public void UpdateCategoryFromTest(Category category)
+    {
+        this.Category = category;
+        this.CategoryId = category.Id;
+
+
+    }
+
+
 
 
     public static class Factory

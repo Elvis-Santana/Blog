@@ -7,4 +7,5 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record PostUpdateDTO(string? Title=""  , string? Text = "" , string? CategoryId = "" );
+public record PostUpdateDTO(string? Title=""  , string? Text = "" , string? CategoryId = "");
+

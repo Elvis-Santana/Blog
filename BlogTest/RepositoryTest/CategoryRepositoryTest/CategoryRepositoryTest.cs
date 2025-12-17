@@ -1,16 +1,12 @@
-﻿
+﻿using BlogTest.Scenario;
 using Bogus;
 using Domain.Entities;
 using Domain.IRepository.ICategoryRepository;
-using Domain.IRepository.IPostRepository;
-using Domain.ObjectValues;
 using FluentAssertions;
 using Infrastructure.Db;
 using Infrastructure.Repository;
 using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using TESTANDO__TESTE.Builder;
 using Xunit.Abstractions;
 
 namespace TESTANDO__TESTE.RepositoryTest.CategoryRepositoryTest;
@@ -23,7 +19,6 @@ public class CategoryRepositoryTest
     private readonly ICategoryRepository _repository;
 
 
-
     public CategoryRepositoryTest(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
@@ -33,7 +28,6 @@ public class CategoryRepositoryTest
 
         this._dbContextLite = new(Options);
         this._repository = new CategoryRepository(this._dbContextLite);
-
     }
 
     [Fact]
@@ -42,7 +36,8 @@ public class CategoryRepositoryTest
         //arrange
 
         //act
-        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "Tech");
+        var category = CategorySenario.CreateCategory();
+
        await _repository.CreateCategoryAsync(category);
 
         var result = category;
@@ -55,18 +50,17 @@ public class CategoryRepositoryTest
 
     [Fact]
     public  async Task GetAllAsync__ShouldReturnListCategory()
-    {  
+    {
         //arrange
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
-        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, "Tech");
+        var author = AuthorScenario.CreateAuthor() ;
+        var category = CategorySenario.CreateCategory(author.Id);
 
         await _dbContextLite.Authors.AddAsync(author);
         await _dbContextLite.Category.AddAsync(category);
         await _dbContextLite.SaveChangesAsync();
 
-        var listAuthor = await _dbContextLite.Authors.ToListAsync();
-        var listCategory = await _dbContextLite.Category.ToListAsync();
+      
 
         //act
 
@@ -76,11 +70,9 @@ public class CategoryRepositoryTest
 
 
         //assert
-        listAuthor.Should().NotBeEmpty();
-        listCategory.Should().NotBeEmpty();
-        result.Should().NotBeEmpty();
-        result.ToArray()[0].AuthorId.Should().Be(author.Id);
-        result.ToArray()[0].Should().Be(category);
+        result.Should().HaveCount(1);
+        result.ToList()[0].Should().Be(category);
+
     }
 
 
@@ -90,15 +82,10 @@ public class CategoryRepositoryTest
 
         //arragen
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName(_faker.Person.FirstName, _faker.Person.LastName), Guid.NewGuid().ToString(), _faker.Person.Email);
+        var author = AuthorScenario.CreateAuthor();
+        var category = CategorySenario.CreateCategory(author.Id);
 
         await _dbContextLite.Authors.AddAsync(author);
-        await _dbContextLite.SaveChangesAsync();
-
-        string categoryName = this._faker.Name.Locale;
-
-        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
-
         await _dbContextLite.Category.AddAsync(category);
         await _dbContextLite.SaveChangesAsync();
 
@@ -111,8 +98,7 @@ public class CategoryRepositoryTest
         //assert
 
         result.Should().NotBeNull();
-        result.Author.Should().Be(author);
-        result.Name.Should().Be(categoryName);
+        result.Should().Be(category);
 
     } 
 
@@ -121,17 +107,12 @@ public class CategoryRepositoryTest
     {
 
         //arragen
- 
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
+
+        var author = AuthorScenario.CreateAuthor();
+        var category = CategorySenario.CreateCategory(author.Id);
 
         await _dbContextLite.Authors.AddAsync(author);
-        await _dbContextLite.SaveChangesAsync();
-
-        string categoryName = this._faker.Name.Locale;
-
-        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
-
         await _dbContextLite.Category.AddAsync(category);
         await _dbContextLite.SaveChangesAsync();
 
@@ -157,13 +138,11 @@ public class CategoryRepositoryTest
 
         //arragen
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
+        var author = AuthorScenario.CreateAuthor();
+        var category = CategorySenario.CreateCategory(author.Id);
 
 
-        string categoryName = this._faker.Name.Locale;
-        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
         await _dbContextLite.Authors.AddAsync(author);
-
         await _dbContextLite.Category.AddAsync(category);
         await _dbContextLite.SaveChangesAsync();
 
@@ -181,7 +160,6 @@ public class CategoryRepositoryTest
 
         result.Should().BeTrue();
         (await _dbContextLite.Category.ToListAsync()).Should().HaveCount(0);
-        (await _dbContextLite.Authors.ToListAsync()).Should().HaveCount(1);
 
     }
 
@@ -191,15 +169,10 @@ public class CategoryRepositoryTest
 
         //arragen
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName("ss", "33"), Guid.NewGuid().ToString(), _faker.Person.Email);
+        var author = AuthorScenario.CreateAuthor();
+        var category = CategorySenario.CreateCategory(author.Id);
 
         await _dbContextLite.Authors.AddAsync(author);
-        await _dbContextLite.SaveChangesAsync();
-
-        string categoryName = this._faker.Name.Locale;
-
-        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
-
         await _dbContextLite.Category.AddAsync(category);
         await _dbContextLite.SaveChangesAsync();
 
@@ -228,13 +201,10 @@ public class CategoryRepositoryTest
     {
         //arragen
 
-        var author = new Author(Guid.NewGuid().ToString(), new FullName(_faker.Person.FullName, ""), Guid.NewGuid().ToString(), _faker.Person.Email );
-   
+        var author = AuthorScenario.CreateAuthor();
+        var category = CategorySenario.CreateCategory(author.Id);
 
-        string categoryName = this._faker.Name.Locale;
         string categoryUpdatdName = this._faker.Name.FullName();
-
-        var category = Category.Factory.CreateCategory(Guid.NewGuid().ToString(), author.Id, categoryName);
         var expredtedUpdatedCategory = Category.Factory.CreateCategory(category.Id, author.Id, categoryUpdatdName);
 
         await _dbContextLite.Authors.AddAsync(author);

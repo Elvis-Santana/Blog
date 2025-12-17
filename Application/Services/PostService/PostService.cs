@@ -5,7 +5,6 @@ using Domain.Erros;
 using Domain.IRepository.IPostRepository;
 using FluentValidation;
 using Infrastructure.UnitOfWork;
-using Mapster;
 using OneOf;
 
 namespace Application.Services.PostService;
@@ -70,19 +69,19 @@ public class PostService (
             return errors;
 
 
-        var postUpdate = await _postRepository.GetPostsById(id);
+        Post? postUpdate = await _postRepository.GetPostsById(id);
 
 
         if (postUpdate is null)
             return Errors.EmiteError("post not found", nameof(Post));
 
-        postUpdate.UpdateAttributes(post.Title, post.Text);
-
+          postUpdate.UpdateAttributes(post.Title, post.Text,post.CategoryId);
         await _unitOfWork.SaveAsync();
 
+        await _postRepository.LoadCategoryReferenceAsync(postUpdate);
+
+
+
         return postUpdate.Map();
-
-
-
     }
 }

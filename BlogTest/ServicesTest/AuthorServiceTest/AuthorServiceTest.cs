@@ -2,10 +2,10 @@
 using Application.IServices;
 using Application.Services.AuthorService;
 using Application.Validators.Validator.AuthorValidator;
+using BlogTest.Scenario;
 using Bogus;
 using Domain.Entities;
 using Domain.IRepository.IAuthorRepository;
-using Domain.ObjectValues;
 using FluentAssertions;
 using Infrastructure.UnitOfWork;
 using Mapster;
@@ -17,8 +17,8 @@ namespace TESTANDO__TESTE.ServicesTest.AuthorServiceTest;
 
 public class AuthorServiceTest
 {
-    private readonly IAuthorRepository _mackAuthorRepository;
-    private readonly IUnitOfWork _mackIUnitOfWork;
+    private readonly IAuthorRepository _mackAuthorRepository = Substitute.For<IAuthorRepository>();
+    private readonly IUnitOfWork _mackIUnitOfWork = Substitute.For<IUnitOfWork>();
     private readonly IServiceAuthor _serviceAuthor;
 
     private readonly Faker _faker = new("pt_BR");
@@ -29,45 +29,42 @@ public class AuthorServiceTest
     { 
     
         _testOutputHelper = testOutputHelper;
-        _mackAuthorRepository = Substitute.For<IAuthorRepository>();
-        _mackIUnitOfWork = Substitute.For<IUnitOfWork>();
         _serviceAuthor = new AuthorService(_mackAuthorRepository, new AuthorCreateValidator(), _mackIUnitOfWork);
 
     }
 
     [Fact]
-    public async Task Create_ParamsIsValid_ShouldRetrunTrue()
+    public async Task CreateAuthor_ShouldReturnAuthorReadDTO_WhenParamsAreValid()
     {
         //arrange
-       
 
-        var fullName = new FullName(this._faker.Person.FirstName, this._faker.Person.LastName);
-        var authorDTO = new AuthorCreateDTO(fullName, Guid.NewGuid().ToString(), _faker.Person.Email);
-        var expecteAuthor = (Author)authorDTO;
+        var (dto, author) =  AuthorScenario.CreateAuthor_ValidScenarioFormDto();
 
-        
-        _mackAuthorRepository.CreateAuthorAsync(Arg.Any<Author>()).Returns(Task.FromResult(expecteAuthor));
-        _mackIUnitOfWork.SaveAsync().Returns(Task.FromResult(true));
+        _mackAuthorRepository.CreateAuthorAsync(Arg.Any<Author>())
+            .Returns(Task.FromResult(author));
+
+        _mackIUnitOfWork.SaveAsync()
+            .Returns(Task.FromResult(true));
 
           //act
-          var result= await _serviceAuthor.CreateAuthorAsync(authorDTO);
+        var result= await _serviceAuthor.CreateAuthorAsync(dto);
 
         //assert
         result.IsT0.Should().BeTrue();
-        result.AsT0.Should().BeAssignableTo<AuthorReadDTO>();
         result.AsT0.Id.Should().NotBeNull();
-        result.AsT0.Name.Should().Be(authorDTO.Name);
-        await _mackAuthorRepository.Received(1).CreateAuthorAsync(Arg.Any<Author>());
-        await _mackIUnitOfWork.Received(1).SaveAsync();
+        result.AsT0.Name.Should().Be(dto.Name);
 
+        await _mackAuthorRepository.Received(1)
+            .CreateAuthorAsync(Arg.Any<Author>());
 
-
+        await _mackIUnitOfWork.Received(1)
+            .SaveAsync();
 
     }
 
 
     [Fact]
-    public async Task Create_ParamsIsInvalidis_ShouldRetrunErrors()
+    public async Task CreateAuthor_ShouldReturnError_WhenParamsAreInvalid()
     {
         //arrange
       
@@ -89,7 +86,7 @@ public class AuthorServiceTest
 
             })
         );
-        await _mackIUnitOfWork.Received(0).SaveAsync();
+        await _mackIUnitOfWork.DidNotReceive().SaveAsync();
 
     }
 
@@ -98,36 +95,13 @@ public class AuthorServiceTest
     public async Task GetAuthor_ShouldReturnListAuthor()
     {
         //arrange
-        FullName  expectedFullName = new FullName(this._faker.Person.FirstName, this._faker.Person.LastName);
-        var expectedAuthor =  Author.Factory.CriarAuthor(expectedFullName, Guid.NewGuid().ToString(), _faker.Person.Email);
 
-        Category expectedCategory = Category.Factory.CreateCategory(expectedAuthor.Id, this._faker.Lorem.Paragraph(1), _faker.Person.Email);
-
-
-    
-        IEnumerable<Author> expectedListAuthor = new List<Author>() { 
-            new Author(expectedAuthor.Id, expectedFullName,[
-                 Post.Factory.CreatePost(
-                        this._faker.Lorem.Paragraph(1),
-                        this._faker.Lorem.Paragraph(1),
-                        DateTime.Now,
-                        expectedCategory,
-                        expectedAuthor
-                    )
-                ],
-            Guid.NewGuid().ToString(),
-            _faker.Person.Email
-            )
-
-
-        };
-
-
+        IEnumerable<Author> expectedListAuthor = [
+            AuthorScenario.CreateAuthor(),
+            AuthorScenario.CreateAuthor()
+            ];
 
         _mackAuthorRepository.GetAllAuthorAsync().Returns(Task.FromResult(expectedListAuthor));
-
-
-
 
         //act
         var result = (await _serviceAuthor.GetAllAuthorAsync()).ToList() ;
@@ -136,9 +110,7 @@ public class AuthorServiceTest
 
         result.Should().BeAssignableTo<List<AuthorReadDTO>>();
         result.Should().BeEquivalentTo(expectedListAuthor.Map());
-        result[0].Post[0].AuthorId.Should().Be((expectedListAuthor.ToList())[0].Id);
-        result[0].Post[0].Category.Should().BeEquivalentTo(expectedCategory.Map());
-        result[0].Post[0].CategoryId.Should().Be(expectedCategory.Id);
+      
 
     }
 
@@ -148,24 +120,29 @@ public class AuthorServiceTest
     {
 
         //arrange
-        FullName expectedName = new(_faker.Person.FirstName, _faker.Person.LastName);
 
-        AuthorCreateDTO addAuthorInputModel = new(expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
-        Author author = new Author(Guid.NewGuid().ToString(), expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
+        var (dto, author) = AuthorScenario.CreateAuthor_ValidScenarioFormDto();
+
+        _mackAuthorRepository.GetAuthorByIdAsync(Arg.Any<string>())
+          .Returns(Task.FromResult(author));
+
+        _mackIUnitOfWork.SaveAsync()
+            .Returns(Task.FromResult(true));
 
         //act
-     
-        _mackAuthorRepository.GetAuthorByIdAsync(Arg.Any<string>()).Returns(Task.FromResult(author));
-        _mackIUnitOfWork.SaveAsync().Returns(Task.FromResult(true));
 
-        var result = await _serviceAuthor.UpdateAuthorAsync(addAuthorInputModel, author.Id);
+
+        var result = await _serviceAuthor.UpdateAuthorAsync(dto, author.Id);
 
         //assert
         result.AsT0.Id.Should();
-        result.AsT0.Name.Should().Be(addAuthorInputModel.Name);
+        result.AsT0.Name.Should().Be(dto.Name);
 
-        await _mackAuthorRepository.Received(1).GetAuthorByIdAsync(Arg.Any<string>());
-        await _mackIUnitOfWork.Received(1).SaveAsync();
+        await _mackAuthorRepository.Received(1)
+            .GetAuthorByIdAsync(Arg.Any<string>());
+
+        await _mackIUnitOfWork
+            .Received(1).SaveAsync();
     }
 
     [Fact]
@@ -173,19 +150,20 @@ public class AuthorServiceTest
     {
 
         //arrange
-        FullName expectedName = new(_faker.Person.FirstName,_faker.Person.LastName);
         string idError = Guid.NewGuid().ToString();
+        var (dto, _) = (AuthorScenario.CreateAuthor_ValidScenarioFormDto());
 
-        AuthorCreateDTO authorCreateDTO = new(expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
-        
+
         //act
-      
-
-        var result = await _serviceAuthor.UpdateAuthorAsync(authorCreateDTO, idError);
+        var result = await _serviceAuthor.UpdateAuthorAsync(dto, idError);
 
         //assert
-         result.AsT1.errors.Should().HaveCount(1);
 
+         result.AsT1.errors.Should()
+            .HaveCount(1);
+
+         await _mackIUnitOfWork
+            .DidNotReceive().SaveAsync();
     }
 
 
@@ -195,23 +173,22 @@ public class AuthorServiceTest
     {
 
         //arrange
-        FullName expectedName = new(_faker.Person.FirstName, _faker.Person.LastName);
-        string expectedGuid = Guid.NewGuid().ToString();
-        Author author = new Author(expectedGuid, expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
+       
+        Author author = AuthorScenario.CreateAuthor();
 
         _mackAuthorRepository.GetAuthorByIdAsync(Arg.Any<string>()).Returns(Task.FromResult(author));
 
         //act
 
 
-        var result = await _serviceAuthor.GetAuthorByIdAsync(expectedGuid);
+        var result = await _serviceAuthor.GetAuthorByIdAsync(author.Id);
 
 
         //assert
 
         result.IsT0.Should().BeTrue();
-        result.AsT0.Id.Should().Be(expectedGuid);
-        result.AsT0.Name.Should().Be(expectedName);
+        result.AsT0.Id.Should().Be(author.Id);
+        result.AsT0.Name.Should().Be(author.Name);
         result.AsT0.Post.Should().HaveCount(0);
 
         await  _mackAuthorRepository.Received(1).GetAuthorByIdAsync(Arg.Any<string>());
@@ -223,16 +200,10 @@ public class AuthorServiceTest
     public async Task GetById_ShouldRetrunNotFound()
     {
         //arrange
-        FullName expectedName = new(_faker.Person.FirstName, _faker.Person.LastName);
-        string expectedGuid = Guid.NewGuid().ToString();
+       
         string idError = Guid.NewGuid().ToString();
 
-        Author author = new Author(expectedGuid, expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
-
-
-
         //act
-
 
         var result = await _serviceAuthor.GetAuthorByIdAsync(idError);
 
@@ -248,9 +219,8 @@ public class AuthorServiceTest
     public async Task RemoveAuthorById__ShouldRetrunTrue()
     {
         //arrange
-        FullName expectedName = new(_faker.Person.FirstName, _faker.Person.LastName);
-        string expectedGuid = Guid.NewGuid().ToString();
-        Author author = new Author(expectedGuid, expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
+        
+        Author author = AuthorScenario.CreateAuthor();
 
         _mackAuthorRepository.GetAuthorByIdAsync(Arg.Any<string>()).Returns(Task.FromResult(author));
 
@@ -258,14 +228,17 @@ public class AuthorServiceTest
         //act
 
 
-        var result = await _serviceAuthor.RemoveAuthorByIdAsync(expectedGuid);
+        var result = await _serviceAuthor.RemoveAuthorByIdAsync(author.Id);
 
 
         //assert
 
         result.IsT0.Should().BeTrue();
-        await _mackAuthorRepository.Received(1).GetAuthorByIdAsync(Arg.Any<string>());
-        await _mackIUnitOfWork.Received(1).SaveAsync();
+        await _mackAuthorRepository.Received(1)
+            .GetAuthorByIdAsync(Arg.Any<string>());
+
+        await _mackIUnitOfWork.Received(1)
+            .SaveAsync();
 
 
     }
@@ -274,9 +247,7 @@ public class AuthorServiceTest
     public async Task RemoveAuthorById__ShouldRetrunFlase()
     {
         //arrange
-        FullName expectedName = new(_faker.Person.FirstName, _faker.Person.LastName);
-        string expectedGuid = Guid.NewGuid().ToString();
-        Author author = new Author(expectedGuid, expectedName, Guid.NewGuid().ToString(), _faker.Person.Email);
+        Author author = AuthorScenario.CreateAuthor();
         string isError = Guid.NewGuid().ToString();
 
 

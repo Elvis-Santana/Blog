@@ -27,13 +27,14 @@ public class AuthorService(
    private readonly IUnitOfWork _unitOfWork = unitOfWor;
 
 
-    public async Task<OneOf<AuthorReadDTO, Errors>> CreateAuthorAsync(AuthorCreateDTO authorDTO)
+
+    public async Task<OneOf<AuthorReadDTO, Errors>> CreateAuthorAsync(AuthorCreateDTO dtoCreate)
     {
 
-        if (Errors.TryValid(await _validator.ValidateAsync(authorDTO), out Errors errors))
+        if (Errors.TryValid(await _validator.ValidateAsync(dtoCreate), out Errors errors))
             return errors;
 
-        var author = (Author)authorDTO;
+        var author =  Author.Factory.CriarAuthor(dtoCreate.Name, dtoCreate.Password, dtoCreate.Email);
 
         await this._authorRepository.CreateAuthorAsync(author);
 
