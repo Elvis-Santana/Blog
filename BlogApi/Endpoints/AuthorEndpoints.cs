@@ -18,7 +18,7 @@ public static class AuthorEndpoints
 
         authors.WithTags(nameGroup);
 
-        authors.MapPost("/", async ( AuthorCreateDTO author, [FromServices]IServiceAuthor authorService) =>
+        authors.MapPost("/", async ([FromBody] AuthorCreateDTO author, [FromServices]IServiceAuthor authorService) =>
         {
             var res = await authorService.CreateAuthorAsync(author);
 
@@ -29,11 +29,8 @@ public static class AuthorEndpoints
 
         });
 
-        authors.MapGet("/", async (IServiceAuthor authorService) =>
-        {
-            return Results.Ok(await authorService.GetAllAuthorAsync());
-
-        });
+        authors.MapGet("/", async (IServiceAuthor authorService)
+            => Results.Ok(await authorService.GetAllAuthorAsync()));
 
         authors.MapGet("/{id}", async (IServiceAuthor authorService,string id) =>
         {
