@@ -8,18 +8,6 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record AuthorCreateDTO {
-
-     public FullName Name;
-     public string Password;
-     public string Email;
-
-    public AuthorCreateDTO(FullName name, string password, string email)
-    {
-        Name = name;
-        Password = BCrypt.Net.BCrypt.HashPassword(password);
-        Email = email;
-    }
-}
+public record AuthorCreateDTO(FullName Name, string Password, string Email);
 
 
