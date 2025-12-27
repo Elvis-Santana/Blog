@@ -33,10 +33,7 @@ public class FollowRepositoryTest
          string followerId = Guid.NewGuid().ToString();
          string FollowingId = Guid.NewGuid().ToString();
 
-        Follow follow = Follow.CreateFollow(
-            followerId,
-            FollowingId
-        );
+        Follow follow = Follow.CreateFollow(followerId,FollowingId);
 
         _repository.CreateFollow( follow );
          bool result =  await _dbContextLite.SaveChangesAsync() > 0;
@@ -44,5 +41,20 @@ public class FollowRepositoryTest
         result.Should().BeTrue();
     }
 
-    
+    [Fact]
+    public async Task RemovendoFollow_PasandoObjectoFollow_DeveSerRemovidoDoBancoDeDados()
+    {
+        string followerId = Guid.NewGuid().ToString();
+        string FollowingId = Guid.NewGuid().ToString();
+
+        Follow follow = Follow.CreateFollow(followerId,FollowingId);
+
+        _dbContextLite.Followers.Add(follow);
+        await _dbContextLite.SaveChangesAsync();
+
+        _repository.RemoveFollow(follow);
+        bool result = await _dbContextLite.SaveChangesAsync() > 0;
+
+        result.Should().BeTrue();
+    }
 }
