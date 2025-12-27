@@ -1,30 +1,23 @@
 ﻿using Application.Dtos.Models;
+using Application.IRepository.IAuthorRepository;
 using Application.IServices;
 using Domain.Entities;
 using Domain.Erros;
-using Domain.Erros.AppErro;
-using Domain.IRepository.IAuthorRepository;
 using FluentValidation;
-using Infrastructure.UnitOfWork;
 using Mapster;
 using OneOf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services.AuthorService;
 
 public class AuthorService(
     IAuthorRepository authorRepository,
     IValidator<AuthorCreateDTO> validator,
-    IUnitOfWork unitOfWor
+    Application.IUnitOfWork.IUnitOfWork unitOfWor
     ) : IServiceAuthor
 {
     private readonly IAuthorRepository _authorRepository = authorRepository;
     private readonly IValidator<AuthorCreateDTO> _validator = validator;
-   private readonly IUnitOfWork _unitOfWork = unitOfWor;
+   private readonly Application.IUnitOfWork.IUnitOfWork _unitOfWork = unitOfWor;
 
 
 
@@ -34,7 +27,7 @@ public class AuthorService(
         if (Errors.TryValid(await _validator.ValidateAsync(dtoCreate), out Errors errors))
             return errors;
 
-        var author =  Author.Factory.CriarAuthor(dtoCreate.Name, dtoCreate.Password, dtoCreate.Email);
+        var author =  Author.Factory.CriarAuthor(dtoCreate.Name, BCrypt.Net.BCrypt.HashPassword(dtoCreate.Password), dtoCreate.Email);
 
         await this._authorRepository.CreateAuthorAsync(author);
 

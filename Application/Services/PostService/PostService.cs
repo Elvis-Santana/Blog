@@ -1,10 +1,9 @@
 ﻿using Application.Dtos.Models;
+using Application.IRepository.IPostRepository;
 using Application.IServices;
 using Domain.Entities;
 using Domain.Erros;
-using Domain.IRepository.IPostRepository;
 using FluentValidation;
-using Infrastructure.UnitOfWork;
 using OneOf;
 
 namespace Application.Services.PostService;
@@ -13,13 +12,13 @@ public class PostService (
     IPostRepository postRepository,
      IValidator<PostCreateDTO> validatorCreate,
      IValidator<PostUpdateDTO> validatorUpdate,
-     IUnitOfWork unitOfWork
+     Application.IUnitOfWork.IUnitOfWork unitOfWork
     ) :IPostService
 {
     private readonly IPostRepository _postRepository = postRepository;
     private readonly IValidator<PostCreateDTO> _validatorCreate = validatorCreate;
     private readonly IValidator<PostUpdateDTO> _validatorUpdate = validatorUpdate;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly Application.IUnitOfWork.IUnitOfWork _unitOfWork = unitOfWork;
 
 
     public async Task<OneOf<PostReadDTO, Errors>> CreatePostAsync(PostCreateDTO addPostInputModel)

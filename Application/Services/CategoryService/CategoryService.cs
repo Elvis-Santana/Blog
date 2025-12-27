@@ -1,20 +1,12 @@
 ﻿using Application.Dtos.Models;
+using Application.IUnitOfWork;
+using Application.IRepository.ICategoryRepository;
 using Application.IServices;
 using Domain.Entities;
 using Domain.Erros;
-using Domain.Erros.AppErro;
-using Domain.IRepository.ICategoryRepository;
 using FluentValidation;
-using FluentValidation.Results;
-using Infrastructure.UnitOfWork;
 using Mapster;
 using OneOf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Application.Services.CategoryService;
 
@@ -22,13 +14,13 @@ public class CategoryService (
     ICategoryRepository categoryRepository,
     IValidator<CategoryCreateDTO> addValidator,
     IValidator<CategoryUpdateDTO> updateValidator,
-    IUnitOfWork unitOfWork
+    Application.IUnitOfWork.IUnitOfWork unitOfWork
     ) : ICategoryService{
 
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
     private readonly IValidator<CategoryCreateDTO> _addValidator = addValidator;
     private readonly IValidator<CategoryUpdateDTO> _updateValidator = updateValidator;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly Application.IUnitOfWork.IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<OneOf<CategoryReadDTO, Errors>> CreateCategory(CategoryCreateDTO categoryCreateDTO)
     {

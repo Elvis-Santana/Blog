@@ -1,20 +1,11 @@
 ﻿using Application.Dtos.Models;
-using Application.Extensions;
+using Application.IRepository.IAuthorRepository;
 using Application.IServices;
-using Domain.Entities;
-using Domain.IRepository.IAuthorRepository;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services.AuthSevice;
 
@@ -33,7 +24,7 @@ public class AuthSevice  : IAuthSevice
     {
 
 
-        var author = await this._authorRepository.GetByExpression(f =>f.Verify(login.password));
+        var author = await this._authorRepository.GetByExpression(f => f.Verify(login.password) && f.Email.Equals(login.email));
 
 
         if (author is not null)
