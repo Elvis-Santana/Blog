@@ -1,15 +1,12 @@
 ﻿using Application.Dtos.Models;
+using Application.IRepository.IAuthorRepository;
 using Application.IServices;
 using Application.Services.AuthSevice;
 using Bogus;
 using Domain.Entities;
-using Domain.IRepository.IAuthorRepository;
-using Domain.ObjectValues;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using NSubstitute;
-using System.Linq.Expressions;
 using Xunit.Abstractions;
 
 namespace TESTANDO__TESTE.ServicesTest.AuthSeviceTest;
@@ -44,7 +41,7 @@ public class AuthSeviceTest
     public async Task CreateToKen__ShouldReturnTokenEmpty()
     {
         //arrange
-        var login = new Login(string.Empty);
+        var login = new Login(string.Empty,string.Empty);
 
 
         //act
@@ -64,7 +61,7 @@ public class AuthSeviceTest
 
         string password = Guid.NewGuid().ToString();
         string email = _faker.Person.Email;
-        var login = new Login(password);
+        var login = new Login(password, email);
 
         var dto = new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
         var author = Author.Factory.CriarAuthor(dto.Name, dto.Password, dto.Email);
@@ -126,8 +123,9 @@ public class AuthSeviceTest
     {
         //arrange
         string password = Guid.NewGuid().ToString();
-        var login = new Login(password);
         string email = _faker.Person.Email;
+
+        var login = new Login(password, email);
 
 
         var dto = new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
@@ -146,8 +144,8 @@ public class AuthSeviceTest
     {
         //arrange
         string password = Guid.NewGuid().ToString();
-        var login = new Login(password);
         string email = _faker.Person.Email;
+        var login = new Login(password, email);
 
         var dto = new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
         var author = Author.Factory.CriarAuthor(dto.Name, dto.Password, dto.Email);
