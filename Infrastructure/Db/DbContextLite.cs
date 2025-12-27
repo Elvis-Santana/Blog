@@ -1,12 +1,5 @@
 ﻿using Domain.Entities;
-using Domain.ObjectValues;
-using Infrastructure.Maps;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Db;
 
@@ -22,6 +15,9 @@ public class DbContextLite :DbContext
     public DbSet<Post> Posts { get; set; }
 
     public DbSet<Category> Category { get; set; }
+
+    public DbSet<Follow> Followers { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
 
 
@@ -52,8 +48,32 @@ public class DbContextLite :DbContext
                 .HasForeignKey(c => c.AuthorId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
 
+        modelBuilder.Entity<Follow>(builder =>
+        {
+            builder.Property(a => a.FollowerId)
+            .IsRequired(true);
 
+            builder.Property(a => a.AuthorId)
+            .IsRequired(true);
+
+        });
+
+        modelBuilder.Entity<Notification>(builder =>
+        {
+            builder.Property(n => n.Id)
+            .IsRequired(true);
+
+            builder.Property(n => n.Messsage)
+            .IsRequired(true);
+
+            builder.Property(n => n.IsRead)
+            .IsRequired(false)
+            .HasDefaultValue(false);
+
+            builder.Property(n => n.UserId)
+            .IsRequired(true);
 
         });
 
