@@ -14,7 +14,7 @@ public class FollowRepository (DbContextLite dbContextLite) : IFollowRepository
     private readonly DbContextLite _dbContextLite = dbContextLite;
     public void CreateFollow(Follow follow)
     {
-        throw new NotImplementedException();
+        _dbContextLite.Followers.Add(follow);
     }
 
     public void RemoveFollow(Follow follow)
