@@ -1,8 +1,9 @@
 ﻿using Application.Dtos.Models;
+using Application.IRepository.IPostRepository;
+using Application.IUnitOfWork;
 using BlogTest.Scenario;
 using Bogus;
 using Domain.Entities;
-using Domain.IRepository.IPostRepository;
 using Domain.ObjectValues;
 using FluentAssertions;
 using Infrastructure.Db;

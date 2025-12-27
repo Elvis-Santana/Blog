@@ -1,12 +1,12 @@
 ﻿using Application.Dtos.Models;
+using Application.IRepository.IPostRepository;
+using Application.IUnitOfWork;
 using Application.Services.PostService;
 using Application.Validators.Validator.PostValidator;
 using Bogus;
 using Domain.Entities;
-using Domain.IRepository.IPostRepository;
 using Domain.ObjectValues;
 using FluentAssertions;
-using Infrastructure.UnitOfWork;
 using Mapster;
 using NSubstitute;
 using NSubstitute.ReceivedExtensions;

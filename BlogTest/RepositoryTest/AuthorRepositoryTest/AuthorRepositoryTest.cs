@@ -1,7 +1,7 @@
-﻿using BlogTest.Scenario;
+﻿using Application.IRepository.IAuthorRepository;
+using BlogTest.Scenario;
 using Bogus;
 using Domain.Entities;
-using Domain.IRepository.IAuthorRepository;
 using Domain.ObjectValues;
 using FluentAssertions;
 using Infrastructure.Db;

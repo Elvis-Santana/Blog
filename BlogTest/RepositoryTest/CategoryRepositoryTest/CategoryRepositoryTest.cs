@@ -1,7 +1,8 @@
-﻿using BlogTest.Scenario;
+﻿using Application.IRepository.ICategoryRepository;
+using Application.IUnitOfWork;
+using BlogTest.Scenario;
 using Bogus;
 using Domain.Entities;
-using Domain.IRepository.ICategoryRepository;
 using FluentAssertions;
 using Infrastructure.Db;
 using Infrastructure.Repository;

@@ -1,13 +1,13 @@
 ﻿using Application.Dtos.Models;
+using Application.IRepository.IAuthorRepository;
 using Application.IServices;
+using Application.IUnitOfWork;
 using Application.Services.AuthorService;
 using Application.Validators.Validator.AuthorValidator;
 using BlogTest.Scenario;
 using Bogus;
 using Domain.Entities;
-using Domain.IRepository.IAuthorRepository;
 using FluentAssertions;
-using Infrastructure.UnitOfWork;
 using Mapster;
 using NSubstitute;
 using NSubstitute.ReceivedExtensions;
