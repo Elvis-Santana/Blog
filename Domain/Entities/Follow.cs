@@ -8,14 +8,23 @@ namespace Domain.Entities;
 
 public class Follow
 {
-    public string FollowerId { get; init; }
-    public string AuthorId { get; init; }  
+    public string FollowerId { get; private set; }
+    public string FollowingId { get; private set; }
+
+    public Author Follower { get; private set; }
+    public Author Following { get; private set; }
 
     protected Follow() { }
 
-    public Follow(string FollowerId,string AuthorId)
+    protected Follow(string FollowerId,string FollowingId)
     {
         this.FollowerId = FollowerId;
-        this.AuthorId = AuthorId;
+        this.FollowingId = FollowingId;
     }
+
+
+    public static Follow CreateFollow(string FollowerId, string FollowingId) => new (FollowerId, FollowingId);
+    
+
+    
 }
