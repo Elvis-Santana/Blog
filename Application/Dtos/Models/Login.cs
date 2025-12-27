@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.Models;
 
-public record Login(string password);
+public record Login(string password,string email);
 
 
