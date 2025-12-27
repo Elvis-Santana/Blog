@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DbContextLite))]
-    partial class DbContextLiteModelSnapshot : ModelSnapshot
+    [Migration("20251227141448_AddFollowNotification")]
+    partial class AddFollowNotification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
@@ -61,12 +64,10 @@ namespace Infrastructure.Migrations
                     b.Property<string>("FollowerId")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("FollowingId")
+                    b.Property<string>("AuthorId")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("FollowerId", "FollowingId");
-
-                    b.HasIndex("FollowingId");
+                    b.HasKey("FollowerId", "AuthorId");
 
                     b.ToTable("Followers");
                 });
@@ -164,25 +165,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Follow", b =>
-                {
-                    b.HasOne("Domain.Entities.Author", "Follower")
-                        .WithMany("Following")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Author", "Following")
-                        .WithMany("Followers")
-                        .HasForeignKey("FollowingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Follower");
-
-                    b.Navigation("Following");
-                });
-
             modelBuilder.Entity("Domain.Entities.Post", b =>
                 {
                     b.HasOne("Domain.Entities.Author", "Author")
@@ -202,10 +184,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Author", b =>
                 {
-                    b.Navigation("Followers");
-
-                    b.Navigation("Following");
-
                     b.Navigation("Post");
                 });
 #pragma warning restore 612, 618
