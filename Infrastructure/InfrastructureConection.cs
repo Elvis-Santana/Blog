@@ -1,5 +1,6 @@
 ﻿using Application.IRepository.IAuthorRepository;
 using Application.IRepository.ICategoryRepository;
+using Application.IRepository.IFollowRepository;
 using Application.IRepository.IPostRepository;
 using Application.IUnitOfWork;
 using Infrastructure.Db;
@@ -21,6 +22,7 @@ public static class InfrastructureConection
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
+        services.AddScoped<IFollowRepository, FollowRepository>();
 
         return services;
     }
