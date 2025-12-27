@@ -62,7 +62,7 @@ public class Author
 
 
     
-     public static Author CriarAuthor(
+     public static Author CreateAuthor(
             FullName name,
             string passwordHash,
             string email
