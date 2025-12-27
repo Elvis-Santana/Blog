@@ -27,7 +27,7 @@ public class AuthorService(
         if (Errors.TryValid(await _validator.ValidateAsync(dtoCreate), out Errors errors))
             return errors;
 
-        var author =  Author.Factory.CriarAuthor(dtoCreate.Name, BCrypt.Net.BCrypt.HashPassword(dtoCreate.Password), dtoCreate.Email);
+        var author =  Author.CreateAuthor(dtoCreate.Name, BCrypt.Net.BCrypt.HashPassword(dtoCreate.Password), dtoCreate.Email);
 
         await this._authorRepository.CreateAuthorAsync(author);
 
