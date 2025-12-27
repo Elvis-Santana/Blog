@@ -52,11 +52,24 @@ public class DbContextLite :DbContext
 
         modelBuilder.Entity<Follow>(builder =>
         {
-            builder.Property(a => a.FollowerId)
-            .IsRequired(true);
+            builder.HasKey(x => new { x.FollowerId, x.FollowingId });
 
-            builder.Property(a => a.AuthorId)
-            .IsRequired(true);
+            builder.HasOne(x => x.Follower)
+                         .WithMany(a => a.Following)
+                         .HasForeignKey(x => x.FollowerId)
+                         .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(x => x.Following)
+                   .WithMany(a => a.Followers)
+                   .HasForeignKey(x => x.FollowingId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+
+            builder.Property(a => a.FollowerId)
+            .IsRequired();
+
+            builder.Property(a => a.FollowingId)
+            .IsRequired();
 
         });
 
@@ -68,9 +81,6 @@ public class DbContextLite :DbContext
             builder.Property(n => n.Messsage)
             .IsRequired(true);
 
-            builder.Property(n => n.IsRead)
-            .IsRequired(false)
-            .HasDefaultValue(false);
 
             builder.Property(n => n.UserId)
             .IsRequired(true);
