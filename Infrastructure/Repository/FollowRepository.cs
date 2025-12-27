@@ -19,6 +19,6 @@ public class FollowRepository (DbContextLite dbContextLite) : IFollowRepository
 
     public void RemoveFollow(Follow follow)
     {
-        throw new NotImplementedException();
+        _dbContextLite.Remove(follow);
     }
 }
