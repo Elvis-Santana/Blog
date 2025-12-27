@@ -1,7 +1,7 @@
 ﻿
 
+using Application.IRepository.IAuthorRepository;
 using Domain.Entities;
-using Domain.IRepository.IAuthorRepository;
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;

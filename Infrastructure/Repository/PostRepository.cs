@@ -1,7 +1,5 @@
-﻿
-
+﻿using Application.IRepository.IPostRepository;
 using Domain.Entities;
-using Domain.IRepository.IPostRepository;
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 

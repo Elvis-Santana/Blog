@@ -1,6 +1,6 @@
-﻿using Domain.Entities;
-using Domain.IRepository;
-using Domain.IRepository.ICategoryRepository;
+﻿using Application.IRepository.ICategoryRepository;
+using Domain.Entities;
+
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 using System;
