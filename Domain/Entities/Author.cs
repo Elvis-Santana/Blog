@@ -22,10 +22,16 @@ public class Author
 
     public string Email { get; private set; }
 
-    private Author()
-    {
-        
-    }
+
+    private readonly List<Follow> _followers = new();
+    public IReadOnlyCollection<Follow> Followers => _followers;
+
+    // Quem eu sigo
+    private readonly List<Follow> _following = new();
+    public IReadOnlyCollection<Follow> Following => _following;
+
+
+    private Author(){ }
 
     public Author(string id, FullName name, List<Post> post, string passwordHash,string email)
     {
@@ -55,16 +61,15 @@ public class Author
   
 
 
-    public static class Factory
-    {
-        public static Author CriarAuthor(
+    
+     public static Author CriarAuthor(
             FullName name,
             string passwordHash,
             string email
-         ) =>  new Author(name, passwordHash, email); 
+      ) =>  new Author(name, passwordHash, email); 
 
 
-    }
+    
 
 
     public  void UpdateName(FullName Name)
