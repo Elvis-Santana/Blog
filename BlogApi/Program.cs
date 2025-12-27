@@ -1,18 +1,5 @@
-using Application;
-using Application.Dtos.Models;
-using Application.Validators.Validator;
-using Application.Validators.Validator.AuthorValidator;
-using Application.Validators.Validator.CategoryValidator;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Infrastructure.Db;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Net.Sockets;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,8 +13,6 @@ builder.Services.AddEndpointsApiExplorer();
 
 
 builder.Services.AddServices(builder.Configuration);
-
-
 
 
 builder.Services.AddAuthentication()
@@ -83,10 +68,7 @@ if (app.Environment.IsDevelopment())
 
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    db.Database.Migrate(); 
-}
+
 
 
 
