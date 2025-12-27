@@ -27,7 +27,7 @@ public class AuthorDtoTest
         var authorCreateDTO = new AuthorCreateDTO(new FullName(this._faker.Person.FirstName,""), Guid.NewGuid().ToString(), _faker.Person.Email);
 
 
-        var author = Author.Factory.CriarAuthor(authorCreateDTO.Name, authorCreateDTO.Password, authorCreateDTO.Email);
+        var author = Author.CreateAuthor(authorCreateDTO.Name, authorCreateDTO.Password, authorCreateDTO.Email);
 
 
         author.Id.Should().NotBeEmpty();

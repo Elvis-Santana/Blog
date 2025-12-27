@@ -32,7 +32,7 @@ public class PostServiceTest
     {
         //arrange
 
-        Author author =  Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString(),_faker.Person.Email);
+        Author author =  Author.CreateAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString(),_faker.Person.Email);
         Category category = Category.Factory.CreateCategory(author.Id, _faker.Company.Locale);
 
         Post post = Post.Factory.CreatePost (
@@ -69,7 +69,7 @@ public class PostServiceTest
     public async Task GetAllPosts__CategoryNULL__ShouldRetrunListPostModelView()
     {
         //arrange
-        Author author = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString(), _faker.Person.Email);
+        Author author = Author.CreateAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString(), _faker.Person.Email);
 
         Post post = Post.Factory.CreatePost (
             _faker.Person.FirstName,

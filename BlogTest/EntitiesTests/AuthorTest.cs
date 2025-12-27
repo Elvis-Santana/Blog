@@ -68,7 +68,7 @@ public class AuthorTest
 
 
         // Act
-        var author = Author.Factory.CriarAuthor(
+        var author = Author.CreateAuthor(
             expectedAuthor.Name,
             expectedAuthor.PasswordHash,
             expectedAuthor.Email

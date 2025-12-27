@@ -23,7 +23,7 @@ public class PostDtoTest
         DateTime expectedDate = this._faker.Date.Recent(30);
         string expectedCategory = this._faker.Person.Company.Name;
 
-        var expectedAuthor = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString(), _faker.Person.Email);
+        var expectedAuthor = Author.CreateAuthor(new FullName(_faker.Person.FirstName, ""), Guid.NewGuid().ToString(), _faker.Person.Email);
         Post expectedPost = Post.Factory.CreatePost(expectedTitle, expectedText, expectedDate, Category.Factory.CreateCategory(expectedAuthor.Id, expectedCategory), expectedAuthor);
 
         //act
@@ -51,7 +51,7 @@ public class PostDtoTest
         DateTime expectedDate = this._faker.Date.Recent(30);
         string expectedCategory = this._faker.Person.Company.Name;
 
-        var expectedAuthor = Author.Factory.CriarAuthor(new FullName(_faker.Person.FirstName, ""),Guid.NewGuid().ToString(), _faker.Person.Email);
+        var expectedAuthor = Author.CreateAuthor(new FullName(_faker.Person.FirstName, ""),Guid.NewGuid().ToString(), _faker.Person.Email);
         Post expectedPost = Post.Factory.CreatePost(expectedTitle, expectedText, expectedDate,string.Empty,  expectedAuthor.Id);
 
      

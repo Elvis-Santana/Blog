@@ -24,7 +24,7 @@ public  class AuthorScenario
             _faker.Person.Email
         );
 
-        Author expectedAuthor = Author.Factory.CriarAuthor(
+        Author expectedAuthor = Author.CreateAuthor(
             dto.Name,
             dto.Password,
             dto.Email
@@ -34,7 +34,7 @@ public  class AuthorScenario
 
     }
 
-    public static Author CreateAuthor() => Author.Factory.CriarAuthor(
+    public static Author CreateAuthor() => Author.CreateAuthor(
         new FullName(_faker.Person.FirstName, _faker.Person.LastName),
         Guid.NewGuid().ToString(),
         _faker.Person.Email

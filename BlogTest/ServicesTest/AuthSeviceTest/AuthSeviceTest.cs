@@ -64,7 +64,7 @@ public class AuthSeviceTest
         var login = new Login(password, email);
 
         var dto = new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
-        var author = Author.Factory.CriarAuthor(dto.Name, dto.Password, dto.Email);
+        var author = Author.CreateAuthor(dto.Name, dto.Password, dto.Email);
 
 
 
@@ -87,7 +87,7 @@ public class AuthSeviceTest
       var passwordError = Guid.NewGuid().ToString();
         string email = _faker.Person.Email;
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-      var author =  Author.Factory.CriarAuthor(
+      var author =  Author.CreateAuthor(
           new(_faker.Person.FirstName, string.Empty),
           passwordHash,
           email
@@ -107,7 +107,7 @@ public class AuthSeviceTest
         var password = Guid.NewGuid().ToString();
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-        var author = Author.Factory.CriarAuthor( new(_faker.Person.FirstName, string.Empty),  passwordHash, _faker.Person.Email);
+        var author = Author.CreateAuthor( new(_faker.Person.FirstName, string.Empty),  passwordHash, _faker.Person.Email);
 
 
         var result = author.Verify(password);
@@ -148,7 +148,7 @@ public class AuthSeviceTest
         var login = new Login(password, email);
 
         var dto = new AuthorCreateDTO(new(_faker.Person.FirstName, string.Empty), password, email);
-        var author = Author.Factory.CriarAuthor(dto.Name, dto.Password, dto.Email);
+        var author = Author.CreateAuthor(dto.Name, dto.Password, dto.Email);
 
         _authorRepository.GetByExpression(Arg.Any<Func<Author, bool>>())
             .Returns(Task.FromResult(author));
