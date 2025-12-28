@@ -35,7 +35,7 @@ public class FollowRepositoryTest
 
         Follow follow = Follow.CreateFollow(followerId,FollowingId);
 
-        _repository.CreateFollow( follow );
+        await _repository.CreateFollow( follow );
          bool result =  await _dbContextLite.SaveChangesAsync() > 0;
 
         result.Should().BeTrue();
