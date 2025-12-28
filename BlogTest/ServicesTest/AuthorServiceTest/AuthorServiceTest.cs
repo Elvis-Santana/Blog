@@ -1,5 +1,7 @@
-﻿using Application.Dtos.Models;
+﻿using Application.Dtos.FollowDTO;
+using Application.Dtos.Models;
 using Application.IRepository.IAuthorRepository;
+using Application.IRepository.IFollowRepository;
 using Application.IServices;
 using Application.IUnitOfWork;
 using Application.Services.AuthorService;
@@ -8,6 +10,7 @@ using BlogTest.Scenario;
 using Bogus;
 using Domain.Entities;
 using FluentAssertions;
+using Infrastructure.Repository;
 using Mapster;
 using NSubstitute;
 using NSubstitute.ReceivedExtensions;
@@ -19,6 +22,8 @@ public class AuthorServiceTest
 {
     private readonly IAuthorRepository _mackAuthorRepository = Substitute.For<IAuthorRepository>();
     private readonly IUnitOfWork _mackIUnitOfWork = Substitute.For<IUnitOfWork>();
+    private readonly IFollowRepository _mackfollowRepository = Substitute.For<IFollowRepository>();
+
     private readonly IServiceAuthor _serviceAuthor;
 
     private readonly Faker _faker = new("pt_BR");
@@ -29,7 +34,13 @@ public class AuthorServiceTest
     { 
     
         _testOutputHelper = testOutputHelper;
-        _serviceAuthor = new AuthorService(_mackAuthorRepository, new AuthorCreateValidator(), _mackIUnitOfWork);
+        _serviceAuthor = new AuthorService(
+            _mackAuthorRepository, 
+            new AuthorCreateValidator(),
+            _mackIUnitOfWork,
+            _mackfollowRepository
+
+        );
 
     }
 
@@ -62,7 +73,6 @@ public class AuthorServiceTest
 
     }
 
-
     [Fact]
     public async Task CreateAuthor_ShouldReturnError_WhenParamsAreInvalid()
     {
@@ -90,7 +100,6 @@ public class AuthorServiceTest
 
     }
 
-
     [Fact]
     public async Task GetAuthor_ShouldReturnListAuthor()
     {
@@ -113,7 +122,6 @@ public class AuthorServiceTest
       
 
     }
-
 
     [Fact]
     public async Task Update_ShouldRetrunAuthorUpdated()
@@ -166,8 +174,6 @@ public class AuthorServiceTest
             .DidNotReceive().SaveAsync();
     }
 
-
-
     [Fact]
     public async Task GetById_ShouldRetrunAuthor()
     {
@@ -213,8 +219,6 @@ public class AuthorServiceTest
         result.AsT1.errors.Should().HaveCount(1);
     }
 
-
-
     [Fact]
     public async Task RemoveAuthorById__ShouldRetrunTrue()
     {
@@ -252,17 +256,56 @@ public class AuthorServiceTest
 
 
         //act
-
-
         var result = await _serviceAuthor.RemoveAuthorByIdAsync(isError);
 
 
         //assert
-
         result.AsT1.errors.Should().HaveCount(1);
 
     }
    
+    [Fact]
+    public async Task CreateFollowAsync()
+    {
+        Author authorFollower = AuthorScenario.CreateAuthor();
+        Author authorFollowing = AuthorScenario.CreateAuthor();
+
+        FollowCreateDTO followCreate = new(authorFollower.Id, authorFollowing.Id);
+
+
+
+
+         this._mackAuthorRepository.GetAuthorByIdAsync(Arg.Any<string>())!
+            .Returns(
+               Task.FromResult(authorFollower),
+               Task.FromResult(authorFollowing)
+            );
+
+        await this._mackfollowRepository
+            .CreateFollow(Arg.Any<Follow>());
+
+        this._mackIUnitOfWork.SaveAsync()
+            .Returns(Task.FromResult(true));
+
+
+       var resul =  (await this._serviceAuthor.CreateFollowAsync(followCreate))
+            .AsT0;
+
+        resul.FollowerId.Should().Be(followCreate.FollowerId);
+        resul.FollowingId.Should().Be(followCreate.FollowingId);
+
+
+        await _mackAuthorRepository.Received(2)
+              .GetAuthorByIdAsync(Arg.Any<string>());
+
+        await _mackfollowRepository.Received(1)
+                 .CreateFollow(Arg.Any<Follow>());
+
+        await _mackIUnitOfWork.Received(1)
+            .SaveAsync();
+    }
+
+
 
 
 
