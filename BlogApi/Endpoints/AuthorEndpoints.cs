@@ -1,4 +1,6 @@
 ﻿using Application.Dtos.Models;
+using Application.Dtos.FollowDTO;
+
 using Application.IServices;
 using Domain.Erros;
 using Microsoft.AspNetCore.Authorization;
@@ -48,6 +50,16 @@ public static class AuthorEndpoints
         {
             var res = await authorService.UpdateAuthorAsync(addAuthorInputModel,id);
             return res.Match(sucesso => Results.Ok(sucesso), erro => Results.NotFound(erro));
+        });
+
+
+        authors.MapPost("Followe",async (FollowCreateDTO follow, IServiceAuthor authorService ) =>
+        {
+            var res = await authorService.CreateFollowAsync(follow);
+            return res.Match(
+                sucesso => Results.Ok(sucesso),
+                erro => Results.NotFound(erro)
+            );
         });
 
         return app;
