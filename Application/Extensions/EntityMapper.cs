@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Models;
+﻿using Application.Dtos.FollowDTO;
+using Application.Dtos.Models;
 using Domain.Entities;
 
 namespace Application.Extensions;
@@ -13,7 +14,9 @@ public static class EntityMapper
                 author.Id,
                 author.Name,
                 author.Post.Select(a => a.Map()).ToList() ?? new (),
-                author.Email
+                author.Email,
+                author.Followers.Select(a => a.Map()).ToList() ?? new()
+
 
     );
 
@@ -32,6 +35,7 @@ public static class EntityMapper
 
 
 
+    public static FollowReadDTO Map(this Follow follow) => new(follow.FollowerId, follow.FollowingId);
 
     public static CategoryReadDTO Map(this Category category)=> new ( category.Id, category.AuthorId,  category.Name );
     public static IEnumerable<PostReadDTO> Map(this IEnumerable<Post> post) => post.Select(a => a.Map());
