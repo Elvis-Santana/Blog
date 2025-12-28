@@ -28,6 +28,7 @@ public class AuthorRepository(DbContextLite context) : IAuthorRepository
 
     public async Task<IEnumerable<Author>> GetAllAuthorAsync() => await _context.Authors
        .AsNoTracking()
+       .Include(x => x.Followers)
        .Include(x => x.Post)
        .ThenInclude(p => p.Category)
        .ToListAsync();
