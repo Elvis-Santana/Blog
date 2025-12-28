@@ -12,9 +12,9 @@ namespace Infrastructure.Repository;
 public class FollowRepository (DbContextLite dbContextLite) : IFollowRepository
 {
     private readonly DbContextLite _dbContextLite = dbContextLite;
-    public void CreateFollow(Follow follow)
+    public async Task CreateFollow(Follow follow)
     {
-        _dbContextLite.Followers.Add(follow);
+       await _dbContextLite.Followers.AddAsync(follow);
     }
 
     public void RemoveFollow(Follow follow)
