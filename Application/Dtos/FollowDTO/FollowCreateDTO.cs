@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.FollowDTO;
 
-public record FollowRead(string FollowerId, string FollowingId);
+public record FollowCreateDTO(string FollowerId, string FollowingId);
 
 
