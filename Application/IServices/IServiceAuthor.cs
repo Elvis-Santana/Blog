@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Models;
+﻿using Application.Dtos.FollowDTO;
+using Application.Dtos.Models;
 using Domain.Entities;
 using Domain.Erros;
 using OneOf;
@@ -15,12 +16,13 @@ public interface IServiceAuthor
     Task<OneOf<AuthorReadDTO, Errors>> CreateAuthorAsync(AuthorCreateDTO author);
     Task<IEnumerable<AuthorReadDTO>> GetAllAuthorAsync();
 
-
     Task<OneOf<AuthorReadDTO, Errors>> GetAuthorByIdAsync(string id);
 
     Task<OneOf<AuthorReadDTO, Errors>> UpdateAuthorAsync(AuthorCreateDTO author, string id);
 
     Task<OneOf<bool, Errors>> RemoveAuthorByIdAsync(string id);
 
+
+    Task<OneOf<FollowReadDTO,Errors>> CreateFollowAsync(FollowCreateDTO follow);
 
 }
