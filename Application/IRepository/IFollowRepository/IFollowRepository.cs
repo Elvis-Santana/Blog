@@ -9,7 +9,7 @@ namespace Application.IRepository.IFollowRepository;
 
 public interface IFollowRepository
 {
-    void CreateFollow(Follow follow);
+    Task CreateFollow(Follow follow);
 
     void RemoveFollow(Follow follow);
 
